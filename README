@@ -1,0 +1,8 @@
+Basic project testing Android GoogleMaps API V2.0 
+Created in IntelliJ Comm. Ed. 12.1.1
+
+For settting up project dependencies for API V2.0 I used the following post:
+http://stackoverflow.com/questions/14372391/java-lang-noclassdeffounderror-com-google-android-gms-rstyleable
+
+General java code:
+http://www.vogella.com/articles/AndroidGoogleMaps/article.html
