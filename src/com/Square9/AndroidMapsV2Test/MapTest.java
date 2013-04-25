@@ -149,7 +149,7 @@ public class MapTest extends Activity
             String pos = currentLocation.toString();
             currentPositionMarker.setTitle("Current Position:");
             currentPositionMarker.setSnippet(pos);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 21));
+            map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
         }
     };
 
@@ -162,7 +162,6 @@ public class MapTest extends Activity
             switch(event)
             {
                 case(GpsStatus.GPS_EVENT_FIRST_FIX):
-                    // investigate further on event trigger ...
                     break;
                 case(GpsStatus.GPS_EVENT_SATELLITE_STATUS):
                     break;
