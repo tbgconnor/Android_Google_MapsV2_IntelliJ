@@ -1,4 +1,6 @@
-Basic project testing Android GoogleMaps API V2.0 
+2) Added basic position tracking, based on GPS location, testing new Android Maps V2 APIs
+
+1)Basic project testing Android GoogleMaps API V2.0 
 Created in IntelliJ Comm. Ed. 12.1.1
 
 For settting up project dependencies for API V2.0 I used the following post:
