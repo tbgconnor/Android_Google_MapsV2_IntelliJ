@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">AndroidMapsV2Test</string>
     <string name="welcomMsg">Hello WiZard Welcome ;-)</string>
+    <string name="Alert_ttl_GPS_not_enabled">Tablet Settings</string>
+    <string name="Alert_msg_GPS_not_enabled">GPS location provider is not enabled! \n Please enable GPS satellites</string>
 </resources>
