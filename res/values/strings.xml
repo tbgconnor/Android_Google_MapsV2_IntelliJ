@@ -4,4 +4,22 @@
     <string name="welcomMsg">Hello WiZard Welcome ;-)</string>
     <string name="Alert_ttl_GPS_not_enabled">Tablet Settings</string>
     <string name="Alert_msg_GPS_not_enabled">GPS location provider is not enabled! \n Please enable GPS satellites</string>
+
+    <string name="menu_map_normal">normal</string>
+    <string name="menu_map_satellite">satellite</string>
+    <string name="menu_map_hybrid">hybrid</string>
+    <string name="menu_map_terrain">terrain</string>
+    <string name="menu_map_none">none</string>
+
+    <string name="action_bar_map">Map Type</string>
+    <string name="action_bar_measurementPoint">Measurement</string>
+
+    <string-array name="action_bar_list_maptype">
+        <item>normal</item>
+        <item>hybrid</item>
+        <item>satellite</item>
+        <item>terrain</item>
+        <item>none</item>
+    </string-array>
+
 </resources>

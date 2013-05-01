@@ -1,4 +1,8 @@
+3) changed design from layout Fragment to code Fragment for future flexibility 
+
+
 2) Added basic position tracking, based on GPS location, testing new Android Maps V2 APIs
+--> position marker moves when gps position changes
 
 1)Basic project testing Android GoogleMaps API V2.0 
 Created in IntelliJ Comm. Ed. 12.1.1
