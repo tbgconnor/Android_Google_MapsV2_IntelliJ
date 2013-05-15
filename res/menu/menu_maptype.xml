@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/menu_maptype_choice_normal"
+              android:title="@string/menu_map_normal" />
+        <item android:id="@+id/menu_maptype_choice_hybrid"
+              android:title="@string/menu_map_hybrid" />
+        <item android:id="@+id/menu_maptype_choice_satellite"
+              android:title="@string/menu_map_satellite"/>
+        <item android:id="@+id/menu_maptype_choice_terrain"
+              android:title="@string/menu_map_terrain"/>
+        <item android:id="@+id/menu_maptype_choice_none"
+              android:title="@string/menu_map_none"/>
+    </group>
+</menu>

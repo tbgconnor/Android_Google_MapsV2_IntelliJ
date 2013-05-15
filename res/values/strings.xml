@@ -13,13 +13,20 @@
 
     <string name="action_bar_map">Map Type</string>
     <string name="action_bar_measurementPoint">Measurement</string>
+    <string name="action_bar_addLayer">Add Layer</string>
 
-    <string-array name="action_bar_list_maptype">
-        <item>normal</item>
-        <item>hybrid</item>
-        <item>satellite</item>
-        <item>terrain</item>
-        <item>none</item>
+    <string-array name="maptype_string_array">
+        <item>none</item>       //0x00
+        <item>normal</item>     //0x01
+        <item>satellite</item>  //0x02
+        <item>terrain</item>    //0x03
+        <item>hybrid</item>     //0x04
     </string-array>
+
+    <string name="dlgfrag_alsd_layername">Layer Name:</string>
+    <string name="dlgfrag_alsd_linwidth">Line Width:</string>
+    <string name="dlgfrag_alsd_color">Color:</string>
+    <string name="dlgfrag_alsd_apply">Apply</string>
+    <string name="dlgfrag_alsd_cancel">Cancel</string>
 
 </resources>

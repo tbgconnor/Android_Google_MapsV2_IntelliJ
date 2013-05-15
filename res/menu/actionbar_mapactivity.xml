@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+            android:id="@+id/actionBar_maptype"
+            android:icon="@drawable/ic_location_map"
+            android:showAsAction="ifRoom"
+            android:title="@string/action_bar_map"/>
+
+    <item
+            android:id="@+id/actionBar_measurementPoint"
+            android:icon="@drawable/ic_device_access_location_searching"
+            android:showAsAction="ifRoom"
+            android:title="@string/action_bar_measurementPoint"/>
+    <item
+            android:id="@+id/actionBar_addLayer"
+            android:icon="@drawable/ic_add_layer"
+            android:showAsAction="ifRoom"
+            android:title="@string/action_bar_addLayer" />
+
+
+</menu>
