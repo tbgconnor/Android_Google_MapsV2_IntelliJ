@@ -75,16 +75,14 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
 
 
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        //SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this, R.array.maptype_string_array, android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,actionBarLayers);
-
         actionBar.setListNavigationCallbacks(adapter, new ActionBar.OnNavigationListener() {
             @Override
             public boolean onNavigationItemSelected(int itemPosition, long itemId)
             {
                 String ip = Integer.toString(itemPosition);
                 String ii = Long.toString(itemId);
-                Toast.makeText(MapTest.this, "Position: " + ip + " itemId: " + ii, Toast.LENGTH_LONG).show();
+                //TODO: do something to change the current layer ...
                 return true;
             }
         });
@@ -193,8 +191,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 return true;
             case R.id.actionBar_addLayer:
                 Log.d(DEBUGTAG, "Adding Layer");
-                Toast.makeText(MapTest.this, "pushed add layer", Toast.LENGTH_LONG).show();
-                actionBarLayers.add("newLayer");
+                Toast.makeText(MapTest.this, "Add a new layer", Toast.LENGTH_LONG).show();
                 showNewLayerSettingsDialog();
                 return true;
         }
@@ -206,16 +203,19 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         //Manage the new Measurement point is model structure
         if(layerManager.getCurrentLayer() == null) //test if currentLayer is alive
         {
-            layerManager.addNewLayer("New Layer", BitmapDescriptorFactory.HUE_AZURE); // if not creat a default new Layer
+            layerManager.addNewLayer("New Layer", BitmapDescriptorFactory.HUE_AZURE, 3); // if not create a default new Layer
         }
         //Create a measurementPoint
         MeasurementPoint mp = new MeasurementPoint(layerManager.getCurrentLayer().getLayerName(), position, layerManager.getCurrentLayer().getColor());
+        //add it to the currentlayer
+        layerManager.addMeasurementPointToLayer(mp);
 
         //Put a Marker on the map
         FragmentManager fm = getFragmentManager();
         Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
-        String mpTitle = "Layer: " + layerManager.getCurrentLayer();
-        ((MapCanvasFragment) frag).addMarker(position, mpTitle, "comment", layerManager.getCurrentLayer().getColor());
+        String mpTitle = layerManager.getCurrentLayer().getLayerName();
+        String mpComment = Integer.toString(layerManager.getCurrentLayer().hashCode());
+        ((MapCanvasFragment) frag).addMarker(position, mpTitle, mpComment, layerManager.getCurrentLayer().getColor());
     }
 
     public void setupGpsController()
@@ -306,8 +306,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             Log.d(DEBUGTAG, "Map type selected same as previous so not worth the effort...");
             // Professionally doing nothing ;-)
         }
-
-
     }
 
     private void showMapTypeDialog()
@@ -322,28 +320,36 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
 
     private void showNewLayerSettingsDialog()
     {
-        try
-        {
-            ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "Layer", 0, 0);
+            ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", 30.0f, 3);
             FragmentManager fm = getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             alsd.show(fm, "NEWLAYERSETTINGS");
-        }
-        catch(Exception e)
+    }
+
+
+    @Override
+    public void onDialogDone(String tag, boolean cancelled, CharSequence message)
+    {
+    }
+
+    @Override
+    public void onDialogDone(String tag, boolean cancelled, String ln, float color, int lw)
+    {
+        if(!cancelled)
         {
-            Log.e(DEBUGTAG, e.toString());
+            //add a new layer to the drop down spinner in actionbar
+            actionBarLayers.add(ln);
+            int newLayerPosition = actionBarLayers.size() - 1;
+            // create a new layer:
+            layerManager.addNewLayer(ln, color, lw);
+            // update the actionbar spinner to set the new layer as selected on the top
+            actionBar.setSelectedNavigationItem(newLayerPosition);
+            Toast.makeText(MapTest.this, "New Layer: " + ln + " is now active!", Toast.LENGTH_LONG).show();
+            Log.d(DEBUGTAG, "Added New Layer: ");
+            Log.d(DEBUGTAG, "Layer Name: " + ln);
+            Log.d(DEBUGTAG, "Color Number: " + Float.toString(color));
+            Log.d(DEBUGTAG, "Line Width: " + Integer.toString(lw));
         }
-    }
-
-
-    @Override
-    public void onDialogDone(String tag, boolean cancelled, CharSequence message) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void onDialogDone(String tag, boolean cancelled, String ln, int color, int lw) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
 

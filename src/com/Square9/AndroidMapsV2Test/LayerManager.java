@@ -23,7 +23,7 @@ public class LayerManager
     public LayerManager()
     {
         measurementLayers = new ArrayList<MeasurementLayer>();
-        currentLayer = new MeasurementLayer("default", BitmapDescriptorFactory.HUE_AZURE);
+        currentLayer = new MeasurementLayer("default", BitmapDescriptorFactory.HUE_AZURE, 3);
         measurementLayers.add(currentLayer);
     }
 
@@ -32,10 +32,10 @@ public class LayerManager
      * @param layerName the name for the first & current layer in the newly created layerManager
      * @param color the color of the layer
      */
-    public LayerManager(String layerName, float color)
+    public LayerManager(String layerName, float color, int lineWidth)
     {
         measurementLayers = new ArrayList<MeasurementLayer>();
-        currentLayer = new MeasurementLayer(layerName, color);
+        currentLayer = new MeasurementLayer(layerName, color, lineWidth);
         measurementLayers.add(currentLayer);
     }
 
@@ -45,7 +45,7 @@ public class LayerManager
      * @param color the color of the layer
      * @return (boolean) returns false: the layer with the name all ready exists if there is no duplicate it returns true
      */
-    public boolean addNewLayer(String name, float color)
+    public boolean addNewLayer(String name, float color, int lineWidth)
     {
         int index;
         boolean duplicateNameFound = false;
@@ -58,7 +58,7 @@ public class LayerManager
         }
         if(!duplicateNameFound)
         {
-            MeasurementLayer ml = new MeasurementLayer(name, color);
+            MeasurementLayer ml = new MeasurementLayer(name, color, lineWidth);
             measurementLayers.add(ml);
             currentLayer = ml;
             return true;
@@ -98,7 +98,7 @@ public class LayerManager
     }
 
     /**
-     * add a measurement point to a layer (by name)
+     * add a measurement point to the CURRENT LAYER
      * @param mP the Measurement Point you wish to add
      * @return  returns true if layer was found else it will return false
      */

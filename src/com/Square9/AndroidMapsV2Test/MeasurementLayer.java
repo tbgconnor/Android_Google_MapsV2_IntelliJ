@@ -12,18 +12,20 @@ public class MeasurementLayer
     private ArrayList<MeasurementPoint> measurementPoints;
     private String layerName;
     private float color;
+    private int lineWidth;
 
     /**
      * MeasurementLayer constructor
      * Construct an new MeasurementLayer Object to group measurement points in a common construct and reference
      * @param name the name of the layer
-     * @param color the color of the layer (for the markers and drawables
+     * @param color the color of the layer (for the markers and drawables)
      */
-    public MeasurementLayer(String name, float color)
+    public MeasurementLayer(String name, float color, int lineWidth)
     {
         this.layerName = name;
         measurementPoints = new ArrayList<MeasurementPoint>();
         this.color = color;
+        this.lineWidth = lineWidth;
     }
 
     /**
@@ -69,6 +71,22 @@ public class MeasurementLayer
     public float getColor()
     {
         return color;
+    }
+
+    /**
+     * get the line width of the layer
+     * @return line width (int) of the layer
+     */
+    public int getLineWidth() {
+        return lineWidth;
+    }
+
+    /**
+     * set the line width of the layer
+     * @param lineWidth  line width of the layer
+     */
+    public void setLineWidth(int lineWidth) {
+        this.lineWidth = lineWidth;
     }
 }
 

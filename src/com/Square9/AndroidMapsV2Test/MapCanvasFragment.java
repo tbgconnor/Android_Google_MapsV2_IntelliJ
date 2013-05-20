@@ -205,7 +205,6 @@ public class MapCanvasFragment extends MapFragment
         public boolean onMarkerClick(Marker marker)
         {
             marker.showInfoWindow();
-            Log.d(DEBUGTAG, "Removing Marker");
             return true;
         }
     };

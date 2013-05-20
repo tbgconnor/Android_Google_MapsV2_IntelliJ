@@ -142,6 +142,7 @@
                     android:background="#ffff00"
                     android:layout_margin="5dp"/>
         </TableRow>
+
     </TableLayout>
 
     <LinearLayout
@@ -157,15 +158,30 @@
                 android:id="@+id/textView_line_width"
                 android:gravity="center_vertical|left"/>
 
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView_lineWidth_value"
+                android:layout_marginLeft="0dp"
+                android:gravity="center_vertical|center_horizontal"
+                android:numeric="integer"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
         <SeekBar
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/seekBar_line_width"
-                android:layout_marginLeft="10dp"
                 android:clickable="false"
-                android:max="50"
-                android:layout_gravity="start"/>
-
+                android:max="25"
+                android:layout_gravity="start"
+                android:paddingLeft="25dp"
+                android:paddingRight="25dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -176,8 +192,9 @@
         <ImageView android:id="@+id/ImageView_line_width"
                    android:layout_width="match_parent"
                    android:layout_height="50dp"
-                   android:layout_margin="10dp"
-                   android:background="#fffceb"/>
+                   android:background="@android:color/transparent"
+                   android:layout_marginLeft="15dp"
+                   android:layout_marginRight="15dp"/>
 
     </LinearLayout>
 
@@ -201,5 +218,10 @@
                 android:text="@string/dlgfrag_alsd_cancel"
                 android:id="@+id/button_cancel_layer_settings"/>
     </LinearLayout>
+
+    <GridLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+    </GridLayout>
 
 </LinearLayout>
