@@ -25,15 +25,16 @@ public class MapCanvasFragment extends MapFragment
     private GoogleMap map;
     private String data;
     private ArrayList<Marker> markerList;
+    private LayerManager layerManager;
 
 
-    public static MapCanvasFragment newInstance(String data)
+    public static MapCanvasFragment newInstance(String data, LayerManager layerManager)
     {
         Log.d(DEBUGTAG, "Created a new instance of MapCanvasFragment...");
         MapCanvasFragment mapCanvasFragment = new MapCanvasFragment();
         Bundle args = new Bundle();
-        //TODO save some state information?
         args.putString("data", data);
+        args.putParcelable("layerManager", layerManager);
         mapCanvasFragment.setArguments(args);
         return mapCanvasFragment;
     }
@@ -50,17 +51,18 @@ public class MapCanvasFragment extends MapFragment
     {
         super.onCreate(savedInstanceState);
         Log.d(DEBUGTAG, "onCreate MapCanvasFragment");
-        if(savedInstanceState != null)
+        if(savedInstanceState != null) // Recreating the fragment, it was destroyed ...
         {
             Log.d(DEBUGTAG, "Getting data from savedInstanceState");
             data = savedInstanceState.getString("data");
-            Log.d(DEBUGTAG, "data: " + data);
+            layerManager = savedInstanceState.getParcelable("layerManager");
         }
-        else
+        else // savedInstanceState == null, so this is a new activiy
+             // Because it - automatically restores the state of the view hierarchy of this fragment (only views with an unique id) Default implementation
         {
             Log.d(DEBUGTAG, "Bundle was null so getting data from elsewhere");
             data = getArguments().getString("data");
-            Log.d(DEBUGTAG, "data: " + data);
+            layerManager = getArguments().getParcelable("layerManager");
         }
         if(currentPosition == null)
         {

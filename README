@@ -1,3 +1,5 @@
+6) Made the model Parcelable to be able to save it in a Bundle object.
+
 5) Finished New Layer dialog and connected the layer model 
 
 4) added layer support 
@@ -11,7 +13,7 @@
 1)Basic project testing Android GoogleMaps API V2.0 
 Created in IntelliJ Comm. Ed. 12.1.1
 
-For settting up project dependencies for API V2.0 I used the following post:
+For setting up project dependencies for API V2.0 I used the following post:
 http://stackoverflow.com/questions/14372391/java-lang-noclassdeffounderror-com-google-android-gms-rstyleable
 
 General java code:

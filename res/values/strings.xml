@@ -14,6 +14,10 @@
     <string name="action_bar_map">Map Type</string>
     <string name="action_bar_measurementPoint">Measurement</string>
     <string name="action_bar_addLayer">Add Layer</string>
+    <string name="action_bar_drawLine">Draw Line</string>
+
+    <string name="action_bar_actionConfirm">OK</string>
+    <string name="action_bar_actionCancel">Cancel</string>
 
     <string-array name="maptype_string_array">
         <item>none</item>       //0x00

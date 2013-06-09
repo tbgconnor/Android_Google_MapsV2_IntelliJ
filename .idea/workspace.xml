@@ -57,31 +57,31 @@
     </option>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="MapTest" />
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="MapFragment" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f7c5cddc-8236-49cc-86d5-7525602db5aa" name="Default" comment="" />
     <ignored path="AndroidMapsV2Test.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/strings.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368640607982" ignored="false" />
+    <file path="/strings.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370283450482" ignored="false" />
     <file path="/main.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1367421402308" ignored="false" />
     <file path="/AndroidManifest.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368455415554" ignored="false" />
-    <file path="/fragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368619975327" ignored="false" />
-    <file path="/MapTest.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1369075703904" ignored="false" />
+    <file path="/fragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370804090964" ignored="false" />
+    <file path="/MapTest.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370808035436" ignored="false" />
     <file path="$APPLICATION_HOME_DIR$/plugins/android/lib/android.jar!/org/jetbrains/android/android.xsd" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368454968985" ignored="false" />
     <file path="/Dummy.txt" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368730086941" ignored="false" />
     <file path="/menu_main.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1366983295598" ignored="false" />
     <file path="/actionbar_mapActivity.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1367227529636" ignored="false" />
-    <file path="/actionbar_mapactivity.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368541980672" ignored="false" />
+    <file path="/actionbar_mapactivity.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370283609174" ignored="false" />
     <file path="$PROJECT_DIR$/gen/com/Square9/AndroidMapsV2Test/R.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368455423176" ignored="false" />
     <file path="$PROJECT_DIR$/gen/com/Square9/AndroidMapsV2Test/Manifest.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368455423176" ignored="false" />
     <file path="/menu_maptype.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1367321049495" ignored="false" />
     <file path="/MapFragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1367419719497" ignored="false" />
-    <file path="/MapCanvasFragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368539442009" ignored="false" />
+    <file path="/MapCanvasFragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370808262078" ignored="false" />
     <file path="/MapTypeDialogFragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368450924487" ignored="false" />
-    <file path="/MeasurementPoint.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1367850125352" ignored="false" />
-    <file path="/LayerManager.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1369075413383" ignored="false" />
-    <file path="/MeasurementLayer.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1369070759267" ignored="false" />
+    <file path="/MeasurementPoint.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370804945649" ignored="false" />
+    <file path="/LayerManager.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370807563945" ignored="false" />
+    <file path="/MeasurementLayer.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1370806996560" ignored="false" />
     <file path="/ActiveLayerSettingsDialogFragment.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1369063935946" ignored="false" />
     <file path="/OnDialogDoneListener.java" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368693502884" ignored="false" />
     <file path="/dialogfragment_active_layer_settings.xml" changelist="f7c5cddc-8236-49cc-86d5-7525602db5aa" time="1368640114120" ignored="false" />
@@ -99,7 +99,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -136,6 +135,7 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -148,11 +148,17 @@
       <file leaf-file-name="MapTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="217" column="73" selection-start="7584" selection-end="7584" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="e#2636#3026#0" expanded="true" />
-                <element signature="e#3015#3016#0" expanded="true" />
-              </folding>
+            <state line="67" column="86" selection-start="2144" selection-end="2144" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="actionbar_mapactivity.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/res/menu/actionbar_mapactivity.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="34" column="41" selection-start="1367" selection-end="1367" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -160,51 +166,7 @@
       <file leaf-file-name="MapCanvasFragment.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapCanvasFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="206" column="36" selection-start="6702" selection-end="6702" vertical-scroll-proportion="0.85087717">
-              <folding>
-                <element signature="e#6546#6743#0" expanded="true" />
-                <element signature="e#6736#6737#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LayerManager.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/LayerManager.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="102" column="51" selection-start="3196" selection-end="3196" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MeasurementLayer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementLayer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="20" column="74" selection-start="660" selection-end="660" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ActiveLayerSettingsDialogFragment.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/ActiveLayerSettingsDialogFragment.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="202" column="70" selection-start="8827" selection-end="8827" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dialogfragment_active_layer_settings.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/res/layout/dialogfragment_active_layer_settings.xml">
-          <provider editor-type-id="android-designer">
-            <state />
-          </provider>
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="47" selection-start="4953" selection-end="4960" vertical-scroll-proportion="-19.72">
+            <state line="130" column="5" selection-start="4330" selection-end="4330" vertical-scroll-proportion="5.7015386">
               <folding />
             </state>
           </provider>
@@ -213,8 +175,42 @@
       <file leaf-file-name="strings.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/res/values/strings.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="29" column="45" selection-start="1343" selection-end="1343" vertical-scroll-proportion="0.0">
+            <state line="19" column="49" selection-start="966" selection-end="966" vertical-scroll-proportion="0.0">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LayerManager.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/LayerManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="229" column="82" selection-start="7086" selection-end="7086" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#7183#7197#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MeasurementLayer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementLayer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="219" column="47" selection-start="6349" selection-end="6349" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#4484#4502#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MeasurementPoint.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementPoint.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="64" column="43" selection-start="1528" selection-end="1568" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1630#1648#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -235,12 +231,12 @@
         <option value="$PROJECT_DIR$/res/layout/main.xml" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapTypeDialogFragment.java" />
         <option value="$PROJECT_DIR$/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementPoint.java" />
-        <option value="$PROJECT_DIR$/res/menu/actionbar_mapactivity.xml" />
-        <option value="$PROJECT_DIR$/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/OnDialogDoneListener.java" />
         <option value="$PROJECT_DIR$/res/layout/dialogfragment_active_layer_settings.xml" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/ActiveLayerSettingsDialogFragment.java" />
+        <option value="$PROJECT_DIR$/res/values/strings.xml" />
+        <option value="$PROJECT_DIR$/res/menu/actionbar_mapactivity.xml" />
+        <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementPoint.java" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementLayer.java" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/LayerManager.java" />
         <option value="$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapTest.java" />
@@ -280,8 +276,8 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -550,11 +546,8 @@
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
     <editor active="false" />
     <layout>
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3056628" sideWeight="0.68377256" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34684685" sideWeight="0.68377256" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32866243" sideWeight="0.6703755" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32823366" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -563,14 +556,17 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19974227" sideWeight="0.26147428" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962447" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.511822" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.511822" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32823366" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24967825" sideWeight="0.6703755" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2001287" sideWeight="0.6703755" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2001287" sideWeight="0.488178" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962447" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3056628" sideWeight="0.68377256" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.34684685" sideWeight="0.68377256" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32866243" sideWeight="0.6703755" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24967825" sideWeight="0.6703755" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -652,11 +648,11 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/res/layout/main.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state line="2" column="57" selection-start="171" selection-end="171" vertical-scroll-proportion="0.0" />
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AndroidManifest.xml">
@@ -664,19 +660,6 @@
         <state line="29" column="67" selection-start="1504" selection-end="1504" vertical-scroll-proportion="0.0">
           <folding />
         </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementPoint.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="80" column="5" selection-start="2082" selection-end="2082" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/res/menu/actionbar_mapactivity.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="44" selection-start="665" selection-end="665" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapTypeDialogFragment.java">
@@ -691,13 +674,6 @@
         <state line="41" column="21" selection-start="1485" selection-end="1532" vertical-scroll-proportion="-0.7850877" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/res/values/strings.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="29" column="45" selection-start="1343" selection-end="1343" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/OnDialogDoneListener.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="10" column="76" selection-start="347" selection-end="347" vertical-scroll-proportion="0.0">
@@ -706,55 +682,76 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/res/layout/dialogfragment_active_layer_settings.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="134" column="47" selection-start="4953" selection-end="4960" vertical-scroll-proportion="0.0" />
+      </provider>
       <provider editor-type-id="android-designer">
         <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="47" selection-start="4953" selection-end="4960" vertical-scroll-proportion="-19.72">
-          <folding />
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/ActiveLayerSettingsDialogFragment.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="202" column="70" selection-start="8827" selection-end="8827" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/values/strings.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="49" selection-start="966" selection-end="966" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementLayer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="74" selection-start="660" selection-end="660" vertical-scroll-proportion="0.0">
+        <state line="219" column="47" selection-start="6349" selection-end="6349" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#4484#4502#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/res/menu/actionbar_mapactivity.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="34" column="41" selection-start="1367" selection-end="1367" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MeasurementPoint.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="64" column="43" selection-start="1528" selection-end="1568" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1630#1648#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/LayerManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="51" selection-start="3196" selection-end="3196" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="229" column="82" selection-start="7086" selection-end="7086" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#7183#7197#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="217" column="73" selection-start="7584" selection-end="7584" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2636#3026#0" expanded="true" />
-            <element signature="e#3015#3016#0" expanded="true" />
-          </folding>
+        <state line="67" column="86" selection-start="2144" selection-end="2144" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/Square9/AndroidMapsV2Test/MapCanvasFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="206" column="36" selection-start="6702" selection-end="6702" vertical-scroll-proportion="0.85087717">
-          <folding>
-            <element signature="e#6546#6743#0" expanded="true" />
-            <element signature="e#6736#6737#0" expanded="true" />
-          </folding>
+        <state line="130" column="5" selection-start="4330" selection-end="4330" vertical-scroll-proportion="5.7015386">
+          <folding />
         </state>
       </provider>
     </entry>

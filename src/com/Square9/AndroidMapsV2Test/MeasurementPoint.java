@@ -1,11 +1,8 @@
 package com.Square9.AndroidMapsV2Test;
 
-import android.util.Log;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * Object that represents a single measurement point
@@ -13,44 +10,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * @author K. Gilissen
  * @version 1.0
  */
-public class MeasurementPoint
+public class MeasurementPoint implements Parcelable
 {
     private final static String DEBUGTAG = "MeasurementPoint";
 
-    private String layer;
     private String comment;
-    private LatLng position;
-    private boolean onMap;
+    private LatLng position;  // LatLng object extends from parcelable, GREAT!!
 
     /**
      * Constructor for Measurement Point Object
-     * @param layer The layer where this measurement point belongs to.
      * @param position The position on the map
-     * @param hue The Color of the (default) icon.
      */
-    public MeasurementPoint(String layer, LatLng position, float hue)
+    public MeasurementPoint(LatLng position)
     {
-        this.layer = layer;
         this.position = position;
         comment = ""; //prevent null pointer errors on simple string object
-        onMap = false; //placed on map ?
-    }
-
-    /**
-     * getter for layer
-     * @return layer where the measurement point belongs to.
-     */
-    public String getLayer() {
-        return layer;
-    }
-
-    /**
-     * setter for layer
-     * @param layer  where the measurement point belongs to.
-     */
-    public void setLayer(String layer)
-    {
-        //TODO can a measurement point change layer ? ...
     }
 
     /**
@@ -61,6 +35,14 @@ public class MeasurementPoint
         return comment;
     }
 
+    /**
+     * setter for comment
+     * @param comment (String) comment for this measurement point
+     */
+    public void setComment(String comment)
+    {
+        this.comment = comment;
+    }
 
     /**
      * Getter for the position of the measurement point
@@ -78,5 +60,55 @@ public class MeasurementPoint
     public void setPosition(LatLng position)
     {
         this.position = position;
+    }
+
+    public static final Parcelable.Creator<MeasurementPoint> CREATOR
+            = new Parcelable.Creator<MeasurementPoint>() {
+        public MeasurementPoint createFromParcel(Parcel in) {
+            return new MeasurementPoint(in);
+        }
+
+        public MeasurementPoint[] newArray(int size) {
+            return new MeasurementPoint[size];
+        }
+    };
+
+
+    /**
+     * Constructs a new instance of {@code Object}.
+     */
+    public MeasurementPoint(Parcel in) {
+        readFromParcel(in);
+    }
+
+    /**
+     * Describe the kinds of special objects contained in this Parcelable's
+     * marshalled representation.
+     *
+     * @return a bitmask indicating the set of special object types marshalled
+     *         by the Parcelable.
+     */
+    @Override
+    public int describeContents() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(comment);
+        dest.writeParcelable(position, 0);
+    }
+
+    private void readFromParcel(Parcel in)
+    {
+        comment = in.readString();
+        position = in.readParcelable(LatLng.class.getClassLoader());
     }
 }

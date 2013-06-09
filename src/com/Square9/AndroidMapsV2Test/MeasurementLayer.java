@@ -1,5 +1,9 @@
 package com.Square9.AndroidMapsV2Test;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 /**
@@ -7,7 +11,7 @@ import java.util.ArrayList;
  *  @author K. Gilissen
  *  @version 1.0
  */
-public class MeasurementLayer
+public class MeasurementLayer implements Parcelable
 {
     private ArrayList<MeasurementPoint> measurementPoints;
     private String layerName;
@@ -50,7 +54,7 @@ public class MeasurementLayer
      * get the number of measurement point in the layer
      * @return #measurementPoint objects referenced by this layer
      */
-    public int getNumberOfMeasurementPointsInLayer()
+    public int getNumberOfMeasurementPoints()
     {
         return measurementPoints.size();
     }
@@ -62,6 +66,72 @@ public class MeasurementLayer
     public void addMeasurementPoint(MeasurementPoint point)
     {
         measurementPoints.add(point);
+    }
+
+    /**
+     * get a measurementPoint object from the layer by its index in de list
+     * @param index the index of the measurementPoint from 0 .. layer size - 1
+     * @return the MeasurementPoint Object at index "index"
+     */
+    public MeasurementPoint getMeasurementPointByIndex(int index)
+    {
+        if(index < measurementPoints.size())
+        {
+            return measurementPoints.get(index);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+
+    /**
+     * get a MeasurementPoint object from the layer by its position
+     * @param position the position of the measurment point
+     * @return the measurement point object or null if it was not found
+     */
+    public MeasurementPoint getMeasurementPointByPosition(LatLng position)
+    {
+        MeasurementPoint mP = null;
+        for( MeasurementPoint point : measurementPoints)
+        {
+            if(point.getPosition().equals(position))
+            {
+                mP = point;
+            }
+        }
+        return mP;
+    }
+
+    /**
+     * Method for removing a measurement point from the layer
+     * @param position the position of the measurementPoint
+     * @return true successful removal of the measurementPoint at position
+     */
+    public boolean removeMeasurementPointByPosition(LatLng position)
+    {
+        boolean succesfullRemoved = false;
+        int i = 0;
+        for(i = 0; i < measurementPoints.size(); i++)
+        {
+            if(measurementPoints.get(i).getPosition().equals(position))
+            {
+                measurementPoints.remove(i);
+                succesfullRemoved = true;
+
+            }
+        }
+        return succesfullRemoved;
+    }
+
+    /**
+     * set method for color instance variable
+     * @param color the color for the layer
+     */
+    public void setColor(float color)
+    {
+        //TODO: change Color possible ??
     }
 
     /**
@@ -87,6 +157,75 @@ public class MeasurementLayer
      */
     public void setLineWidth(int lineWidth) {
         this.lineWidth = lineWidth;
+    }
+
+    public MeasurementLayer(Parcel in)
+    {
+        readFromParcel(in);
+    }
+
+    public static final Parcelable.Creator<MeasurementLayer> CREATOR = new Parcelable.Creator<MeasurementLayer>()
+    {
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link android.os.Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public MeasurementLayer createFromParcel(Parcel source) {
+            return new MeasurementLayer(source);
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry
+         *         initialized to null.
+         */
+        @Override
+        public MeasurementLayer[] newArray(int size) {
+            return new MeasurementLayer[0];
+        }
+    };
+
+
+    /**
+     * Describe the kinds of special objects contained in this Parcelable's
+     * marshalled representation.
+     *
+     * @return a bitmask indicating the set of special object types marshalled
+     *         by the Parcelable.
+     */
+    @Override
+    public int describeContents() {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(layerName);
+        dest.writeFloat(color);
+        dest.writeInt(lineWidth);
+        dest.writeTypedList(measurementPoints);
+    }
+
+    private void readFromParcel(Parcel in)
+    {
+        layerName = in.readString();
+        color = in.readFloat();
+        lineWidth = in.readInt();
+        in.readTypedList(measurementPoints, MeasurementPoint.CREATOR);
     }
 }
 

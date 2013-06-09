@@ -4,19 +4,37 @@
     <item
             android:id="@+id/actionBar_maptype"
             android:icon="@drawable/ic_location_map"
-            android:showAsAction="ifRoom"
+            android:showAsAction="always"
             android:title="@string/action_bar_map"/>
 
     <item
             android:id="@+id/actionBar_measurementPoint"
             android:icon="@drawable/ic_device_access_location_searching"
-            android:showAsAction="ifRoom"
+            android:showAsAction="always"
             android:title="@string/action_bar_measurementPoint"/>
     <item
             android:id="@+id/actionBar_addLayer"
             android:icon="@drawable/ic_add_layer"
-            android:showAsAction="ifRoom"
+            android:showAsAction="always"
             android:title="@string/action_bar_addLayer" />
+    <item
+            android:id="@+id/actionBar_drawLine"
+            android:icon="@drawable/ic_draw_line"
+            android:showAsAction="always"
+            android:title="@string/action_bar_drawLine" />
+
+    <item
+            android:id="@+id/actionBar_actionConfirm"
+            android:icon="@drawable/ic_confirm_action"
+            android:showAsAction="always"
+            android:title="@string/action_bar_actionConfirm" />
+
+    <item
+            android:id="@+id/actionBar_actionCancel"
+            android:icon="@drawable/ic_cancel_action"
+            android:showAsAction="always"
+            android:title="@string/action_bar_actionCancel" />
+
 
 
 </menu>

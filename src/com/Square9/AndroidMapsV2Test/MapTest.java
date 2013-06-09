@@ -51,15 +51,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         // Actionbar dependency
         actionBarLayers = new ArrayList<String>();
 
-        //Map fragment
-        FragmentManager fm = getFragmentManager();
-        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
-        if(frag == null)
-        {
-            Log.d(DEBUGTAG, "Creating new Instance of MapCanvasFragment");
-            frag = MapCanvasFragment.newInstance("data naar Mapfragment");
-            fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
-        }
         if(layerManager == null)
         {
             Log.d(DEBUGTAG, "Creating new Instance of LayerManager");
@@ -67,6 +58,18 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             String layerName = layerManager.getCurrentLayer().getLayerName();
             actionBarLayers.add(layerName);
         }
+
+        //Map fragment
+        FragmentManager fm = getFragmentManager();
+        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
+        if(frag == null)
+        {
+            Log.d(DEBUGTAG, "Creating new Instance of MapCanvasFragment");
+            frag = MapCanvasFragment.newInstance("data naar Mapfragment", layerManager);
+            fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
+        }
+
+        //((MapCanvasFragment) frag).setLayerManager(layerManager);
 
         //actionbar
         actionBar = getActionBar();
@@ -203,10 +206,11 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         //Manage the new Measurement point is model structure
         if(layerManager.getCurrentLayer() == null) //test if currentLayer is alive
         {
-            layerManager.addNewLayer("New Layer", BitmapDescriptorFactory.HUE_AZURE, 3); // if not create a default new Layer
+            Toast.makeText(MapTest.this, "No Layer Active to put this MeasurmentPpoint on!!", Toast.LENGTH_LONG).show();
+            return;
         }
         //Create a measurementPoint
-        MeasurementPoint mp = new MeasurementPoint(layerManager.getCurrentLayer().getLayerName(), position, layerManager.getCurrentLayer().getColor());
+        MeasurementPoint mp = new MeasurementPoint(position);
         //add it to the currentlayer
         layerManager.addMeasurementPointToLayer(mp);
 
