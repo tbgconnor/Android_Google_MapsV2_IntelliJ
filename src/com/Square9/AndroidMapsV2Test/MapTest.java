@@ -39,6 +39,15 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     private LayerManager layerManager;
     private LatLng currentLocation;
 
+    //Actions
+    /*
+     *  actionId list:
+     *  0 = Reserved, "no action"
+     *  1 = Draw Line
+     *  2 = ...
+     */
+    int actionId;
+
 
 
     @Override
@@ -91,6 +100,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         });
 
         actionBar.show();
+        actionId = 0;
     }
 
     @Override
@@ -197,6 +207,18 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 Toast.makeText(MapTest.this, "Add a new layer", Toast.LENGTH_LONG).show();
                 showNewLayerSettingsDialog();
                 return true;
+            case R.id.actionBar_drawLine:
+                actionId = 1;
+                Toast.makeText(MapTest.this, "Please Select 2 measurement points and Confirm", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.actionBar_actionConfirm:
+                getMapFragment().confirmedAction(actionId);
+                actionId = 0; // Action Performed
+                return true;
+            case R.id.actionBar_actionCancel:
+                getMapFragment().cancelAction();
+                actionId = 0; // reset the action ID ;-)
+                return true;
         }
         return(super.onOptionsItemSelected(item));
     }
@@ -220,6 +242,13 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         String mpTitle = layerManager.getCurrentLayer().getLayerName();
         String mpComment = Integer.toString(layerManager.getCurrentLayer().hashCode());
         ((MapCanvasFragment) frag).addMarker(position, mpTitle, mpComment, layerManager.getCurrentLayer().getColor());
+    }
+
+    private MapCanvasFragment getMapFragment()
+    {
+        FragmentManager fm = getFragmentManager();
+        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
+        return ((MapCanvasFragment) frag);
     }
 
     public void setupGpsController()

@@ -1,18 +1,18 @@
 package com.Square9.AndroidMapsV2Test;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
+import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MapCanvasFragment extends MapFragment
@@ -26,6 +26,8 @@ public class MapCanvasFragment extends MapFragment
     private String data;
     private ArrayList<Marker> markerList;
     private LayerManager layerManager;
+    private Marker markerSelected01;
+    private Marker markerSelected02;
 
 
     public static MapCanvasFragment newInstance(String data, LayerManager layerManager)
@@ -70,6 +72,9 @@ public class MapCanvasFragment extends MapFragment
             currentPosition = defaultLocation;
         }
         markerList = new ArrayList<Marker>();
+
+        Log.d(DEBUGTAG, "LAYER MANAGER:  current layer: " + layerManager.getCurrentLayer().getLayerName());
+
     }
 
     @Override
@@ -206,10 +211,73 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public boolean onMarkerClick(Marker marker)
         {
-            marker.showInfoWindow();
+            /*
+             *  The selection is STRICT..
+             *  No more the necessary points can get selected
+             *  If there are allready 2 markers selected the user should CANCEL the action
+             */
+            //TODO check layer
+
+            //behind the scene:
+            if(markerSelected01 == null && markerSelected02 == null)
+            {
+                markerSelected01 = marker;
+            }
+            else if(markerSelected01 != null && markerSelected02 == null)
+            {
+                markerSelected02 = marker;
+            }
+            else if(markerSelected01 == null && markerSelected02 != null)
+            {
+                markerSelected01 = marker;
+            }
+            else // All selected position are filled -> waiting for user to cancel this action
+            {
+                Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
+            }
+
+
             return true;
         }
     };
+
+    public void confirmedAction(int actionId)
+    {
+        switch(actionId)
+        {
+            case 0: // NO ACTION
+                //DO NOTHING
+                return;
+            case 1: // Draw Line
+                if(markerSelected01 != null && markerSelected02 != null)
+                {
+                    // create an Options Object the set the Line Options
+                    PolylineOptions plOptions = new PolylineOptions();
+                    plOptions.add(markerSelected01.getPosition());
+                    plOptions.add(markerSelected02.getPosition());
+                    //TODO COLOR!
+                    plOptions.color(Color.RED);
+                    plOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
+                    Polyline pl = map.addPolyline(plOptions);
+                    //TODO store add polyline in layer
+
+                }
+                else
+                {
+                    Toast.makeText(getActivity(), "There are not enough points selected to draw the line CANCELING THE ACTION", Toast.LENGTH_LONG).show();
+                    cancelAction();
+                }
+
+        }
+    }
+
+
+    public void cancelAction()
+    {
+        //dereference selected markers
+        markerSelected01 = null;
+        markerSelected02 = null;
+    }
 
 
     GoogleMap.OnMapLongClickListener onMapLongClick = new GoogleMap.OnMapLongClickListener() {
