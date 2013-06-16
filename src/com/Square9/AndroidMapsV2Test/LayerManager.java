@@ -1,5 +1,6 @@
 package com.Square9.AndroidMapsV2Test;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -26,7 +27,7 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
     public LayerManager()
     {
         measurementLayers = new ArrayList<MeasurementLayer>();
-        currentLayer = new MeasurementLayer("default", BitmapDescriptorFactory.HUE_AZURE, 3);
+        currentLayer = new MeasurementLayer("default", Color.RED, 3);
         measurementLayers.add(currentLayer);
     }
 
@@ -37,7 +38,7 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
      * @param color the color of the layer
      * @param lineWidth the line width of the layer
      */
-    public LayerManager(String layerName, float color, int lineWidth)
+    public LayerManager(String layerName, int color, int lineWidth)
     {
         measurementLayers = new ArrayList<MeasurementLayer>();
         currentLayer = new MeasurementLayer(layerName, color, lineWidth);
@@ -52,7 +53,7 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
      * @param lineWidth the line width of the new layer to add
      * @return (boolean) returns false: the layer with the name all ready exists if there is no duplicate it returns true
      */
-    public boolean addNewLayer(String name, float color, int lineWidth)
+    public boolean addNewLayer(String name, int color, int lineWidth)
     {
         int index;
         boolean duplicateNameFound = false;

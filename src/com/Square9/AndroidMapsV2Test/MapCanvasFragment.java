@@ -26,8 +26,17 @@ public class MapCanvasFragment extends MapFragment
     private String data;
     private ArrayList<Marker> markerList;
     private LayerManager layerManager;
+
     private Marker markerSelected01;
     private Marker markerSelected02;
+    //Actions
+    /*
+     *  actionId list:
+     *  0 = Reserved, "no action"
+     *  1 = Draw Line
+     *  2 = ...
+     */
+    int actionId;
 
 
     public static MapCanvasFragment newInstance(String data, LayerManager layerManager)
@@ -72,6 +81,7 @@ public class MapCanvasFragment extends MapFragment
             currentPosition = defaultLocation;
         }
         markerList = new ArrayList<Marker>();
+        actionId = 0;
 
         Log.d(DEBUGTAG, "LAYER MANAGER:  current layer: " + layerManager.getCurrentLayer().getLayerName());
 
@@ -196,12 +206,12 @@ public class MapCanvasFragment extends MapFragment
         return type;
     }
 
-    public void addMarker(LatLng position, String title, String snippet, float color)
+    public void addMarker(LatLng position, String title, String snippet, int color)
     {
         MarkerOptions mOptions = new MarkerOptions();
         mOptions.title(title);
         mOptions.snippet(snippet);
-        mOptions.icon(BitmapDescriptorFactory.defaultMarker(color));
+        mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
         mOptions.position(position);
         Marker newMarker = map.addMarker(mOptions);
         markerList.add(newMarker);
@@ -217,31 +227,35 @@ public class MapCanvasFragment extends MapFragment
              *  If there are allready 2 markers selected the user should CANCEL the action
              */
             //TODO check layer
+            //TODO is Action in progress ?
 
-            //behind the scene:
-            if(markerSelected01 == null && markerSelected02 == null)
+            if(actionId == 1) //draw line ...
             {
-                markerSelected01 = marker;
+                if(markerSelected01 == null && markerSelected02 == null)
+                {
+                    markerSelected01 = marker;
+                    Toast.makeText(getActivity(), "First point selected, please selected the second point", Toast.LENGTH_LONG).show();
+                }
+                else if(markerSelected01 != null && markerSelected02 == null)
+                {
+                    markerSelected02 = marker;
+                    Toast.makeText(getActivity(), "Second point selected", Toast.LENGTH_LONG).show();
+                }
+                else if(markerSelected01 == null && markerSelected02 != null)
+                {
+                    markerSelected01 = marker;
+                }
+                else // All selected position are filled -> waiting for user to cancel this action
+                {
+                    Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
+                }
             }
-            else if(markerSelected01 != null && markerSelected02 == null)
-            {
-                markerSelected02 = marker;
-            }
-            else if(markerSelected01 == null && markerSelected02 != null)
-            {
-                markerSelected01 = marker;
-            }
-            else // All selected position are filled -> waiting for user to cancel this action
-            {
-                Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
-            }
-
 
             return true;
         }
     };
 
-    public void confirmedAction(int actionId)
+    public void confirmedAction()
     {
         switch(actionId)
         {
@@ -256,7 +270,7 @@ public class MapCanvasFragment extends MapFragment
                     plOptions.add(markerSelected01.getPosition());
                     plOptions.add(markerSelected02.getPosition());
                     //TODO COLOR!
-                    plOptions.color(Color.RED);
+                    plOptions.color(layerManager.getCurrentLayer().getColor());
                     plOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
                     Polyline pl = map.addPolyline(plOptions);
                     //TODO store add polyline in layer
@@ -279,6 +293,16 @@ public class MapCanvasFragment extends MapFragment
         markerSelected02 = null;
     }
 
+    public int getActionId()
+    {
+        return actionId;
+    }
+
+    public void setActionId(int actionId)
+    {
+        this.actionId = actionId;
+        cancelAction(); //new action was selected so no need to keep reference to old "selected markers"
+    }
 
     GoogleMap.OnMapLongClickListener onMapLongClick = new GoogleMap.OnMapLongClickListener() {
         @Override
@@ -288,5 +312,41 @@ public class MapCanvasFragment extends MapFragment
         }
     };
 
+    public float resolveColorOfMarker(int color)
+    {
+        int azure = getActivity().getResources().getColor(R.color.azure);
+        int blue = getActivity().getResources().getColor(R.color.blue);
+        int cyan = getActivity().getResources().getColor(R.color.cyan);
+        int green = getActivity().getResources().getColor(R.color.green);
+        int magenta = getActivity().getResources().getColor(R.color.magenta);
+        int orange = getActivity().getResources().getColor(R.color.orange);
+        int red = getActivity().getResources().getColor(R.color.red);
+        int rose = getActivity().getResources().getColor(R.color.rose);
+        int violet = getActivity().getResources().getColor(R.color.violet);
+        int yellow = getActivity().getResources().getColor(R.color.yellow);
+
+        if(color == azure)
+            return BitmapDescriptorFactory.HUE_AZURE;
+        else if(color == blue)
+            return BitmapDescriptorFactory.HUE_BLUE;
+        else if(color == cyan)
+            return BitmapDescriptorFactory.HUE_CYAN;
+        else if(color == green)
+            return BitmapDescriptorFactory.HUE_GREEN;
+        else if(color == magenta)
+            return BitmapDescriptorFactory.HUE_MAGENTA;
+        else if(color == orange)
+            return BitmapDescriptorFactory.HUE_ORANGE;
+        else if(color == red)
+            return BitmapDescriptorFactory.HUE_RED;
+        else if(color == rose)
+            return BitmapDescriptorFactory.HUE_ROSE;
+        else if(color == violet)
+            return BitmapDescriptorFactory.HUE_VIOLET;
+        else if(color == yellow)
+            return BitmapDescriptorFactory.HUE_YELLOW;
+        else
+            return BitmapDescriptorFactory.HUE_RED;
+    }
 
 }

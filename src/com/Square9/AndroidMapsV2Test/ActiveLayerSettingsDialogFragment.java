@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 /**
  * @author KoEn
@@ -27,7 +26,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
     //Fragment Instances
     private String dialogTitle; // Title of the dialog
     private String layerName;
-    private float colorNumber;
+    private int colorNumber;
     private int lineWidth;
 
     //GUI component Instances
@@ -45,19 +44,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
     private Button cbRose;
     private Button cbViolet;
     private Button cbYellow;
-    // From http://developer.android.com/reference/com/google/android/gms/maps/model/BitmapDescriptorFactory.html#HUE_AZURE
-    private final static int COLOR_AZURE = 210;
-    private final static int COLOR_BLUE = 240;
-    private final static int COLOR_CYAN = 180;
-    private final static int COLOR_GREEN = 120;
-    private final static int COLOR_MAGENTA = 300;
-    private final static int COLOR_ORANGE = 30;
-    private final static int COLOR_RED = 0;
-    private final static int COLOR_ROSE = 330;
-    private final static int COLOR_VIOLET = 270;
-    private final static int COLOR_YELLOW = 60;
-
-
+    //Line preview elements
     ImageView imageViewLineWidth;
     Bitmap linePreviewBitmap;
     Canvas linePreviewCanvas;
@@ -72,13 +59,13 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
      * @param LayerSettings ls, the layer settings of the layer
      * @return ActiveLayerSettingsDialog the newly created dialog
      */
-    public static ActiveLayerSettingsDialogFragment newInstance(String title, String layerName, float colorNum, int lineWidth)
+    public static ActiveLayerSettingsDialogFragment newInstance(String title, String layerName, int colorNum, int lineWidth)
     {
         ActiveLayerSettingsDialogFragment dlg = new ActiveLayerSettingsDialogFragment();
         Bundle args = new Bundle();
         args.putString("dialogTitle", title);
         args.putString("layerName", layerName);
-        args.putFloat("colorNumber", colorNum);
+        args.putInt("colorNumber", colorNum);
         args.putInt("lineWidth", lineWidth);
         dlg.setArguments(args);
         return dlg;
@@ -116,7 +103,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         {
             dialogTitle = savedInstanceState.getString("dialogTitle");
             layerName = savedInstanceState.getString("layerName");
-            colorNumber =  savedInstanceState.getFloat("colorNumber");
+            colorNumber =  savedInstanceState.getInt("colorNumber");
             lineWidth = savedInstanceState.getInt("lineWidth");
         }
         else
@@ -126,13 +113,13 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
             // are set to their correct value is here
             dialogTitle = getArguments().getString("dialogTitle");
             layerName = getArguments().getString("layerName");
-            colorNumber =  getArguments().getFloat("colorNumber");
+            colorNumber =  getArguments().getInt("colorNumber");
             lineWidth = getArguments().getInt("lineWidth");
         }
 
         Log.d(DEBUGTAG, "dialog title: " + dialogTitle);
         Log.d(DEBUGTAG, "Layer Name: " + layerName);
-        Log.d(DEBUGTAG, "Color Number: " + Float.toString(colorNumber));
+        Log.d(DEBUGTAG, "Color Number: " + Integer.toString(colorNumber));
         Log.d(DEBUGTAG, "Line Width: " + Integer.toString(lineWidth));
     }
 
@@ -172,7 +159,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         buttonApply.setOnClickListener(onButtonClick);
         buttonCancel.setOnClickListener(onButtonClick);
         seekBarLineWidth.setOnSeekBarChangeListener(onSeekBarChangeListener);
-        //TODO buttons color
+        //Buttons for color selection
         cbAzure.setOnClickListener(onButtonClick);
         cbBlue.setOnClickListener(onButtonClick);
         cbCyan.setOnClickListener(onButtonClick);
@@ -203,43 +190,43 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
                     ActiveLayerSettingsDialogFragment.this.dismiss();
                     return;
                 case(R.id.button_azure):
-                    colorNumber = (float) COLOR_AZURE;
+                    colorNumber = getActivity().getResources().getColor(R.color.azure);
                     updateLineColor();
                     return;
                 case(R.id.button_blue):
-                    colorNumber = (float) COLOR_BLUE;
+                    colorNumber = getActivity().getResources().getColor(R.color.blue);
                     updateLineColor();
                     return;
                 case(R.id.button_cyan):
-                    colorNumber = (float) COLOR_CYAN;
+                    colorNumber = getActivity().getResources().getColor(R.color.cyan);
                     updateLineColor();
                     return;
                 case(R.id.button_green):
-                    colorNumber = (float) COLOR_GREEN;
+                    colorNumber = getActivity().getResources().getColor(R.color.green);
                     updateLineColor();
                     return;
                 case(R.id.button_magenta):
-                    colorNumber = (float) COLOR_MAGENTA;
+                    colorNumber = getActivity().getResources().getColor(R.color.magenta);
                     updateLineColor();
                     return;
                 case(R.id.button_orange):
-                    colorNumber = (float) COLOR_ORANGE;
+                    colorNumber = getActivity().getResources().getColor(R.color.orange);
                     updateLineColor();
                     return;
                 case(R.id.button_red):
-                    colorNumber = (float) COLOR_RED;
+                    colorNumber = getActivity().getResources().getColor(R.color.red);
                     updateLineColor();
                     return;
                 case(R.id.button_rose):
-                    colorNumber = (float) COLOR_ROSE;
+                    colorNumber = getActivity().getResources().getColor(R.color.rose);
                     updateLineColor();
                     return;
                 case(R.id.button_violet):
-                    colorNumber = (float) COLOR_VIOLET;
+                    colorNumber = getActivity().getResources().getColor(R.color.violet);
                     updateLineColor();
                     return;
                 case(R.id.button_yellow):
-                    colorNumber = (float) COLOR_YELLOW;
+                    colorNumber = getActivity().getResources().getColor(R.color.yellow);
                     updateLineColor();
                     return;
             }
@@ -317,7 +304,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         super.onSaveInstanceState(outState);
         outState.putString("dialogTitle", dialogTitle);
         outState.putString("layerName", editTextLayerName.getText().toString().trim());
-        outState.putFloat("colorNumber", colorNumber);
+        outState.putInt("colorNumber", colorNumber);
         outState.putInt("lineWidth",  seekBarLineWidth.getProgress());
     }
 
@@ -346,7 +333,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         //Change the numeric value in the text view
         textViewLineWidthValue.setText(" " + Integer.toString(seekBar.getProgress()) + " px");
         // Set Color of the paint according to the value of colorNumber!
-        setColor(linePreviewPaint);
+        linePreviewPaint.setColor(colorNumber);
         // Get the stroke width ... (can be adapted by the seekbar)
         linePreviewPaint.setStrokeWidth((float) lineWidth);
         // Draw the line
@@ -361,7 +348,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         //Erase Bitmap (with transparent paint)
         linePreviewBitmap.eraseColor(Color.TRANSPARENT);
         // Set Color of the paint according to the value of colorNumber!
-        setColor(linePreviewPaint);
+        linePreviewPaint.setColor(colorNumber);
         // Get the stroke width ...
         linePreviewPaint.setStrokeWidth((float) lineWidth);
         // Draw the line
@@ -383,46 +370,5 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         linePreviewPaint.setStrokeCap(Paint.Cap.ROUND);
         //Set the bitmap to the imageView
         imageViewLineWidth.setImageBitmap(linePreviewBitmap);
-    }
-
-    private void setColor(Paint p)
-    {
-        switch((int) colorNumber)
-        {
-            case COLOR_AZURE:
-                p.setColor(Color.rgb(0, 0x7f, 0xff));
-                return;
-            case COLOR_BLUE:
-                p.setColor(Color.BLUE);
-                return;
-            case COLOR_CYAN:
-                p.setColor(Color.CYAN);
-                return;
-            case COLOR_GREEN:
-                p.setColor(Color.GREEN);
-                return;
-            case COLOR_MAGENTA:
-                p.setColor(Color.MAGENTA);
-                return;
-            case COLOR_ORANGE:
-                p.setColor(Color.rgb(0xff, 0x86, 0x00));
-                return;
-            case COLOR_RED:
-                p.setColor(Color.RED);
-                return;
-            case COLOR_ROSE:
-                p.setColor(Color.rgb(0xff, 0x8c, 0xe6));
-                return;
-            case COLOR_VIOLET:
-                p.setColor(Color.rgb(0x8f, 0x00, 0xff));
-                return;
-            case COLOR_YELLOW:
-                p.setColor(Color.YELLOW);
-                return;
-            default:
-                p.setColor(Color.RED);
-                return;
-        }
-
     }
 }

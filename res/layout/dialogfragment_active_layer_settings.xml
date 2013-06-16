@@ -64,7 +64,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_azure"
-                    android:background="#007fff"
+                    android:background="@color/azure"
                     android:clickable="true"
                     android:layout_margin="5dp"
                     />
@@ -73,7 +73,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_blue"
-                    android:background="#0000ff"
+                    android:background="@color/blue"
                     android:layout_margin="5dp"
                     />
 
@@ -81,7 +81,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_cyan"
-                    android:background="#00FFFF"
+                    android:background="@color/cyan"
                     android:layout_margin="5dp"
                     />
 
@@ -89,7 +89,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_green"
-                    android:background="#00ff00"
+                    android:background="@color/green"
                     android:layout_margin="5dp"
                     />
 
@@ -97,7 +97,7 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_magenta"
-                    android:background="#ff00ff"
+                    android:background="@color/magenta"
                     android:layout_margin="5dp"
                     />
         </TableRow>
@@ -111,35 +111,35 @@
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_orange"
-                    android:background="#ff8600"
+                    android:background="@color/orange"
                     android:layout_margin="5dp"/>
 
             <Button
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_red"
-                    android:background="#ff0000"
+                    android:background="@color/red"
                     android:layout_margin="5dp"/>
 
             <Button
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_rose"
-                    android:background="#ff8ce6"
+                    android:background="@color/rose"
                     android:layout_margin="5dp"/>
 
             <Button
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_violet"
-                    android:background="#8f00ff"
+                    android:background="@color/violet"
                     android:layout_margin="5dp"/>
 
             <Button
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:id="@+id/button_yellow"
-                    android:background="#ffff00"
+                    android:background="@color/yellow"
                     android:layout_margin="5dp"/>
         </TableRow>
 

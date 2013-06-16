@@ -15,7 +15,7 @@ public class MeasurementLayer implements Parcelable
 {
     private ArrayList<MeasurementPoint> measurementPoints;
     private String layerName;
-    private float color;
+    private int color;
     private int lineWidth;
 
     /**
@@ -24,7 +24,7 @@ public class MeasurementLayer implements Parcelable
      * @param name the name of the layer
      * @param color the color of the layer (for the markers and drawables)
      */
-    public MeasurementLayer(String name, float color, int lineWidth)
+    public MeasurementLayer(String name, int color, int lineWidth)
     {
         this.layerName = name;
         measurementPoints = new ArrayList<MeasurementPoint>();
@@ -129,16 +129,16 @@ public class MeasurementLayer implements Parcelable
      * set method for color instance variable
      * @param color the color for the layer
      */
-    public void setColor(float color)
+    public void setColor(int color)
     {
         //TODO: change Color possible ??
     }
 
     /**
      * get the color of the layer
-     * @return color (float) value of BitmapDescriptionFactory.HUE_****
+     * @return color (int) value of BitmapDescriptionFactory.HUE_****
      */
-    public float getColor()
+    public int getColor()
     {
         return color;
     }
@@ -215,7 +215,7 @@ public class MeasurementLayer implements Parcelable
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(layerName);
-        dest.writeFloat(color);
+        dest.writeInt(color);
         dest.writeInt(lineWidth);
         dest.writeTypedList(measurementPoints);
     }
@@ -223,7 +223,7 @@ public class MeasurementLayer implements Parcelable
     private void readFromParcel(Parcel in)
     {
         layerName = in.readString();
-        color = in.readFloat();
+        color = in.readInt();
         lineWidth = in.readInt();
         in.readTypedList(measurementPoints, MeasurementPoint.CREATOR);
     }

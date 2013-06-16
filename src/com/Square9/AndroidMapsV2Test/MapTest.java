@@ -4,6 +4,7 @@ import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.*;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,9 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -39,14 +38,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     private LayerManager layerManager;
     private LatLng currentLocation;
 
-    //Actions
-    /*
-     *  actionId list:
-     *  0 = Reserved, "no action"
-     *  1 = Draw Line
-     *  2 = ...
-     */
-    int actionId;
+
 
 
 
@@ -100,7 +92,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         });
 
         actionBar.show();
-        actionId = 0;
     }
 
     @Override
@@ -208,16 +199,14 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 showNewLayerSettingsDialog();
                 return true;
             case R.id.actionBar_drawLine:
-                actionId = 1;
+                getMapFragment().setActionId(1);
                 Toast.makeText(MapTest.this, "Please Select 2 measurement points and Confirm", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.actionBar_actionConfirm:
-                getMapFragment().confirmedAction(actionId);
-                actionId = 0; // Action Performed
+                getMapFragment().confirmedAction();// Action Performed
                 return true;
             case R.id.actionBar_actionCancel:
                 getMapFragment().cancelAction();
-                actionId = 0; // reset the action ID ;-)
                 return true;
         }
         return(super.onOptionsItemSelected(item));
@@ -353,12 +342,11 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
 
     private void showNewLayerSettingsDialog()
     {
-            ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", 30.0f, 3);
+            ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", Color.RED, 3);
             FragmentManager fm = getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             alsd.show(fm, "NEWLAYERSETTINGS");
     }
-
 
     @Override
     public void onDialogDone(String tag, boolean cancelled, CharSequence message)
@@ -366,7 +354,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     }
 
     @Override
-    public void onDialogDone(String tag, boolean cancelled, String ln, float color, int lw)
+    public void onDialogDone(String tag, boolean cancelled, String ln, int color, int lw)
     {
         if(!cancelled)
         {
