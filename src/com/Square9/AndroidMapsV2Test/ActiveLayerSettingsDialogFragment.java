@@ -134,7 +134,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         // get view components and set values
         editTextLayerName = (EditText) v.findViewById(R.id.editText_layer_name);
         // set the layer name as passed by the host activity
-        editTextLayerName.setText(this.layerName);
+        editTextLayerName.setHint("Layer Name");
         //buttons color:
         cbAzure = (Button) v.findViewById(R.id.button_azure);
         cbBlue = (Button) v.findViewById(R.id.button_blue);

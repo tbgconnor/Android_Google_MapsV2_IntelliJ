@@ -1,7 +1,6 @@
 package com.Square9.AndroidMapsV2Test;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -10,9 +9,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.*;
-
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MapCanvasFragment extends MapFragment
@@ -25,10 +22,12 @@ public class MapCanvasFragment extends MapFragment
     private GoogleMap map;
     private String data;
     private ArrayList<Marker> markerList;
+    private ArrayList<Polyline> polyLineList;
     private LayerManager layerManager;
 
     private Marker markerSelected01;
     private Marker markerSelected02;
+
     //Actions
     /*
      *  actionId list:
@@ -36,9 +35,15 @@ public class MapCanvasFragment extends MapFragment
      *  1 = Draw Line
      *  2 = ...
      */
-    int actionId;
+    private int actionId;
 
-
+    /**
+     * Creates a new instance of the mapfragment
+     * initializing the instance with data and layermanager
+     * @param data dummy data object
+     * @param layerManager model object which holds the structure of and to the measurement points
+     * @return new mapCanvasFragment instance
+     */
     public static MapCanvasFragment newInstance(String data, LayerManager layerManager)
     {
         Log.d(DEBUGTAG, "Created a new instance of MapCanvasFragment...");
@@ -50,13 +55,20 @@ public class MapCanvasFragment extends MapFragment
         return mapCanvasFragment;
     }
 
-
+    /*
+     * called once the fragment is associated with its activity.
+     */
     @Override
     public void onAttach(Activity activity)
     {
-        super.onAttach(activity);    //To change body of overridden methods use File | Settings | File Templates.
+        super.onAttach(activity);
     }
 
+    /*
+     * Called to do initial creation of a fragment
+     * Retrieves attributes from savedInstanceState bundle or arguments set
+     * Initializes local instance variables
+     */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -81,12 +93,14 @@ public class MapCanvasFragment extends MapFragment
             currentPosition = defaultLocation;
         }
         markerList = new ArrayList<Marker>();
+        polyLineList =  new ArrayList<Polyline>();
         actionId = 0;
-
-        Log.d(DEBUGTAG, "LAYER MANAGER:  current layer: " + layerManager.getCurrentLayer().getLayerName());
-
     }
 
+    /*
+     * Called to have the fragment instantiate its user interface view
+     * Map is instantiated here
+     */
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
     {
@@ -104,7 +118,9 @@ public class MapCanvasFragment extends MapFragment
         return fragmentView;
     }
 
-
+    /*
+     * makes the fragment visible to the user (based on its containing activity being started)
+     */
     @Override
     public void onStart()
     {
@@ -121,24 +137,36 @@ public class MapCanvasFragment extends MapFragment
         super.onSaveInstanceState(bundle);
     }
 
+    /*
+     * makes the fragment interacting with the user (based on its containing activity being resumed).
+     */
     @Override
     public void onResume()
     {
-        super.onResume();    //To change body of overridden methods use File | Settings | File Templates.
+        super.onResume();
     }
 
+    /*
+     *  fragment is no longer interacting with the user either because its activity is being paused or a fragment operation is modifying it in the activity.
+     */
     @Override
     public void onPause()
     {
         super.onPause();    //To change body of overridden methods use File | Settings | File Templates.
     }
 
+    /*
+     * allows the fragment to clean up resources associated with its View.
+     */
     @Override
     public void onDestroyView()
     {
         super.onDestroyView();    //To change body of overridden methods use File | Settings | File Templates.
     }
 
+    /*
+     *  called to do final cleanup of the fragment's state.
+     */
     @Override
     public void onDestroy()
     {
@@ -146,7 +174,7 @@ public class MapCanvasFragment extends MapFragment
     }
 
     /**
-     *  Internal methode for initializing the Map object, can only be used is map object exists!
+     *  Internal methode for initializing the Map object, can only be used if map object exists!
      *  sets map type to normal
      *  sets default values for infowindow title and snippet
      *  moves camera to default position
@@ -160,6 +188,10 @@ public class MapCanvasFragment extends MapFragment
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, MAXZOOM));
     }
 
+    /**
+     * methode to move the 'current position marker' to a new location
+     * @param newPosition the new position
+     */
     public void moveCurrentPositionMarker(LatLng newPosition)
     {
         String mTitle = "Current Postion";
@@ -171,6 +203,10 @@ public class MapCanvasFragment extends MapFragment
         currentPositionMarker.setSnippet(mSnippet);
     }
 
+    /**
+     * sets the map type
+     * @param mapType integer value representing the map type: 0: none <-> 4:hybrid
+     */
     public void setMapType(int mapType)
     {
         Log.d(DEBUGTAG, "Map Fragment Methode 'setMapType' called with arg: " + Integer.toString(mapType));
@@ -206,6 +242,14 @@ public class MapCanvasFragment extends MapFragment
         return type;
     }
 
+    /**
+     * Add a marker object to the map
+     * addition ref to marker object is held in instance markerList
+     * @param position LatLng object for the position
+     * @param title title of the info window
+     * @param snippet snippet of the info window
+     * @param color the color of the marker
+     */
     public void addMarker(LatLng position, String title, String snippet, int color)
     {
         MarkerOptions mOptions = new MarkerOptions();
@@ -217,6 +261,9 @@ public class MapCanvasFragment extends MapFragment
         markerList.add(newMarker);
     }
 
+    /*
+     * Anonymous Inner Class the define marker onClick events
+     */
     GoogleMap.OnMarkerClickListener onMarkerClick = new GoogleMap.OnMarkerClickListener() {
         @Override
         public boolean onMarkerClick(Marker marker)
@@ -229,21 +276,27 @@ public class MapCanvasFragment extends MapFragment
             //TODO check layer
             //TODO is Action in progress ?
 
+
             if(actionId == 1) //draw line ...
             {
                 if(markerSelected01 == null && markerSelected02 == null)
                 {
                     markerSelected01 = marker;
-                    Toast.makeText(getActivity(), "First point selected, please selected the second point", Toast.LENGTH_LONG).show();
+                    marker.setSnippet("First Point Selected, please select a second point");
+                    marker.showInfoWindow();
                 }
                 else if(markerSelected01 != null && markerSelected02 == null)
                 {
                     markerSelected02 = marker;
-                    Toast.makeText(getActivity(), "Second point selected", Toast.LENGTH_LONG).show();
+                    marker.setSnippet("Second point selected");
+                    marker.showInfoWindow();
                 }
                 else if(markerSelected01 == null && markerSelected02 != null)
                 {
                     markerSelected01 = marker;
+                    markerSelected02 = marker;
+                    marker.setSnippet("Second point selected");
+                    marker.showInfoWindow();
                 }
                 else // All selected position are filled -> waiting for user to cancel this action
                 {
@@ -255,6 +308,11 @@ public class MapCanvasFragment extends MapFragment
         }
     };
 
+    /**
+     * User can perform 'actions' on the map such as draw lines ....
+     * These actions are confirmed by by an actionbar but of the activity.
+     * This method performs the desired action
+     */
     public void confirmedAction()
     {
         switch(actionId)
@@ -269,12 +327,13 @@ public class MapCanvasFragment extends MapFragment
                     PolylineOptions plOptions = new PolylineOptions();
                     plOptions.add(markerSelected01.getPosition());
                     plOptions.add(markerSelected02.getPosition());
-                    //TODO COLOR!
                     plOptions.color(layerManager.getCurrentLayer().getColor());
                     plOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
                     Polyline pl = map.addPolyline(plOptions);
-                    //TODO store add polyline in layer
-
+                    polyLineList.add(pl);
+                    MapLine line = new MapLine(markerSelected01.getPosition(), markerSelected02.getPosition());
+                    layerManager.getCurrentLayer().addLine(line);
+                    this.cancelAction();
                 }
                 else
                 {
@@ -285,25 +344,42 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
-
+    /**
+     * Method for cancelling the Action
+     */
     public void cancelAction()
     {
         //dereference selected markers
         markerSelected01 = null;
         markerSelected02 = null;
+        //clear user selected action
+        actionId = 0;
+
+        Toast.makeText(getActivity(), "Action Canceled", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Getter for actionId attribute
+     * the int resembles an action chosen by the user
+     * @return the actionId value
+     */
     public int getActionId()
     {
         return actionId;
     }
 
+    /**
+     * Setter for actionId attribute
+     * @param actionId
+     */
     public void setActionId(int actionId)
     {
         this.actionId = actionId;
-        cancelAction(); //new action was selected so no need to keep reference to old "selected markers"
     }
 
+    /**
+     * Anonymous Inner Class for map clicks
+     */
     GoogleMap.OnMapLongClickListener onMapLongClick = new GoogleMap.OnMapLongClickListener() {
         @Override
         public void onMapLongClick(LatLng latLng)
@@ -312,6 +388,11 @@ public class MapCanvasFragment extends MapFragment
         }
     };
 
+    /**
+     * Method to resolve the color value from xml to bitmapDescriptionFactory Values
+     * @param color holds the integer value, color xml resource resolved, of the color value to convert
+     * @return color value (float) according to: http://developer.android.com/reference/com/google/android/gms/maps/model/BitmapDescriptorFactory.html
+     */
     public float resolveColorOfMarker(int color)
     {
         int azure = getActivity().getResources().getColor(R.color.azure);

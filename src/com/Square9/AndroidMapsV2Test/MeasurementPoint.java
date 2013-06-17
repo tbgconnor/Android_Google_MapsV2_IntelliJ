@@ -73,11 +73,13 @@ public class MeasurementPoint implements Parcelable
         }
     };
 
-
     /**
      * Constructs a new instance of {@code Object}.
      */
-    public MeasurementPoint(Parcel in) {
+    public MeasurementPoint(Parcel in)
+    {
+        comment = new String();
+        position = new LatLng(50.879668, 5.309296);
         readFromParcel(in);
     }
 

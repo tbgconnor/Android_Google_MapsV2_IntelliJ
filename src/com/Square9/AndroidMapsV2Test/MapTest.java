@@ -356,7 +356,8 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     @Override
     public void onDialogDone(String tag, boolean cancelled, String ln, int color, int lw)
     {
-        if(!cancelled)
+        //dialog done from NewLayerSettingsDialog
+        if(!cancelled && tag.equals("NEWLAYERSETTINGS"))
         {
             //add a new layer to the drop down spinner in actionbar
             actionBarLayers.add(ln);

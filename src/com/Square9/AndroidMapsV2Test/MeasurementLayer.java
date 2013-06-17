@@ -1,5 +1,6 @@
 package com.Square9.AndroidMapsV2Test;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,6 +19,8 @@ public class MeasurementLayer implements Parcelable
     private int color;
     private int lineWidth;
 
+    private ArrayList<MapLine> lines;
+
     /**
      * MeasurementLayer constructor
      * Construct an new MeasurementLayer Object to group measurement points in a common construct and reference
@@ -30,6 +33,7 @@ public class MeasurementLayer implements Parcelable
         measurementPoints = new ArrayList<MeasurementPoint>();
         this.color = color;
         this.lineWidth = lineWidth;
+        lines = new ArrayList<MapLine>();
     }
 
     /**
@@ -159,8 +163,42 @@ public class MeasurementLayer implements Parcelable
         this.lineWidth = lineWidth;
     }
 
+    /**
+     * Method to get the number of lines in this layer
+     * @return the number of lines in this layer (int)
+     */
+    public int getNumberOfLines()
+    {
+        return lines.size();
+    }
+
+    /**
+     * Method to add a line to the layer
+     * @param line lineObject
+     */
+    public void addLine(MapLine line)
+    {
+        lines.add(line);
+    }
+
+    /**
+     * Method to remove a line from the layer
+     * @param line the line object to remove
+     * @return boolean success or fail
+     */
+    public boolean removeLine(MapLine line)
+    {
+        return lines.remove(line);
+    }
+
+
     public MeasurementLayer(Parcel in)
     {
+        measurementPoints = new ArrayList<MeasurementPoint>();
+        layerName = new String();
+        color = Color.RED;
+        lineWidth = 3;
+        lines = new ArrayList<MapLine>();
         readFromParcel(in);
     }
 
@@ -181,7 +219,6 @@ public class MeasurementLayer implements Parcelable
 
         /**
          * Create a new array of the Parcelable class.
-         *
          * @param size Size of the array.
          * @return Returns an array of the Parcelable class, with every entry
          *         initialized to null.
@@ -218,6 +255,7 @@ public class MeasurementLayer implements Parcelable
         dest.writeInt(color);
         dest.writeInt(lineWidth);
         dest.writeTypedList(measurementPoints);
+        dest.writeTypedList(lines);
     }
 
     private void readFromParcel(Parcel in)
@@ -226,6 +264,7 @@ public class MeasurementLayer implements Parcelable
         color = in.readInt();
         lineWidth = in.readInt();
         in.readTypedList(measurementPoints, MeasurementPoint.CREATOR);
+        in.readTypedList(lines, MapLine.CREATOR);
     }
 }
 

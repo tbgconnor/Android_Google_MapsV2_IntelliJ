@@ -209,6 +209,8 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
      */
     public LayerManager(Parcel in)
     {
+        measurementLayers = new ArrayList<MeasurementLayer>();
+        currentLayer = new MeasurementLayer("default", Color.RED, 3);
         readFromParcel(in);
     }
 
