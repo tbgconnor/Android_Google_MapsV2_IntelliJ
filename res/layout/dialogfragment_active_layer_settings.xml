@@ -28,6 +28,7 @@
                 android:layout_marginLeft="5dp"
                 android:gravity="fill_horizontal|center_vertical"
                 android:inputType="textShortMessage|text"
+                android:hint="@string/dlgfrag_alsd_namehint"
                 android:lines="1"
                 android:maxLines="1"
                 android:singleLine="true"/>

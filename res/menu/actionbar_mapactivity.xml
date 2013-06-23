@@ -2,6 +2,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+            android:id="@+id/actionBar_info"
+            android:icon="@drawable/ic_information"
+            android:showAsAction="always"
+            android:title="@string/action_bar_info"/>
+
+    <item
+            android:id="@+id/actionBar_openfile"
+            android:icon="@drawable/ic_collections_collection"
+            android:showAsAction="always"
+            android:title="@string/action_bar_open" />
+
+    <item
+            android:id="@+id/actionBar_saveToFile"
+            android:icon="@drawable/ic_content_save"
+            android:showAsAction="always"
+            android:title="@string/action_bar_save" />
+
+    <item
             android:id="@+id/actionBar_maptype"
             android:icon="@drawable/ic_location_map"
             android:showAsAction="always"
@@ -34,7 +52,4 @@
             android:icon="@drawable/ic_cancel_action"
             android:showAsAction="always"
             android:title="@string/action_bar_actionCancel" />
-
-
-
 </menu>

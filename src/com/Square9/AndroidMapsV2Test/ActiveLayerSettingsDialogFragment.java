@@ -133,8 +133,6 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
         View v = inflater.inflate(R.layout.dialogfragment_active_layer_settings,container);
         // get view components and set values
         editTextLayerName = (EditText) v.findViewById(R.id.editText_layer_name);
-        // set the layer name as passed by the host activity
-        editTextLayerName.setHint("Layer Name");
         //buttons color:
         cbAzure = (Button) v.findViewById(R.id.button_azure);
         cbBlue = (Button) v.findViewById(R.id.button_blue);
@@ -182,9 +180,16 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
             {
                 case(R.id.button_apply_layer_settings):
                     layerName = editTextLayerName.getText().toString().trim();
-                    String tag = ActiveLayerSettingsDialogFragment.this.getTag();
-                    act.onDialogDone(tag, false, layerName, colorNumber, lineWidth); // NOT CANCELLED!
-                    ActiveLayerSettingsDialogFragment.this.dismiss();
+                    if(!layerName.equals(""))
+                    {
+                        String tag = ActiveLayerSettingsDialogFragment.this.getTag();
+                        act.onDialogDone(tag, false, layerName, colorNumber, lineWidth); // NOT CANCELLED!
+                        ActiveLayerSettingsDialogFragment.this.dismiss();
+                    }
+                    else
+                    {
+                        ActiveLayerSettingsDialogFragment.this.dismiss(); // no layer name = Cancel
+                    }
                     return;
                 case(R.id.button_cancel_layer_settings):
                     ActiveLayerSettingsDialogFragment.this.dismiss();

@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *  Measurement Layer to group and contain common information for a number of measurement points
@@ -140,7 +141,7 @@ public class MeasurementLayer implements Parcelable
 
     /**
      * get the color of the layer
-     * @return color (int) value of BitmapDescriptionFactory.HUE_****
+     * @return color (int) value of resource defined in xml
      */
     public int getColor()
     {
@@ -191,6 +192,11 @@ public class MeasurementLayer implements Parcelable
         return lines.remove(line);
     }
 
+
+    public Iterator<MapLine> getMapLineIterator()
+    {
+        return lines.iterator();
+    }
 
     public MeasurementLayer(Parcel in)
     {

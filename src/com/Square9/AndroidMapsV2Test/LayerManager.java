@@ -154,6 +154,11 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
         }
     }
 
+    public ArrayList<MeasurementLayer> getLayers()
+    {
+        return measurementLayers;
+    }
+
 
     /**
      *  Anonymous Inner Class implementing a custom Iterator Object

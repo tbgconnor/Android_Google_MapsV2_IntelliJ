@@ -133,9 +133,13 @@ public class MapCanvasFragment extends MapFragment
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
+    public void onSaveInstanceState(Bundle bundle)
+    {
         super.onSaveInstanceState(bundle);
+        bundle.putParcelable("layerManager", layerManager); //Saving the Layer Manager
     }
+
+
 
     /*
      * makes the fragment interacting with the user (based on its containing activity being resumed).
@@ -333,7 +337,12 @@ public class MapCanvasFragment extends MapFragment
                     polyLineList.add(pl);
                     MapLine line = new MapLine(markerSelected01.getPosition(), markerSelected02.getPosition());
                     layerManager.getCurrentLayer().addLine(line);
-                    this.cancelAction();
+                    // reset variables
+                    // dereference selected markers
+                    markerSelected01 = null;
+                    markerSelected02 = null;
+                    //clear user selected action
+                    actionId = 0;
                 }
                 else
                 {

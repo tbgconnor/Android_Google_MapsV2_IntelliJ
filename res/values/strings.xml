@@ -11,6 +11,9 @@
     <string name="menu_map_terrain">terrain</string>
     <string name="menu_map_none">none</string>
 
+    <string name="action_bar_info">Info</string>
+    <string name="action_bar_open">Open</string>
+    <string name="action_bar_save">Save</string>
     <string name="action_bar_map">Map Type</string>
     <string name="action_bar_measurementPoint">Measurement</string>
     <string name="action_bar_addLayer">Add Layer</string>
@@ -28,9 +31,13 @@
     </string-array>
 
     <string name="dlgfrag_alsd_layername">Layer Name:</string>
+    <string name="dlgfrag_alsd_namehint">Enter name here...</string>
     <string name="dlgfrag_alsd_linwidth">Line Width:</string>
     <string name="dlgfrag_alsd_color">Color:</string>
     <string name="dlgfrag_alsd_apply">Apply</string>
     <string name="dlgfrag_alsd_cancel">Cancel</string>
+
+    <string name="master_data_dir">measurement_data</string>
+    <string name="file_extension">.txt</string>
 
 </resources>

@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.*;
 import android.os.Bundle;
+import android.preference.DialogPreference;
 import android.provider.Settings;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +22,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 
 
-public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDialogListener,OnDialogDoneListener
+public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDialogListener,OnDialogDoneListener, SaveToFile.SaveToFileEvent
 {
     private final static String DEBUGTAG = "MapTestAct";
 
@@ -29,6 +31,8 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     private boolean gpsSetup;
     private boolean gpsFix;
     private ProgressDialog pdGPSFix;
+
+
 
    //actionbar
     private ActionBar actionBar;
@@ -69,8 +73,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             frag = MapCanvasFragment.newInstance("data naar Mapfragment", layerManager);
             fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
         }
-
-        //((MapCanvasFragment) frag).setLayerManager(layerManager);
 
         //actionbar
         actionBar = getActionBar();
@@ -178,6 +180,32 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     {
         switch(item.getItemId())
         {
+            case R.id.actionBar_info:
+                int nLayers = layerManager.getNumberOfLayers();
+                int nMeasurementPoints = layerManager.getCurrentLayer().getNumberOfMeasurementPoints();
+                String title = "Total Number of layers = " + Integer.toString(nLayers);
+                String msg = "Number of MeasurementPoints in current = " + Integer.toString(nMeasurementPoints);
+                CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, infoPositiveClick);
+                infoDialog.changeIconToInformationIcon();
+                infoDialog.showDialog();
+                return true;
+            case R.id.actionBar_openfile:
+                return true;
+            case R.id.actionBar_saveToFile:
+                if(!FileHandler.checkMediaAvailability()) //if public external storage is not available do nothing
+                    Toast.makeText(MapTest.this, "Error, could not reach storage media",Toast.LENGTH_LONG).show();
+                else
+                {
+                    //TODO make dialog to choose filename
+                    FileHandler outPutFile = new FileHandler("Measurement1", MapTest.this);
+                    SaveToFile stf = new SaveToFile(MapTest.this, outPutFile, MapTest.this);
+                    String format = "%e/%m/%Y - %H:%M:%S";
+                    Time timeStamp = new Time();
+                    timeStamp.setToNow();
+
+                    stf.execute(layerManager);
+                }
+                return true;
             case R.id.actionBar_maptype:
                 showMapTypeDialog();
                 return true;
@@ -211,6 +239,13 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         }
         return(super.onOptionsItemSelected(item));
     }
+
+    DialogInterface.OnClickListener infoPositiveClick = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+        }
+    };
 
     private void addMeasurementPoint(LatLng position)
     {
@@ -372,6 +407,33 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             Log.d(DEBUGTAG, "Color Number: " + Float.toString(color));
             Log.d(DEBUGTAG, "Line Width: " + Integer.toString(lw));
         }
+    }
+
+    @Override
+    public void onSaveToFileCompleted(Integer result)
+    {
+        String msg;
+
+        switch(result.intValue())
+        {
+            case 0:
+                msg = "Data Successfully Saved\n";
+                break;
+            case -1:
+                msg = "media not available\n";
+                break;
+            case -2:
+                msg = "unable to create file\n";
+                break;
+            case -3:
+                msg = "Error writing file\n";
+                break;
+            default:
+                msg = "Unknown Error\n";
+                break;
+        }
+
+        Toast.makeText(MapTest.this, msg, Toast.LENGTH_LONG).show();
     }
 }
 
