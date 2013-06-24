@@ -40,4 +40,10 @@
     <string name="master_data_dir">measurement_data</string>
     <string name="file_extension">.txt</string>
 
+    <string name="dlgfrag_savetofile_title">Save Current Project</string>
+    <string name="dlgfrag_filename">File Name:</string>
+    <string name="dlgfrag_hint_filename">file name...</string>
+    <string name="dlgfrag_button_save">Save</string>
+    <string name="dlgfrag_button_cancel">Cancel</string>
+
 </resources>

@@ -192,19 +192,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             case R.id.actionBar_openfile:
                 return true;
             case R.id.actionBar_saveToFile:
-                if(!FileHandler.checkMediaAvailability()) //if public external storage is not available do nothing
-                    Toast.makeText(MapTest.this, "Error, could not reach storage media",Toast.LENGTH_LONG).show();
-                else
-                {
-                    //TODO make dialog to choose filename
-                    FileHandler outPutFile = new FileHandler("Measurement1", MapTest.this);
-                    SaveToFile stf = new SaveToFile(MapTest.this, outPutFile, MapTest.this);
-                    String format = "%e/%m/%Y - %H:%M:%S";
-                    Time timeStamp = new Time();
-                    timeStamp.setToNow();
-
-                    stf.execute(layerManager);
-                }
+                showSaveToFileDialog();
                 return true;
             case R.id.actionBar_maptype:
                 showMapTypeDialog();
@@ -383,9 +371,28 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             alsd.show(fm, "NEWLAYERSETTINGS");
     }
 
+    private void showSaveToFileDialog()
+    {
+        SaveToFileDialogFragment frag = SaveToFileDialogFragment.newInstance();
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        frag.show(fm, "SAVETOFILE");
+    }
+
     @Override
     public void onDialogDone(String tag, boolean cancelled, CharSequence message)
     {
+        if(!cancelled && tag.equals("SAVETOFILE"))
+        {
+            if(!FileHandler.checkMediaAvailability()) //if public external storage is not available do nothing
+                Toast.makeText(MapTest.this, "Error, could not reach storage media",Toast.LENGTH_LONG).show();
+            else
+            {
+                FileHandler outPutFile = new FileHandler( message.toString().trim(), MapTest.this);
+                SaveToFile stf = new SaveToFile(MapTest.this, outPutFile, MapTest.this);
+                stf.execute(layerManager);
+            }
+        }
     }
 
     @Override
