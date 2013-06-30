@@ -22,7 +22,7 @@ public class SaveToFileDialogFragment extends DialogFragment
     private String fileName;
     private String fileExtension;
     private OnDialogDoneListener mListener;
-    private TextView textViewFileExtension;
+    private TextView textViewFileExtension;  // Provided in the back-end design, at the moment not used-> file extension loaded from xml resource
     private EditText editTextFileName;
     private Button buttonSave;
     private Button buttonCancel;
@@ -51,6 +51,10 @@ public class SaveToFileDialogFragment extends DialogFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        // Set Dialog Properties
+        setCancelable(false);
+        setStyle(STYLE_NORMAL, android.R.style.Theme_Holo_Dialog);
+        // get, if necessary, savedInstance values
         if(savedInstanceState != null)
         {
             fileName = savedInstanceState.getString("fileName");
@@ -58,8 +62,9 @@ public class SaveToFileDialogFragment extends DialogFragment
         }
         else
         {
-            fileName = "";
-            fileExtension = "";
+            // Get the default values from resource
+            fileName = getActivity().getResources().getString(R.string.dlgfrag_savetofile_default_filename);
+            fileExtension = getActivity().getResources().getString(R.string.file_extension);
         }
     }
 
@@ -100,9 +105,14 @@ public class SaveToFileDialogFragment extends DialogFragment
         @Override
         public void onClick(View v)
         {
+            //if the view (Button) Save or Cancel gets pushed
+            //get user input from edit text
+            if(!isEmpty(editTextFileName))
+                fileName = editTextFileName.getText().toString();
+            //find out which button got pushed
             if(v.getId() == R.id.button_saveToFile_save)
             {
-                mListener.onDialogDone(SaveToFileDialogFragment.this.getTag(), false, editTextFileName.getText().toString());
+                mListener.onDialogDone(SaveToFileDialogFragment.this.getTag(), false, fileName);
                 SaveToFileDialogFragment.this.dismiss();
             }
             else
@@ -112,5 +122,18 @@ public class SaveToFileDialogFragment extends DialogFragment
 
         }
     };
+
+    private boolean isEmpty(EditText et)
+    {
+        String text = et.getText().toString().trim();
+        if(text.length() > 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 
 }

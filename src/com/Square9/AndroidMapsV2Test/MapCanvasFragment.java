@@ -1,6 +1,7 @@
 package com.Square9.AndroidMapsV2Test;
 
 import android.app.Activity;
+import android.graphics.*;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -8,14 +9,17 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.*;
 import java.util.ArrayList;
 
 
 public class MapCanvasFragment extends MapFragment
 {
-    private final static String DEBUGTAG = "MapFragment";
+    private static final String DEBUGTAG = "MapFragment";
     private static final int MAXZOOM = 21;
+    private static final double EARTH_RADIUS = 6378100.0;
+    private int offset;
     private static final LatLng defaultLocation = new LatLng(50.879668, 5.309296); // Alken Belgium
     private Marker currentPositionMarker;
     private LatLng currentPosition;
@@ -32,8 +36,9 @@ public class MapCanvasFragment extends MapFragment
     /*
      *  actionId list:
      *  0 = Reserved, "no action"
-     *  1 = Draw Line
-     *  2 = ...
+     *  1 = add measurement point
+     *  2 = draw line
+     *  3 = draw arc
      */
     private int actionId;
 
@@ -186,9 +191,11 @@ public class MapCanvasFragment extends MapFragment
     private void initMap()
     {
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        currentPositionMarker = map.addMarker(new MarkerOptions().position(defaultLocation).title("DEFAULT LOCATION"));
+        currentPositionMarker = map.addMarker(new MarkerOptions().position(defaultLocation));
         currentPositionMarker.setTitle("Default Location");
         currentPositionMarker.setSnippet("Lat: 50.879668° Long:  5.309296°");
+        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_large));
+        currentPositionMarker.setAnchor(0.5f, 0.5f);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, MAXZOOM));
     }
 
@@ -281,7 +288,7 @@ public class MapCanvasFragment extends MapFragment
             //TODO is Action in progress ?
 
 
-            if(actionId == 1) //draw line ...
+            if(actionId == 2) //draw line ...
             {
                 if(markerSelected01 == null && markerSelected02 == null)
                 {
@@ -324,7 +331,14 @@ public class MapCanvasFragment extends MapFragment
             case 0: // NO ACTION
                 //DO NOTHING
                 return;
-            case 1: // Draw Line
+            case 1://add marker to map
+                MeasurementLayer currentLayer = layerManager.getCurrentLayer();
+                // get the last measurement point added to the current layer
+                MeasurementPoint last = currentLayer.getMeasurementPointByIndex(currentLayer.getNumberOfMeasurementPoints()-1);
+                addMarker(last.getPosition(), currentLayer.getLayerName(), Integer.toString(currentLayer.hashCode()), currentLayer.getColor());
+                actionId = 0;   //reset action id
+                return;
+            case 2: // Draw Line
                 if(markerSelected01 != null && markerSelected02 != null)
                 {
                     // create an Options Object the set the Line Options
@@ -342,14 +356,20 @@ public class MapCanvasFragment extends MapFragment
                     markerSelected01 = null;
                     markerSelected02 = null;
                     //clear user selected action
-                    actionId = 0;
+                    actionId = 0; // Reset action id
                 }
                 else
                 {
                     Toast.makeText(getActivity(), "There are not enough points selected to draw the line CANCELING THE ACTION", Toast.LENGTH_LONG).show();
                     cancelAction();
                 }
-
+                return;
+            case 3: // Draw Arc
+                Toast.makeText(getActivity(), "Drawing Arc", Toast.LENGTH_LONG).show();
+                actionId = 0; // Reset action id
+                return;
+            default:
+                return;
         }
     }
 
@@ -439,4 +459,65 @@ public class MapCanvasFragment extends MapFragment
             return BitmapDescriptorFactory.HUE_RED;
     }
 
+    /*
+     * Canvas Bitmap overlay on Map does not scale ...
+     * Only here to illustrate problem
+     *  free draw help method
+     */
+    private int convertMetersToPixels(double lat, double lng, double radiusInMeters)
+    {
+        double lat1 = radiusInMeters / EARTH_RADIUS;
+        double lng1 = radiusInMeters / (EARTH_RADIUS * Math.cos((Math.PI * lat / 180)));
+
+        double lat2 = lat + lat1 * 180 / Math.PI;
+        double lng2 = lng + lng1 * 180 / Math.PI;
+
+        Point p1 = map.getProjection().toScreenLocation(new LatLng(lat, lng));
+        Point p2 = map.getProjection().toScreenLocation(new LatLng(lat2, lng2));
+
+        return Math.abs(p1.x - p2.x);
+    }
+
+    /*
+    *  http://stackoverflow.com/questions/13991301/android-maps-api-v2-draw-circle
+    */
+    private Bitmap getBitmap()
+    {
+        // stroke color
+        Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint2.setColor(0xFF0000FF);
+        paint2.setStyle(Paint.Style.STROKE);
+
+
+        // circle radius - 200 meters
+        int radius = offset = convertMetersToPixels(currentPosition.latitude, currentPosition.longitude, 5);
+
+        // create empty bitmap
+        Bitmap b = Bitmap.createBitmap(radius * 2, radius * 2, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+
+        c.drawCircle(radius, radius, radius, paint2);
+
+        return b;
+    }
+
+    private LatLng getCoords(double lat, double lng) {
+
+        LatLng latLng = new LatLng(lat, lng);
+
+        Projection proj = map.getProjection();
+        Point p = proj.toScreenLocation(latLng);
+        p.set(p.x, p.y + offset);
+
+        return proj.fromScreenLocation(p);
+    }
+
+    public void drawArc()
+    {
+        MarkerOptions options = new MarkerOptions();
+        options.position(getCoords(currentPosition.latitude, currentPosition.longitude));
+        options.icon(BitmapDescriptorFactory.fromBitmap(getBitmap()));
+
+        Marker marker = map.addMarker(options);
+    }
 }

@@ -18,7 +18,7 @@
     <string name="action_bar_measurementPoint">Measurement</string>
     <string name="action_bar_addLayer">Add Layer</string>
     <string name="action_bar_drawLine">Draw Line</string>
-
+    <string name="action_bar_drawArc">Draw Arc</string>
     <string name="action_bar_actionConfirm">OK</string>
     <string name="action_bar_actionCancel">Cancel</string>
 
@@ -42,6 +42,7 @@
 
     <string name="dlgfrag_savetofile_title">Save Current Project</string>
     <string name="dlgfrag_filename">File Name:</string>
+    <string name="dlgfrag_savetofile_default_filename">project name</string>
     <string name="dlgfrag_hint_filename">file name...</string>
     <string name="dlgfrag_button_save">Save</string>
     <string name="dlgfrag_button_cancel">Cancel</string>

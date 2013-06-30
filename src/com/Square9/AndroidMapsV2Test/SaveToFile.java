@@ -2,6 +2,8 @@ package com.Square9.AndroidMapsV2Test;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.text.format.Time;
 
@@ -91,12 +93,15 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
         String time = timeStamp.format(format) + "\n";
         result.append(time);
         // [2] for each layer in LayerManager
-        for(MeasurementLayer layer : lm.getLayers())
+        Iterator<MeasurementLayer> layerIterator = lm.getMeasurementLayerIterator();
+        while(layerIterator.hasNext())
         {
+            MeasurementLayer layer = layerIterator.next();
             result.append("<layer>\n");
             result.append("Name: " + layer.getLayerName() + "\n");
-            //TODO resolve color
-            result.append("Color: " + layer.getColor() + "\n");
+            int color = layer.getColor();
+            String hexColor ="#" + Integer.toHexString(color);
+            result.append("Color: " + hexColor + "\n");
             result.append("Line width: " + layer.getLineWidth() + "px\n");
             // [3] for each measurement point in this layer:
             for(int pointIndex = 0; pointIndex < layer.getNumberOfMeasurementPoints(); pointIndex++)

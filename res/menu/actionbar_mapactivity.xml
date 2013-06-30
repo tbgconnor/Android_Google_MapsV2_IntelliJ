@@ -30,16 +30,24 @@
             android:icon="@drawable/ic_device_access_location_searching"
             android:showAsAction="always"
             android:title="@string/action_bar_measurementPoint"/>
+
     <item
             android:id="@+id/actionBar_addLayer"
             android:icon="@drawable/ic_add_layer"
             android:showAsAction="always"
             android:title="@string/action_bar_addLayer" />
+
     <item
             android:id="@+id/actionBar_drawLine"
             android:icon="@drawable/ic_draw_line"
             android:showAsAction="always"
             android:title="@string/action_bar_drawLine" />
+
+    <item
+            android:id="@+id/actionBar_drawArc"
+            android:icon="@drawable/ic_actionbar_draw_arc"
+            android:showAsAction="always"
+            android:title="@string/action_bar_drawArc"/>
 
     <item
             android:id="@+id/actionBar_actionConfirm"

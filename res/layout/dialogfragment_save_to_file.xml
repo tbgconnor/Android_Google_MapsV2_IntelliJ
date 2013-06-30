@@ -3,7 +3,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:padding="5dp">
 
     <LinearLayout
             android:orientation="horizontal"
@@ -13,17 +14,24 @@
                 android:id="@+id/textView_saveToFile_FileName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dlgfrag_filename" android:layout_weight="0"/>
+                android:text="@string/dlgfrag_filename"
+                android:layout_weight="0"/>
         <EditText
                 android:id="@+id/editText_saveToFile_FileName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/dlgfrag_hint_filename" android:layout_weight="1"/>
+                android:hint="@string/dlgfrag_hint_filename"
+                android:layout_weight="1"
+                android:inputType="textShortMessage|text"
+                android:lines="1"
+                android:maxLines="1"
+                android:singleLine="true"/>
         <TextView
                 android:id="@+id/textView_saveToFile_fileExtension"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/file_extension" android:layout_weight="0"/>
+                android:text="@string/file_extension"
+                android:layout_weight="0"/>
     </LinearLayout>
     <LinearLayout
             android:orientation="horizontal"
@@ -31,13 +39,15 @@
             android:layout_height="wrap_content">
         <Button
                 android:id="@+id/button_saveToFile_save"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dlgfrag_button_save" android:layout_weight="1"/>
+                android:text="@string/dlgfrag_button_save"
+                android:layout_weight="1"/>
         <Button
                 android:id="@+id/button_saveToFile_cancel"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/dlgfrag_button_cancel" android:layout_weight="1"/>
+                android:text="@string/dlgfrag_button_cancel"
+                android:layout_weight="1"/>
     </LinearLayout>
 </LinearLayout>

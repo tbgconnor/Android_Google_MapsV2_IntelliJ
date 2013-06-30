@@ -154,9 +154,29 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
         }
     }
 
-    public ArrayList<MeasurementLayer> getLayers()
+    /**
+     * Change the current layer by index
+     * @param index the index of the layer to set to current layer in the list
+     * @return true: index is not out of bounds, current layer changed false: failed, index out of bounds, current layer not changed
+     */
+    public boolean setCurrentLayerByIndex(int index)
     {
-        return measurementLayers;
+        boolean indexWithinListBounds = false;
+        if(index < measurementLayers.size())
+        {
+            indexWithinListBounds = true;
+            currentLayer = measurementLayers.get(index);
+        }
+        return indexWithinListBounds;
+    }
+
+    /**
+     * get Iterator object of list
+     * @return Iterator instance to navigate through the list
+     */
+    public Iterator<MeasurementLayer> getMeasurementLayerIterator()
+    {
+        return measurementLayers.iterator();
     }
 
 

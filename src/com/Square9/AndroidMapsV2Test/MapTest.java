@@ -32,8 +32,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     private boolean gpsFix;
     private ProgressDialog pdGPSFix;
 
-
-
    //actionbar
     private ActionBar actionBar;
     private ArrayList<String> actionBarLayers;
@@ -41,10 +39,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     //Measurement data structure members
     private LayerManager layerManager;
     private LatLng currentLocation;
-
-
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -86,9 +80,9 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             @Override
             public boolean onNavigationItemSelected(int itemPosition, long itemId)
             {
-                String ip = Integer.toString(itemPosition);
-                String ii = Long.toString(itemId);
-                //TODO: do something to change the current layer ...
+                layerManager.setCurrentLayerByIndex(itemPosition);
+                String newCurrentLayer = layerManager.getCurrentLayer().getLayerName();
+                Toast.makeText(MapTest.this, "Active Layer: " + newCurrentLayer, Toast.LENGTH_LONG).show();
                 return true;
             }
         });
@@ -181,10 +175,13 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         switch(item.getItemId())
         {
             case R.id.actionBar_info:
-                int nLayers = layerManager.getNumberOfLayers();
-                int nMeasurementPoints = layerManager.getCurrentLayer().getNumberOfMeasurementPoints();
-                String title = "Total Number of layers = " + Integer.toString(nLayers);
-                String msg = "Number of MeasurementPoints in current = " + Integer.toString(nMeasurementPoints);
+                String title = "Information";
+                String msg = "No Gps Fix";
+                if(gpsFix)
+                {
+                    int accuracy =  locationProvider.getAccuracy();
+                    msg = "Accuracy: " + Integer.toString(accuracy) + " m";
+                }
                 CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, infoPositiveClick);
                 infoDialog.changeIconToInformationIcon();
                 infoDialog.showDialog();
@@ -201,7 +198,8 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 Log.d(DEBUGTAG, "Adding measurement point to the map");
                 if(gpsSetup && currentLocation != null)
                 {
-                    addMeasurementPoint(currentLocation);
+                   getMapFragment().setActionId(1);
+                   addMeasurementPoint(currentLocation);
                 }
                 else
                 {
@@ -215,8 +213,12 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 showNewLayerSettingsDialog();
                 return true;
             case R.id.actionBar_drawLine:
-                getMapFragment().setActionId(1);
+                getMapFragment().setActionId(2);
                 Toast.makeText(MapTest.this, "Please Select 2 measurement points and Confirm", Toast.LENGTH_LONG).show();
+                return true;
+            case R.id.actionBar_drawArc:
+                getMapFragment().setActionId(3);
+                getMapFragment().confirmedAction();
                 return true;
             case R.id.actionBar_actionConfirm:
                 getMapFragment().confirmedAction();// Action Performed
@@ -247,13 +249,9 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         MeasurementPoint mp = new MeasurementPoint(position);
         //add it to the currentlayer
         layerManager.addMeasurementPointToLayer(mp);
-
-        //Put a Marker on the map
-        FragmentManager fm = getFragmentManager();
-        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
-        String mpTitle = layerManager.getCurrentLayer().getLayerName();
-        String mpComment = Integer.toString(layerManager.getCurrentLayer().hashCode());
-        ((MapCanvasFragment) frag).addMarker(position, mpTitle, mpComment, layerManager.getCurrentLayer().getColor());
+        // confirm the action here
+        // if the layer was not available then there will be no action confirmed
+        getMapFragment().confirmedAction();
     }
 
     private MapCanvasFragment getMapFragment()
@@ -408,7 +406,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             layerManager.addNewLayer(ln, color, lw);
             // update the actionbar spinner to set the new layer as selected on the top
             actionBar.setSelectedNavigationItem(newLayerPosition);
-            Toast.makeText(MapTest.this, "New Layer: " + ln + " is now active!", Toast.LENGTH_LONG).show();
+            // Toast.makeText(MapTest.this, "New Layer: " + ln + " is now active!", Toast.LENGTH_LONG).show();
             Log.d(DEBUGTAG, "Added New Layer: ");
             Log.d(DEBUGTAG, "Layer Name: " + ln);
             Log.d(DEBUGTAG, "Color Number: " + Float.toString(color));
@@ -439,7 +437,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 msg = "Unknown Error\n";
                 break;
         }
-
         Toast.makeText(MapTest.this, msg, Toast.LENGTH_LONG).show();
     }
 }
