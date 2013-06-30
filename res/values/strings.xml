@@ -19,6 +19,7 @@
     <string name="action_bar_addLayer">Add Layer</string>
     <string name="action_bar_drawLine">Draw Line</string>
     <string name="action_bar_drawArc">Draw Arc</string>
+    <string name="action_bar_take_pic">Take Photo</string>
     <string name="action_bar_actionConfirm">OK</string>
     <string name="action_bar_actionCancel">Cancel</string>
 

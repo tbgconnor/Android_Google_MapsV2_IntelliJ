@@ -39,6 +39,7 @@ public class MapCanvasFragment extends MapFragment
      *  1 = add measurement point
      *  2 = draw line
      *  3 = draw arc
+     *  4 = add picture
      */
     private int actionId;
 
@@ -280,42 +281,54 @@ public class MapCanvasFragment extends MapFragment
         public boolean onMarkerClick(Marker marker)
         {
             /*
-             *  The selection is STRICT..
-             *  No more the necessary points can get selected
-             *  If there are allready 2 markers selected the user should CANCEL the action
+             *  Actions that only need 1 selected marker are handled here
+             *  Actions that need more selected markers are handled after they have been confirmed (see below...)
              */
             //TODO check layer
             //TODO is Action in progress ?
 
-
-            if(actionId == 2) //draw line ...
+            switch(actionId)
             {
-                if(markerSelected01 == null && markerSelected02 == null)
-                {
+                case 0:
+                    return true;
+                case 1:
+                    return true;
+                case 2:   //draw line ...
+                    if(markerSelected01 == null && markerSelected02 == null)
+                    {
+                        markerSelected01 = marker;
+                        marker.setSnippet("First Point Selected, please select a second point");
+                        marker.showInfoWindow();
+                    }
+                    else if(markerSelected01 != null && markerSelected02 == null)
+                    {
+                        markerSelected02 = marker;
+                        marker.setSnippet("Second point selected");
+                        marker.showInfoWindow();
+                    }
+                    else if(markerSelected01 == null && markerSelected02 != null)
+                    {
+                        markerSelected01 = marker;
+                        markerSelected02 = marker;
+                        marker.setSnippet("Second point selected");
+                        marker.showInfoWindow();
+                    }
+                    else // All selected position are filled -> waiting for user to cancel this action
+                    {
+                        Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                case 3:  //draw arc
+                    return true;
+                case 4: // add photo to measurement point
                     markerSelected01 = marker;
-                    marker.setSnippet("First Point Selected, please select a second point");
-                    marker.showInfoWindow();
-                }
-                else if(markerSelected01 != null && markerSelected02 == null)
-                {
-                    markerSelected02 = marker;
-                    marker.setSnippet("Second point selected");
-                    marker.showInfoWindow();
-                }
-                else if(markerSelected01 == null && markerSelected02 != null)
-                {
-                    markerSelected01 = marker;
-                    markerSelected02 = marker;
-                    marker.setSnippet("Second point selected");
-                    marker.showInfoWindow();
-                }
-                else // All selected position are filled -> waiting for user to cancel this action
-                {
-                    Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
-                }
-            }
+                    markerSelected01.setSnippet("Adding photo");
+                    markerSelected01.showInfoWindow();
+                    confirmedAction();
+                default:
+                    return true;
 
-            return true;
+            }
         }
     };
 
@@ -368,6 +381,10 @@ public class MapCanvasFragment extends MapFragment
                 Toast.makeText(getActivity(), "Drawing Arc", Toast.LENGTH_LONG).show();
                 actionId = 0; // Reset action id
                 return;
+            case 4: // add photo
+                //TODO get photo path and add to measurment point
+                Toast.makeText(getActivity(), "Adding photo", Toast.LENGTH_LONG).show();
+                actionId = 0; // Reset action id
             default:
                 return;
         }

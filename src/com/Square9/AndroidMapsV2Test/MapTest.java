@@ -4,10 +4,12 @@ import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.location.*;
 import android.os.Bundle;
 import android.preference.DialogPreference;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.format.Time;
 import android.util.Log;
@@ -39,6 +41,12 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     //Measurement data structure members
     private LayerManager layerManager;
     private LatLng currentLocation;
+
+    // Cursor ref related to photo's on the device
+    private Cursor imageCursor;
+    private boolean photoIntent;
+    private int lastPhotoId;
+    private int newPhotoId;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -88,6 +96,9 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         });
 
         actionBar.show();
+        photoIntent = false;
+        lastPhotoId = 0;
+        newPhotoId = 0;
     }
 
     @Override
@@ -138,6 +149,22 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     {
         super.onResume();
         Log.d(DEBUGTAG, "on Resume");
+        // if resuming the activity because we are returning from the camera activity
+        //TODO saveInstance state of photoIntent/newPhotoId/lastPhotoId ??
+        if(photoIntent)
+        {
+            photoIntent = false;
+            newPhotoId = getLastImageId();
+            if(lastPhotoId != newPhotoId && newPhotoId != 0)// if a new photo was taken by the user
+            {
+                Toast.makeText(MapTest.this, "Please Select a Measurement Point to attach the photo to!", Toast.LENGTH_LONG).show();
+                getMapFragment().setActionId(4);
+            }
+            else
+            {
+                Toast.makeText(MapTest.this, "No new Photo taken", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -152,6 +179,9 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     {
         Log.d(DEBUGTAG, "on Destroy");
         super.onDestroy();
+        //Generally is recommended to close cursors in Activity's life-cycle method either onStop() or onDestroy() method.
+        // Cursor for photo 's taken
+        imageCursor.close();
     }
 
     @Override
@@ -219,6 +249,12 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             case R.id.actionBar_drawArc:
                 getMapFragment().setActionId(3);
                 getMapFragment().confirmedAction();
+                return true;
+            case R.id.actionBar_takePic:
+                lastPhotoId = getLastImageId();
+                photoIntent = true;
+                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivity(intent);
                 return true;
             case R.id.actionBar_actionConfirm:
                 getMapFragment().confirmedAction();// Action Performed
@@ -438,6 +474,52 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 break;
         }
         Toast.makeText(MapTest.this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Method to get the last picture taken on this device.
+     * To detect if a picture is taken
+     * and to get the reference to this icture if it should by connected to a point
+     * Code adapted from: http://stackoverflow.com/questions/7636697/get-path-and-filename-from-camera-intent-result
+     * @return the id of the photo or '0' if any problem occurred
+     */
+    private int getLastImageId()
+    {
+        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
+        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
+        if(imageCursor.moveToFirst())
+        {
+            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.d(DEBUGTAG, "getLastImageId::id " + id);
+            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
+            return id;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public String getLastPhotoReference()
+    {
+        String photoRef = null;
+        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
+        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
+        if(imageCursor.moveToFirst())
+        {
+            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.d(DEBUGTAG, "getLastImageId::id " + id);
+            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
+            return fullPath;
+        }
+        else
+        {
+            return null;
+        }
     }
 }
 
