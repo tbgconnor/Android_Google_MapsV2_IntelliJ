@@ -275,6 +275,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
 
     private void addMeasurementPoint(LatLng position)
     {
+        LatLng measurementPosition = new LatLng(position.latitude, position.longitude);
         //Manage the new Measurement point is model structure
         if(layerManager.getCurrentLayer() == null) //test if currentLayer is alive
         {
@@ -282,7 +283,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             return;
         }
         //Create a measurementPoint
-        MeasurementPoint mp = new MeasurementPoint(position);
+        MeasurementPoint mp = new MeasurementPoint(measurementPosition);
         //add it to the currentlayer
         layerManager.addMeasurementPointToLayer(mp);
         // confirm the action here
@@ -479,7 +480,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     /**
      * Method to get the last picture taken on this device.
      * To detect if a picture is taken
-     * and to get the reference to this icture if it should by connected to a point
+     * and to get the reference to this picture if it should by connected to a point
      * Code adapted from: http://stackoverflow.com/questions/7636697/get-path-and-filename-from-camera-intent-result
      * @return the id of the photo or '0' if any problem occurred
      */

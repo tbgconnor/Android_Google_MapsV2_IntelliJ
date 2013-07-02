@@ -111,6 +111,7 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\tLatitude: " + layer.getMeasurementPointByIndex(pointIndex).getPosition().latitude + "\n");
                 result.append("\tLongitude: " + layer.getMeasurementPointByIndex(pointIndex).getPosition().longitude + "\n");
                 //TODO more data ... pictures ect...
+                result.append("\tPhoto: " +  layer.getMeasurementPointByIndex(pointIndex).getPhotoFilePath() + "\n");
                 result.append("\t</Measurement Point>\n");
             }
             // [4] for each line in this layer

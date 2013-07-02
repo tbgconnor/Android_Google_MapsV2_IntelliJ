@@ -179,6 +179,24 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
         return measurementLayers.iterator();
     }
 
+    /**
+     * Method to get reference to a layer by its name
+     * @param name the name of the layer
+     * @return null if not found | MeasurementLayer instance if found
+     */
+    public MeasurementLayer getLayerByName(String name)
+    {
+        MeasurementLayer layer = null;
+        for(MeasurementLayer l : measurementLayers)
+        {
+            if(l.getLayerName().equals(name))
+            {
+                layer = l;
+            }
+        }
+        return layer;
+    }
+
 
     /**
      *  Anonymous Inner Class implementing a custom Iterator Object

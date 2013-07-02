@@ -262,7 +262,7 @@ public class MapCanvasFragment extends MapFragment
      * @param snippet snippet of the info window
      * @param color the color of the marker
      */
-    public void addMarker(LatLng position, String title, String snippet, int color)
+    public void addMarker(LatLng position, String title, String snippet, int color, MeasurementPoint point)
     {
         MarkerOptions mOptions = new MarkerOptions();
         mOptions.title(title);
@@ -270,6 +270,8 @@ public class MapCanvasFragment extends MapFragment
         mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
         mOptions.position(position);
         Marker newMarker = map.addMarker(mOptions);
+        //TODO add markerPositionOnMap to model for future ref
+        point.setMarkerPositioOnMap(newMarker.getPosition());
         markerList.add(newMarker);
     }
 
@@ -322,9 +324,41 @@ public class MapCanvasFragment extends MapFragment
                     return true;
                 case 4: // add photo to measurement point
                     markerSelected01 = marker;
-                    markerSelected01.setSnippet("Adding photo");
+                    LatLng markerPosition = markerSelected01.getPosition();
+                    String markerLayerName = markerSelected01.getTitle();
+                    //Todo Marker title to match the layer by name ... could be possible source of bug
+                    MeasurementLayer layer = layerManager.getLayerByName(markerLayerName);
+                    markerSelected01.setSnippet("Error while attaching photo");
+                    if(layer != null) // Correct Layer Found
+                    {
+                        Log.d(DEBUGTAG, "Layer found");
+                        MeasurementPoint point = layer.getMeasurementPointByMarkerPosition(markerPosition);
+
+                        if(point != null)
+                        {
+                            Log.d(DEBUGTAG, "Measurement Point Found");
+                            Activity act =  getActivity();
+                            String ref = ((MapTest) act).getLastPhotoReference();
+                            point.setPhotoFilePath(ref);
+                            markerSelected01.setSnippet("photo added");
+                        }
+                        else
+                        {
+                            Log.d(DEBUGTAG, "ERROR: Point not found in layer while adding photo ref");
+                            Log.d(DEBUGTAG, "Marker Position: " + markerPosition.toString());
+                            for(int loopIndex = 0; loopIndex < layer.getNumberOfMeasurementPoints(); loopIndex++)
+                            {
+                                Log.d(DEBUGTAG, "Measurement Point " + Integer.toString(loopIndex) + ":" + layer.getMeasurementPointByIndex(loopIndex).getPosition().toString());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG, "ERROR: layer not found while adding photo ref");
+                    }
+
                     markerSelected01.showInfoWindow();
-                    confirmedAction();
+                    actionId = 0; // Reset action id
                 default:
                     return true;
 
@@ -348,7 +382,7 @@ public class MapCanvasFragment extends MapFragment
                 MeasurementLayer currentLayer = layerManager.getCurrentLayer();
                 // get the last measurement point added to the current layer
                 MeasurementPoint last = currentLayer.getMeasurementPointByIndex(currentLayer.getNumberOfMeasurementPoints()-1);
-                addMarker(last.getPosition(), currentLayer.getLayerName(), Integer.toString(currentLayer.hashCode()), currentLayer.getColor());
+                addMarker(last.getPosition(), currentLayer.getLayerName(), Integer.toString(currentLayer.hashCode()), currentLayer.getColor(), last);
                 actionId = 0;   //reset action id
                 return;
             case 2: // Draw Line
@@ -382,9 +416,8 @@ public class MapCanvasFragment extends MapFragment
                 actionId = 0; // Reset action id
                 return;
             case 4: // add photo
-                //TODO get photo path and add to measurment point
-                Toast.makeText(getActivity(), "Adding photo", Toast.LENGTH_LONG).show();
-                actionId = 0; // Reset action id
+                //Nothing to do, this can be handled completely in markeronclicklistener
+                return;
             default:
                 return;
         }

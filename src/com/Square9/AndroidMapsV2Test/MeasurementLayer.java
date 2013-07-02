@@ -110,6 +110,24 @@ public class MeasurementLayer implements Parcelable
     }
 
     /**
+     * Method to find a measurement point by the associated marker and the marker's position (bypassing google play maps v2 api bug)
+     * @param markerPosition the marker position (NOT the measurement's poisition!)
+     * @return null if not found Measurementpoint reference if found
+     */
+    public MeasurementPoint getMeasurementPointByMarkerPosition(LatLng markerPosition)
+    {
+        MeasurementPoint mP = null;
+        for( MeasurementPoint point : measurementPoints)
+        {
+            if(point.getMarkerPositioOnMap().equals(markerPosition))
+            {
+                mP = point;
+            }
+        }
+        return mP;
+    }
+
+    /**
      * Method for removing a measurement point from the layer
      * @param position the position of the measurementPoint
      * @return true successful removal of the measurementPoint at position
