@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dlgfrag_addtext_label"
+            android:id="@+id/textView_addText_label" android:layout_gravity="left|center_vertical"
+            android:inputType="none" android:padding="5dp"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_addtext_text" android:editable="true" android:inputType="textShortMessage|text"
+            android:padding="5dp"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:padding="5dp">
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dlgfrag_addtext_button_save"
+                android:id="@+id/button_addText_save" android:layout_weight="1" android:clickable="true"/>
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dlgfrag_addtext_button_cancel"
+                android:id="@+id/button_addText_Cancel" android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

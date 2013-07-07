@@ -56,6 +56,12 @@
             android:title="@string/action_bar_take_pic"/>
 
     <item
+            android:id="@+id/actionBar_text"
+            android:icon="@drawable/ic_actionbar_addtext"
+            android:showAsAction="always"
+            android:title="@string/action_bar_text"/>
+
+    <item
             android:id="@+id/actionBar_actionConfirm"
             android:icon="@drawable/ic_confirm_action"
             android:showAsAction="always"

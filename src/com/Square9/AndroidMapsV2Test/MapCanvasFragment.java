@@ -25,12 +25,14 @@ public class MapCanvasFragment extends MapFragment
     private LatLng currentPosition;
     private GoogleMap map;
     private String data;
-    private ArrayList<Marker> markerList;
+
     private ArrayList<Polyline> polyLineList;
     private LayerManager layerManager;
 
     private Marker markerSelected01;
     private Marker markerSelected02;
+
+    private onMapFragmentEventListener onMapFragmentEventListener;
 
     //Actions
     /*
@@ -68,6 +70,14 @@ public class MapCanvasFragment extends MapFragment
     public void onAttach(Activity activity)
     {
         super.onAttach(activity);
+        try
+        {
+            onMapFragmentEventListener = (onMapFragmentEventListener) activity;
+        }
+        catch(Exception exp)
+        {
+            Log.d(DEBUGTAG, exp.toString());
+        }
     }
 
     /*
@@ -98,7 +108,6 @@ public class MapCanvasFragment extends MapFragment
             Log.d(DEBUGTAG, "unknown current Position, setting to default location");
             currentPosition = defaultLocation;
         }
-        markerList = new ArrayList<Marker>();
         polyLineList =  new ArrayList<Polyline>();
         actionId = 0;
     }
@@ -261,8 +270,9 @@ public class MapCanvasFragment extends MapFragment
      * @param title title of the info window
      * @param snippet snippet of the info window
      * @param color the color of the marker
+     * @return The position of the marker (LatLng)
      */
-    public void addMarker(LatLng position, String title, String snippet, int color, MeasurementPoint point)
+    public LatLng addMarker(LatLng position, String title, String snippet, int color)
     {
         MarkerOptions mOptions = new MarkerOptions();
         mOptions.title(title);
@@ -270,22 +280,23 @@ public class MapCanvasFragment extends MapFragment
         mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
         mOptions.position(position);
         Marker newMarker = map.addMarker(mOptions);
-        //TODO add markerPositionOnMap to model for future ref
-        point.setMarkerPositioOnMap(newMarker.getPosition());
-        markerList.add(newMarker);
+        //Return the markerPosition as it differs from the position set (Google maps API bug)
+        return newMarker.getPosition();
     }
 
     /*
      * Anonymous Inner Class the define marker onClick events
      */
-    GoogleMap.OnMarkerClickListener onMarkerClick = new GoogleMap.OnMarkerClickListener() {
+    GoogleMap.OnMarkerClickListener onMarkerClick = new GoogleMap.OnMarkerClickListener()
+    {
         @Override
         public boolean onMarkerClick(Marker marker)
         {
+            Log.d(DEBUGTAG, "Clicked on Marker");
+            onMapFragmentEventListener.onMarkerClicked(marker);
+
+            return true;
             /*
-             *  Actions that only need 1 selected marker are handled here
-             *  Actions that need more selected markers are handled after they have been confirmed (see below...)
-             */
             //TODO check layer
             //TODO is Action in progress ?
 
@@ -363,78 +374,13 @@ public class MapCanvasFragment extends MapFragment
                     return true;
 
             }
+            */
         }
     };
 
-    /**
-     * User can perform 'actions' on the map such as draw lines ....
-     * These actions are confirmed by by an actionbar but of the activity.
-     * This method performs the desired action
-     */
-    public void confirmedAction()
+    public void drawLine(PolylineOptions options)
     {
-        switch(actionId)
-        {
-            case 0: // NO ACTION
-                //DO NOTHING
-                return;
-            case 1://add marker to map
-                MeasurementLayer currentLayer = layerManager.getCurrentLayer();
-                // get the last measurement point added to the current layer
-                MeasurementPoint last = currentLayer.getMeasurementPointByIndex(currentLayer.getNumberOfMeasurementPoints()-1);
-                addMarker(last.getPosition(), currentLayer.getLayerName(), Integer.toString(currentLayer.hashCode()), currentLayer.getColor(), last);
-                actionId = 0;   //reset action id
-                return;
-            case 2: // Draw Line
-                if(markerSelected01 != null && markerSelected02 != null)
-                {
-                    // create an Options Object the set the Line Options
-                    PolylineOptions plOptions = new PolylineOptions();
-                    plOptions.add(markerSelected01.getPosition());
-                    plOptions.add(markerSelected02.getPosition());
-                    plOptions.color(layerManager.getCurrentLayer().getColor());
-                    plOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
-                    Polyline pl = map.addPolyline(plOptions);
-                    polyLineList.add(pl);
-                    MapLine line = new MapLine(markerSelected01.getPosition(), markerSelected02.getPosition());
-                    layerManager.getCurrentLayer().addLine(line);
-                    // reset variables
-                    // dereference selected markers
-                    markerSelected01 = null;
-                    markerSelected02 = null;
-                    //clear user selected action
-                    actionId = 0; // Reset action id
-                }
-                else
-                {
-                    Toast.makeText(getActivity(), "There are not enough points selected to draw the line CANCELING THE ACTION", Toast.LENGTH_LONG).show();
-                    cancelAction();
-                }
-                return;
-            case 3: // Draw Arc
-                Toast.makeText(getActivity(), "Drawing Arc", Toast.LENGTH_LONG).show();
-                actionId = 0; // Reset action id
-                return;
-            case 4: // add photo
-                //Nothing to do, this can be handled completely in markeronclicklistener
-                return;
-            default:
-                return;
-        }
-    }
-
-    /**
-     * Method for cancelling the Action
-     */
-    public void cancelAction()
-    {
-        //dereference selected markers
-        markerSelected01 = null;
-        markerSelected02 = null;
-        //clear user selected action
-        actionId = 0;
-
-        Toast.makeText(getActivity(), "Action Canceled", Toast.LENGTH_SHORT).show();
+        map.addPolyline(options);
     }
 
     /**

@@ -8,10 +8,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.location.*;
 import android.os.Bundle;
-import android.preference.DialogPreference;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,11 +18,13 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
 
-public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDialogListener,OnDialogDoneListener, SaveToFile.SaveToFileEvent
+public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDialogListener,OnDialogDoneListener, SaveToFile.SaveToFileEvent, onMapFragmentEventListener
 {
     private final static String DEBUGTAG = "MapTestAct";
 
@@ -47,6 +47,19 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     private boolean photoIntent;
     private int lastPhotoId;
     private int newPhotoId;
+
+    /*
+     * Actions:
+     * 0:
+     * 1: add measurement point to current layer
+     * 2: draw line
+     * 3: draw arc
+     * 4: attach photo to measurement point
+     * 5: add/change user comment of measurement point
+     */
+    private int actionId;
+
+    private ArrayList<Marker> selectedMarkers;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -99,6 +112,8 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         photoIntent = false;
         lastPhotoId = 0;
         newPhotoId = 0;
+        actionId = 0;
+        selectedMarkers = new ArrayList<Marker>(0);
     }
 
     @Override
@@ -153,12 +168,12 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         //TODO saveInstance state of photoIntent/newPhotoId/lastPhotoId ??
         if(photoIntent)
         {
-            photoIntent = false;
-            newPhotoId = getLastImageId();
+            photoIntent = false; //Reset variable
+            newPhotoId = getLastImageId(); //Get the id of last image taken
             if(lastPhotoId != newPhotoId && newPhotoId != 0)// if a new photo was taken by the user
             {
-                Toast.makeText(MapTest.this, "Please Select a Measurement Point to attach the photo to!", Toast.LENGTH_LONG).show();
-                getMapFragment().setActionId(4);
+                Toast.makeText(MapTest.this, "Please Select a Measurement Point, and confirm, to attach the photo to the measurement point!", Toast.LENGTH_LONG).show();
+                actionId = 4;
             }
             else
             {
@@ -209,8 +224,8 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 String msg = "No Gps Fix";
                 if(gpsFix)
                 {
-                    int accuracy =  locationProvider.getAccuracy();
-                    msg = "Accuracy: " + Integer.toString(accuracy) + " m";
+                    //TODO get accuracy of GPS
+                    msg = "Accuracy: ???";
                 }
                 CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, infoPositiveClick);
                 infoDialog.changeIconToInformationIcon();
@@ -225,30 +240,27 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 showMapTypeDialog();
                 return true;
             case R.id.actionBar_measurementPoint:
-                Log.d(DEBUGTAG, "Adding measurement point to the map");
                 if(gpsSetup && currentLocation != null)
                 {
-                   getMapFragment().setActionId(1);
+                   actionId = 1;
                    addMeasurementPoint(currentLocation);
                 }
                 else
                 {
-                    Log.d(DEBUGTAG, "Add measurement point while GPS not fixed yet..");
                     Toast.makeText(MapTest.this, "Waiting for GPS FIX...", Toast.LENGTH_LONG).show();
                 }
                 return true;
             case R.id.actionBar_addLayer:
-                Log.d(DEBUGTAG, "Adding Layer");
                 Toast.makeText(MapTest.this, "Add a new layer", Toast.LENGTH_LONG).show();
                 showNewLayerSettingsDialog();
                 return true;
             case R.id.actionBar_drawLine:
-                getMapFragment().setActionId(2);
+                actionId = 2;
                 Toast.makeText(MapTest.this, "Please Select 2 measurement points and Confirm", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.actionBar_drawArc:
-                getMapFragment().setActionId(3);
-                getMapFragment().confirmedAction();
+                actionId = 3;
+                confirmedAction();
                 return true;
             case R.id.actionBar_takePic:
                 lastPhotoId = getLastImageId();
@@ -256,11 +268,19 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivity(intent);
                 return true;
+            case R.id.actionBar_text:
+                actionId = 5;
+                Log.d(DEBUGTAG, "add text button pushed");
+                Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
+                Toast.makeText(MapTest.this, "Please Select 1 measurement point and confirm", Toast.LENGTH_LONG).show();
+                return true;
             case R.id.actionBar_actionConfirm:
-                getMapFragment().confirmedAction();// Action Performed
+                Log.d(DEBUGTAG, "Confirm Action button pushed");
+                Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
+                confirmedAction();// Action Performed
                 return true;
             case R.id.actionBar_actionCancel:
-                getMapFragment().cancelAction();
+                finishAction(true);
                 return true;
         }
         return(super.onOptionsItemSelected(item));
@@ -273,6 +293,11 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         }
     };
 
+    /**
+     * Method to create a new measurementPoint instance
+     * This method also adds a marker on the map
+     * @param position The position (LatLng) of the new Measurement Point
+     */
     private void addMeasurementPoint(LatLng position)
     {
         LatLng measurementPosition = new LatLng(position.latitude, position.longitude);
@@ -284,13 +309,18 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         }
         //Create a measurementPoint
         MeasurementPoint mp = new MeasurementPoint(measurementPosition);
+        //Add marker to the map
+        LatLng markerPos = getMapFragment().addMarker(measurementPosition, layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
+        //Add marker position to measurment point
+        mp.setMarkerPositioOnMap(markerPos);
         //add it to the currentlayer
         layerManager.addMeasurementPointToLayer(mp);
-        // confirm the action here
-        // if the layer was not available then there will be no action confirmed
-        getMapFragment().confirmedAction();
     }
 
+    /**
+     * Method to get the mapcanvasfragment
+     * @return the MapCanvasFragment Instance
+     */
     private MapCanvasFragment getMapFragment()
     {
         FragmentManager fm = getFragmentManager();
@@ -388,16 +418,20 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         }
     }
 
+    /**
+     * Method to launch show map type dialog
+     */
     private void showMapTypeDialog()
     {
         MapCanvasFragment frag = (MapCanvasFragment) getFragmentManager().findFragmentById(R.id.main_fragment_container);
         int mapType = frag.getMapType();
-        String type = Integer.toString(mapType);
-        Log.d(DEBUGTAG, "Current Map Type = " + type);
         MapTypeDialogFragment mapTypeDlg = MapTypeDialogFragment.newInstance(mapType);
         mapTypeDlg.show(getFragmentManager(), "Map Type Dialog");
     }
 
+    /**
+     * Method to show the newLayerSettingDialog (Fragement)
+     */
     private void showNewLayerSettingsDialog()
     {
             ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", Color.RED, 3);
@@ -406,6 +440,9 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
             alsd.show(fm, "NEWLAYERSETTINGS");
     }
 
+    /**
+     * Method to launch Save to file Dialog Fragment
+     */
     private void showSaveToFileDialog()
     {
         SaveToFileDialogFragment frag = SaveToFileDialogFragment.newInstance();
@@ -414,9 +451,19 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         frag.show(fm, "SAVETOFILE");
     }
 
-    @Override
-    public void onDialogDone(String tag, boolean cancelled, CharSequence message)
+    private void showAddTextDialog(String comment)
     {
+        AddTextDialogFragment frag = AddTextDialogFragment.newInstance(comment);
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        frag.show(fm, "ADDTEXT");
+    }
+
+    @Override
+    public void onDialogDone(String tag, boolean cancelled, String message)
+    {
+        Log.d(DEBUGTAG, "on Dialog Done Call Back...");
+        Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
         if(!cancelled && tag.equals("SAVETOFILE"))
         {
             if(!FileHandler.checkMediaAvailability()) //if public external storage is not available do nothing
@@ -427,6 +474,23 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 SaveToFile stf = new SaveToFile(MapTest.this, outPutFile, MapTest.this);
                 stf.execute(layerManager);
             }
+        }
+        else if(!cancelled && tag.equals("ADDTEXT"))
+        {
+            Log.d("DEBUGTAG", "# selected markers: " + Integer.toString(selectedMarkers.size()));
+
+            if(message != null && selectedMarkers.size() == 1)
+            {
+                LatLng markerPos = selectedMarkers.get(0).getPosition();
+                MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
+                mp.setComment(message);
+                finishAction(false);
+            }
+            else
+            {
+                Toast.makeText(MapTest.this, "Something went very wrong...", Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 
@@ -521,6 +585,159 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         {
             return null;
         }
+    }
+
+    @Override
+    public void onMarkerClicked(Marker marker)
+    {
+        Log.d(DEBUGTAG, "on Marker Click Call Back Received");
+        Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
+        if(actionId > 1)
+        {
+            // Markers SHOULD be in the CURRENT (ACTIVE) LAYER
+            // Marker Layers names are stored in the title
+            String markerLayerName = marker.getTitle();
+            String currentLayer = layerManager.getCurrentLayer().getLayerName();
+            if(currentLayer.equals(markerLayerName))
+            {
+                // Add marker to Selected arraylist
+                selectedMarkers.add(marker);
+                // Set marker snippet to 'Selected'
+                marker.setSnippet("[" + Integer.toString(selectedMarkers.size()) + "]" + " Selected");
+                marker.showInfoWindow();
+            }
+            else
+            {
+                Toast.makeText(MapTest.this, "Please select a marker from the Current Active Layer!", Toast.LENGTH_LONG).show();
+            }
+        }
+        else
+        {
+            marker.showInfoWindow();
+        }
+    }
+
+    /**
+     * User can perform 'actions' on the map such as draw lines ....
+     * These actions are confirmed by an action bar button  but of the activity.
+     * This method performs the desired action
+     */
+    public void confirmedAction()
+    {
+        switch(actionId)
+        {
+            case 0: // NO ACTION
+                //DO NOTHING
+                return;
+            case 1://add marker to map
+
+                return;
+            case 2: // Draw Line
+                if(selectedMarkers.size() == 2) //need 2 markers selected to draw a line no more, no less
+                {
+                    //get the marker positions
+                    LatLng mapPos01 = selectedMarkers.get(0).getPosition();
+                    LatLng mapPos02 = selectedMarkers.get(1).getPosition();
+                    //get the associated measurement points from the layer manager
+                    MeasurementPoint mp01 = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(mapPos01);
+                    MeasurementPoint mp02 = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(mapPos02);
+                    //Create polylineOptions instance
+                    PolylineOptions lineOptions = new PolylineOptions();
+                    //Line point 1
+                    lineOptions.add(mapPos01); //use Map positions here ?!
+                    //Line point 2
+                    lineOptions.add(mapPos02); //use Map positions here ?!
+                    lineOptions.color(layerManager.getCurrentLayer().getColor());
+                    lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
+                    //Draw the line on the map
+                    getMapFragment().drawLine(lineOptions);
+                    //Create a new Mapline(REAL POSITION1, REAL POSITION2, MAP POSITION1, MAP POSITION2)
+                    MapLine line = new MapLine(mp01.getPosition(), mp02.getPosition(), mapPos01, mapPos02);
+                    layerManager.getCurrentLayer().addLine(line);
+                    // reset variables
+                    // ->> User Comment to snippet of marker
+                    selectedMarkers.get(0).setSnippet(mp01.getComment());
+                    selectedMarkers.get(1).setSnippet(mp02.getComment());
+                    // Cancel Action
+                    finishAction(false);
+                }
+                else
+                {
+                    Toast.makeText(MapTest.this, "There are not enough points selected to draw the line CANCELING THE ACTION", Toast.LENGTH_LONG).show();
+                    finishAction(true);
+                }
+                return;
+            case 3: // Draw Arc
+                Toast.makeText(MapTest.this, "Drawing Arc", Toast.LENGTH_LONG).show();
+                actionId = 0; // Reset action id
+                return;
+            case 4: // add photo
+                if(selectedMarkers.size() == 1) // Correct #points selected (1)
+                {
+                    String photoPath = getLastPhotoReference();
+                    LatLng markerPos = selectedMarkers.get(0).getPosition();
+                    MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
+                    mp.setPhotoFilePath(photoPath);
+                    Toast.makeText(MapTest.this, "Photo Added!", Toast.LENGTH_LONG).show();
+                    finishAction(false);
+                }
+                else if(selectedMarkers.size() == 0) // no Point Selected
+                {
+                    Toast.makeText(MapTest.this, "no Measurement Point Selected, Please Selected a Point and Confirm!", Toast.LENGTH_LONG).show();
+                    selectedMarkers.clear();
+                }
+                else //too many points selected
+                {
+                    Toast.makeText(MapTest.this, "Too Many Measurement Points Selected,  Please Selected ONE Point and Confirm!", Toast.LENGTH_LONG).show();
+                    selectedMarkers.clear();
+                }
+                return;
+            case 5: // Add/Change User Comment of measurement point
+                if(selectedMarkers.size() == 1) // Correct #points selected (1)
+                {
+                    Log.d(DEBUGTAG, "Action Confirmed... Launching dialog");
+                    Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
+                    LatLng markerPos = selectedMarkers.get(0).getPosition();
+                    MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
+                    String userComment = mp.getComment();
+                    showAddTextDialog(userComment);
+                }
+                else if(selectedMarkers.size() == 0) // no Point Selected
+                {
+                    Toast.makeText(MapTest.this, "no Measurement Point Selected, Please Selected a Point and Confirm!", Toast.LENGTH_LONG).show();
+                    selectedMarkers.clear();
+                }
+                else //too many points selected
+                {
+                    Toast.makeText(MapTest.this, "Too Many Measurement Points Selected,  Please Selected ONE Point and Confirm!", Toast.LENGTH_LONG).show();
+                    selectedMarkers.clear();
+                }
+                return;
+            default:
+                return;
+        }
+    }
+
+    /**
+     * Method for cancelling the Action
+     */
+    public void finishAction(Boolean cancelled)
+    {
+        // Reset User Comment to snippet
+        for(Marker m : selectedMarkers)
+        {
+            MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(m.getPosition());
+            if(mp != null)
+            {
+                m.setSnippet(mp.getComment());
+            }
+        }
+        //dereference selected markers
+        selectedMarkers.clear();
+        //clear user selected action
+        actionId = 0;
+        if(cancelled)
+            Toast.makeText(MapTest.this, "Action Canceled", Toast.LENGTH_SHORT).show();
     }
 }
 

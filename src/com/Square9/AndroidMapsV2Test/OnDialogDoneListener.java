@@ -7,7 +7,7 @@ package com.Square9.AndroidMapsV2Test;
  */
 public interface OnDialogDoneListener
 {
-    public void onDialogDone(String tag, boolean cancelled, CharSequence message);
-    public void onDialogDone(String tag, boolean cancelled, String ln, int color, int lw);
+    void onDialogDone(String tag, boolean cancelled, String message);
+    void onDialogDone(String tag, boolean cancelled, String ln, int color, int lw);
 
 }

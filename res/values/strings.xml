@@ -20,6 +20,7 @@
     <string name="action_bar_drawLine">Draw Line</string>
     <string name="action_bar_drawArc">Draw Arc</string>
     <string name="action_bar_take_pic">Take Photo</string>
+    <string name="action_bar_text">Text</string>
     <string name="action_bar_actionConfirm">OK</string>
     <string name="action_bar_actionCancel">Cancel</string>
 
@@ -47,5 +48,11 @@
     <string name="dlgfrag_hint_filename">file name...</string>
     <string name="dlgfrag_button_save">Save</string>
     <string name="dlgfrag_button_cancel">Cancel</string>
+
+    <string name="dlgfrag_addtext_label">User Comment: </string>
+    <string name="dlgfrag_addtext_button_save">Save</string>
+    <string name="dlgfrag_addtext_button_cancel">Cancel</string>
+    <string name="dlgfrag_addtext_title">Add/Change Comments</string>
+    <string name="dlgfrag_addtext_hint">comment...</string>
 
 </resources>
