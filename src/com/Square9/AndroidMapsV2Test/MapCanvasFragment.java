@@ -24,42 +24,18 @@ public class MapCanvasFragment extends MapFragment
     private Marker currentPositionMarker;
     private LatLng currentPosition;
     private GoogleMap map;
-    private String data;
-
-    private ArrayList<Polyline> polyLineList;
-    private LayerManager layerManager;
-
-    private Marker markerSelected01;
-    private Marker markerSelected02;
 
     private onMapFragmentEventListener onMapFragmentEventListener;
-
-    //Actions
-    /*
-     *  actionId list:
-     *  0 = Reserved, "no action"
-     *  1 = add measurement point
-     *  2 = draw line
-     *  3 = draw arc
-     *  4 = add picture
-     */
-    private int actionId;
 
     /**
      * Creates a new instance of the mapfragment
      * initializing the instance with data and layermanager
-     * @param data dummy data object
-     * @param layerManager model object which holds the structure of and to the measurement points
      * @return new mapCanvasFragment instance
      */
-    public static MapCanvasFragment newInstance(String data, LayerManager layerManager)
+    public static MapCanvasFragment newInstance()
     {
         Log.d(DEBUGTAG, "Created a new instance of MapCanvasFragment...");
         MapCanvasFragment mapCanvasFragment = new MapCanvasFragment();
-        Bundle args = new Bundle();
-        args.putString("data", data);
-        args.putParcelable("layerManager", layerManager);
-        mapCanvasFragment.setArguments(args);
         return mapCanvasFragment;
     }
 
@@ -90,26 +66,6 @@ public class MapCanvasFragment extends MapFragment
     {
         super.onCreate(savedInstanceState);
         Log.d(DEBUGTAG, "onCreate MapCanvasFragment");
-        if(savedInstanceState != null) // Recreating the fragment, it was destroyed ...
-        {
-            Log.d(DEBUGTAG, "Getting data from savedInstanceState");
-            data = savedInstanceState.getString("data");
-            layerManager = savedInstanceState.getParcelable("layerManager");
-        }
-        else // savedInstanceState == null, so this is a new activiy
-             // Because it - automatically restores the state of the view hierarchy of this fragment (only views with an unique id) Default implementation
-        {
-            Log.d(DEBUGTAG, "Bundle was null so getting data from elsewhere");
-            data = getArguments().getString("data");
-            layerManager = getArguments().getParcelable("layerManager");
-        }
-        if(currentPosition == null)
-        {
-            Log.d(DEBUGTAG, "unknown current Position, setting to default location");
-            currentPosition = defaultLocation;
-        }
-        polyLineList =  new ArrayList<Polyline>();
-        actionId = 0;
     }
 
     /*
@@ -151,7 +107,6 @@ public class MapCanvasFragment extends MapFragment
     public void onSaveInstanceState(Bundle bundle)
     {
         super.onSaveInstanceState(bundle);
-        bundle.putParcelable("layerManager", layerManager); //Saving the Layer Manager
     }
 
 
@@ -292,114 +247,15 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public boolean onMarkerClick(Marker marker)
         {
-            Log.d(DEBUGTAG, "Clicked on Marker");
+            // Just pass it on to the Activity
             onMapFragmentEventListener.onMarkerClicked(marker);
-
             return true;
-            /*
-            //TODO check layer
-            //TODO is Action in progress ?
-
-            switch(actionId)
-            {
-                case 0:
-                    return true;
-                case 1:
-                    return true;
-                case 2:   //draw line ...
-                    if(markerSelected01 == null && markerSelected02 == null)
-                    {
-                        markerSelected01 = marker;
-                        marker.setSnippet("First Point Selected, please select a second point");
-                        marker.showInfoWindow();
-                    }
-                    else if(markerSelected01 != null && markerSelected02 == null)
-                    {
-                        markerSelected02 = marker;
-                        marker.setSnippet("Second point selected");
-                        marker.showInfoWindow();
-                    }
-                    else if(markerSelected01 == null && markerSelected02 != null)
-                    {
-                        markerSelected01 = marker;
-                        markerSelected02 = marker;
-                        marker.setSnippet("Second point selected");
-                        marker.showInfoWindow();
-                    }
-                    else // All selected position are filled -> waiting for user to cancel this action
-                    {
-                        Toast.makeText(getActivity(), "There are already 2 points selected", Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                case 3:  //draw arc
-                    return true;
-                case 4: // add photo to measurement point
-                    markerSelected01 = marker;
-                    LatLng markerPosition = markerSelected01.getPosition();
-                    String markerLayerName = markerSelected01.getTitle();
-                    //Todo Marker title to match the layer by name ... could be possible source of bug
-                    MeasurementLayer layer = layerManager.getLayerByName(markerLayerName);
-                    markerSelected01.setSnippet("Error while attaching photo");
-                    if(layer != null) // Correct Layer Found
-                    {
-                        Log.d(DEBUGTAG, "Layer found");
-                        MeasurementPoint point = layer.getMeasurementPointByMarkerPosition(markerPosition);
-
-                        if(point != null)
-                        {
-                            Log.d(DEBUGTAG, "Measurement Point Found");
-                            Activity act =  getActivity();
-                            String ref = ((MapTest) act).getLastPhotoReference();
-                            point.setPhotoFilePath(ref);
-                            markerSelected01.setSnippet("photo added");
-                        }
-                        else
-                        {
-                            Log.d(DEBUGTAG, "ERROR: Point not found in layer while adding photo ref");
-                            Log.d(DEBUGTAG, "Marker Position: " + markerPosition.toString());
-                            for(int loopIndex = 0; loopIndex < layer.getNumberOfMeasurementPoints(); loopIndex++)
-                            {
-                                Log.d(DEBUGTAG, "Measurement Point " + Integer.toString(loopIndex) + ":" + layer.getMeasurementPointByIndex(loopIndex).getPosition().toString());
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Log.d(DEBUGTAG, "ERROR: layer not found while adding photo ref");
-                    }
-
-                    markerSelected01.showInfoWindow();
-                    actionId = 0; // Reset action id
-                default:
-                    return true;
-
-            }
-            */
         }
     };
 
     public void drawLine(PolylineOptions options)
     {
         map.addPolyline(options);
-    }
-
-    /**
-     * Getter for actionId attribute
-     * the int resembles an action chosen by the user
-     * @return the actionId value
-     */
-    public int getActionId()
-    {
-        return actionId;
-    }
-
-    /**
-     * Setter for actionId attribute
-     * @param actionId
-     */
-    public void setActionId(int actionId)
-    {
-        this.actionId = actionId;
     }
 
     /**
@@ -453,67 +309,5 @@ public class MapCanvasFragment extends MapFragment
             return BitmapDescriptorFactory.HUE_YELLOW;
         else
             return BitmapDescriptorFactory.HUE_RED;
-    }
-
-    /*
-     * Canvas Bitmap overlay on Map does not scale ...
-     * Only here to illustrate problem
-     *  free draw help method
-     */
-    private int convertMetersToPixels(double lat, double lng, double radiusInMeters)
-    {
-        double lat1 = radiusInMeters / EARTH_RADIUS;
-        double lng1 = radiusInMeters / (EARTH_RADIUS * Math.cos((Math.PI * lat / 180)));
-
-        double lat2 = lat + lat1 * 180 / Math.PI;
-        double lng2 = lng + lng1 * 180 / Math.PI;
-
-        Point p1 = map.getProjection().toScreenLocation(new LatLng(lat, lng));
-        Point p2 = map.getProjection().toScreenLocation(new LatLng(lat2, lng2));
-
-        return Math.abs(p1.x - p2.x);
-    }
-
-    /*
-    *  http://stackoverflow.com/questions/13991301/android-maps-api-v2-draw-circle
-    */
-    private Bitmap getBitmap()
-    {
-        // stroke color
-        Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint2.setColor(0xFF0000FF);
-        paint2.setStyle(Paint.Style.STROKE);
-
-
-        // circle radius - 200 meters
-        int radius = offset = convertMetersToPixels(currentPosition.latitude, currentPosition.longitude, 5);
-
-        // create empty bitmap
-        Bitmap b = Bitmap.createBitmap(radius * 2, radius * 2, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-
-        c.drawCircle(radius, radius, radius, paint2);
-
-        return b;
-    }
-
-    private LatLng getCoords(double lat, double lng) {
-
-        LatLng latLng = new LatLng(lat, lng);
-
-        Projection proj = map.getProjection();
-        Point p = proj.toScreenLocation(latLng);
-        p.set(p.x, p.y + offset);
-
-        return proj.fromScreenLocation(p);
-    }
-
-    public void drawArc()
-    {
-        MarkerOptions options = new MarkerOptions();
-        options.position(getCoords(currentPosition.latitude, currentPosition.longitude));
-        options.icon(BitmapDescriptorFactory.fromBitmap(getBitmap()));
-
-        Marker marker = map.addMarker(options);
     }
 }

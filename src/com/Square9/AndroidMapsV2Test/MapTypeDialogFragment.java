@@ -17,19 +17,10 @@ import android.util.Log;
  */
 public class MapTypeDialogFragment extends DialogFragment
 {
-    /* The activity that creates an instance of this dialog fragment must
-     * implement this interface in order to receive event callbacks.
-     * Each method passes the DialogFragment in case the host needs to query it.
-     * */
-    public interface MapTypeDialogListener
-    {
-        public void onDialogPositiveClick(DialogFragment dialog);
-    }
-
     private final static String DEBUGTAG = "MapTypeDialogFragment";
     private int selectedMapType;
     private int currentMapType;
-    private MapTypeDialogListener mListener;
+    private OnDialogDoneListener mListener;
 
     public static MapTypeDialogFragment newInstance(int currentMapType)
     {
@@ -54,7 +45,7 @@ public class MapTypeDialogFragment extends DialogFragment
         try
         {
             // Instantiate the MapTypeDialogListener so we can send events to the host
-            mListener = (MapTypeDialogListener) activity;
+            mListener = (OnDialogDoneListener) activity;
             Log.d(DEBUGTAG, "mListener instantiated...");
         }
         catch(Exception e)
@@ -104,7 +95,7 @@ public class MapTypeDialogFragment extends DialogFragment
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 // Send the positive button event back to the host activity
-                mListener.onDialogPositiveClick(MapTypeDialogFragment.this);
+                mListener.onDialogDone(getTag(), false, selectedMapType);
             }
         });
         return builder.create();

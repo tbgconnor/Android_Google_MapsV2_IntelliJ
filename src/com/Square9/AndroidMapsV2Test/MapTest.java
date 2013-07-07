@@ -24,7 +24,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 
 
-public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDialogListener,OnDialogDoneListener, SaveToFile.SaveToFileEvent, onMapFragmentEventListener
+public class MapTest extends Activity implements OnDialogDoneListener, SaveToFile.SaveToFileEvent, onMapFragmentEventListener
 {
     private final static String DEBUGTAG = "MapTestAct";
 
@@ -58,7 +58,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
      * 5: add/change user comment of measurement point
      */
     private int actionId;
-
     private ArrayList<Marker> selectedMarkers;
 
     @Override
@@ -85,7 +84,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         if(frag == null)
         {
             Log.d(DEBUGTAG, "Creating new Instance of MapCanvasFragment");
-            frag = MapCanvasFragment.newInstance("data naar Mapfragment", layerManager);
+            frag = MapCanvasFragment.newInstance();
             fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
         }
 
@@ -190,6 +189,13 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     }
 
     @Override
+    protected void onStop()
+    {
+        Log.d(DEBUGTAG, "on Stop");
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy()
     {
         Log.d(DEBUGTAG, "on Destroy");
@@ -197,13 +203,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         //Generally is recommended to close cursors in Activity's life-cycle method either onStop() or onDestroy() method.
         // Cursor for photo 's taken
         imageCursor.close();
-    }
-
-    @Override
-    protected void onStop()
-    {
-        Log.d(DEBUGTAG, "on Stop");
-        super.onStop();
     }
 
     @Override
@@ -227,7 +226,13 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                     //TODO get accuracy of GPS
                     msg = "Accuracy: ???";
                 }
-                CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, infoPositiveClick);
+                CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                });
                 infoDialog.changeIconToInformationIcon();
                 infoDialog.showDialog();
                 return true;
@@ -286,10 +291,81 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         return(super.onOptionsItemSelected(item));
     }
 
-    DialogInterface.OnClickListener infoPositiveClick = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            dialog.dismiss();
+    /**
+     * Method to setup the GPS controller
+     */
+    public void setupGpsController()
+    {
+        try
+        {
+            //According to: http://developer.android.com/training/basics/location/locationmanager.html
+            locationManager = (LocationManager)  this.getSystemService(Context.LOCATION_SERVICE);
+            locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
+            locationManager.addGpsStatusListener(gpsStatusListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener);
+            gpsSetup = true;
+        }
+        catch(Exception exp)
+        {
+            Log.d(DEBUGTAG,"Error: failed setupGpsController: " + exp.toString());
+            gpsSetup = false;
+        }
+    }
+
+    /**
+     * Location Listener for on-board GPS
+     */
+    private LocationListener locationListener = new LocationListener()
+    {
+
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+            // TODO Auto-generated method stub
+        }
+
+        public void onProviderEnabled(String provider)
+        {
+            // TODO Auto-generated method stub
+        }
+
+        public void onProviderDisabled(String provider)
+        {
+            // TODO Auto-generated method stub
+        }
+
+        public void onLocationChanged(Location location)
+        {
+            currentLocation = new LatLng( location.getLatitude(),  location.getLongitude());
+            MapCanvasFragment frag = (MapCanvasFragment) getFragmentManager().findFragmentById(R.id.main_fragment_container);
+            frag.moveCurrentPositionMarker(currentLocation);
+        }
+    };
+
+    /**
+     * On-board GPS Status Listener
+     */
+    // http://developer.android.com/reference/android/location/GpsStatus.Listener.html
+    private GpsStatus.Listener gpsStatusListener = new GpsStatus.Listener()
+    {
+
+        public void onGpsStatusChanged(int event)
+        {
+            switch(event)
+            {
+                case(GpsStatus.GPS_EVENT_FIRST_FIX):
+                    gpsFix = true;
+                   // pdGPSFix.dismiss();
+                   // pdGPSFix = null;
+                    break;
+                case(GpsStatus.GPS_EVENT_SATELLITE_STATUS):
+                    break;
+                case(GpsStatus.GPS_EVENT_STARTED):
+                    break;
+                case(GpsStatus.GPS_EVENT_STOPPED):
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
@@ -328,93 +404,53 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         return ((MapCanvasFragment) frag);
     }
 
-    public void setupGpsController()
+
+    /**
+     * Method to get the last picture taken on this device.
+     * To detect if a picture is taken
+     * and to get the reference to this picture if it should by connected to a point
+     * Code adapted from: http://stackoverflow.com/questions/7636697/get-path-and-filename-from-camera-intent-result
+     * @return the id of the photo or '0' if any problem occurred
+     */
+    private int getLastImageId()
     {
-        try
+        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
+        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
+        if(imageCursor.moveToFirst())
         {
-            //According to: http://developer.android.com/training/basics/location/locationmanager.html
-            locationManager = (LocationManager)  this.getSystemService(Context.LOCATION_SERVICE);
-            locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
-            locationManager.addGpsStatusListener(gpsStatusListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener);
-            gpsSetup = true;
-        }
-        catch(Exception exp)
-        {
-            Log.d(DEBUGTAG,"Error: failed setupGpsController: " + exp.toString());
-            gpsSetup = false;
-        }
-    }
-
-
-    private LocationListener locationListener = new LocationListener()
-    {
-
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-            // TODO Auto-generated method stub
-        }
-
-        public void onProviderEnabled(String provider)
-        {
-            // TODO Auto-generated method stub
-        }
-
-        public void onProviderDisabled(String provider)
-        {
-            // TODO Auto-generated method stub
-        }
-
-        public void onLocationChanged(Location location)
-        {
-            currentLocation = new LatLng( location.getLatitude(),  location.getLongitude());
-            MapCanvasFragment frag = (MapCanvasFragment) getFragmentManager().findFragmentById(R.id.main_fragment_container);
-            frag.moveCurrentPositionMarker(currentLocation);
-        }
-    };
-
-    // http://developer.android.com/reference/android/location/GpsStatus.Listener.html
-    private GpsStatus.Listener gpsStatusListener = new GpsStatus.Listener()
-    {
-
-        public void onGpsStatusChanged(int event)
-        {
-            switch(event)
-            {
-                case(GpsStatus.GPS_EVENT_FIRST_FIX):
-                    gpsFix = true;
-                   // pdGPSFix.dismiss();
-                   // pdGPSFix = null;
-                    break;
-                case(GpsStatus.GPS_EVENT_SATELLITE_STATUS):
-                    break;
-                case(GpsStatus.GPS_EVENT_STARTED):
-                    break;
-                case(GpsStatus.GPS_EVENT_STOPPED):
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
-    @Override
-    public void onDialogPositiveClick(DialogFragment dialog)
-    {
-        Log.d(DEBUGTAG, "call back from dialog received");
-        MapTypeDialogFragment dlg = (MapTypeDialogFragment) dialog;
-        int requestedType = dlg.getSelectedMapType();
-        MapCanvasFragment frag = (MapCanvasFragment) getFragmentManager().findFragmentById(R.id.main_fragment_container);
-        int currentType = frag.getMap().getMapType();
-        if(currentType != requestedType)
-        {
-            Log.d(DEBUGTAG, "User selected other map type...");
-            frag.setMapType(requestedType);
+            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.d(DEBUGTAG, "getLastImageId::id " + id);
+            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
+            return id;
         }
         else
         {
-            Log.d(DEBUGTAG, "Map type selected same as previous so not worth the effort...");
-            // Professionally doing nothing ;-)
+            return 0;
+        }
+    }
+
+    /**
+     * Method to get the full path of the last photo taken
+     * @return (String) null if failed Path if ok
+     */
+    public String getLastPhotoReference()
+    {
+        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
+        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
+        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
+        if(imageCursor.moveToFirst())
+        {
+            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
+            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            Log.d(DEBUGTAG, "getLastImageId::id " + id);
+            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
+            return fullPath;
+        }
+        else
+        {
+            return null;
         }
     }
 
@@ -426,7 +462,7 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         MapCanvasFragment frag = (MapCanvasFragment) getFragmentManager().findFragmentById(R.id.main_fragment_container);
         int mapType = frag.getMapType();
         MapTypeDialogFragment mapTypeDlg = MapTypeDialogFragment.newInstance(mapType);
-        mapTypeDlg.show(getFragmentManager(), "Map Type Dialog");
+        mapTypeDlg.show(getFragmentManager(), "MAPTYPE");
     }
 
     /**
@@ -451,6 +487,10 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
         frag.show(fm, "SAVETOFILE");
     }
 
+    /**
+     * Method to launch add/modify text of a measurement point
+     * @param comment The comment of the measurement point
+     */
     private void showAddTextDialog(String comment)
     {
         AddTextDialogFragment frag = AddTextDialogFragment.newInstance(comment);
@@ -516,6 +556,27 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
     }
 
     @Override
+    public void onDialogDone(String tag, boolean cancelled, int mapType)
+    {
+        if(tag.equals("MAPTYPE")) //MapTypeDialog
+        {
+            int requestedType = mapType;
+            MapCanvasFragment frag = getMapFragment();
+            int currentType = frag.getMap().getMapType();
+            if(currentType != requestedType)
+            {
+                Log.d(DEBUGTAG, "User selected other map type...");
+                frag.setMapType(requestedType);
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Map type selected same as previous so not worth the effort...");
+                // Professionally doing nothing ;-)
+            }
+        }
+    }
+
+    @Override
     public void onSaveToFileCompleted(Integer result)
     {
         String msg;
@@ -539,52 +600,6 @@ public class MapTest extends Activity implements MapTypeDialogFragment.MapTypeDi
                 break;
         }
         Toast.makeText(MapTest.this, msg, Toast.LENGTH_LONG).show();
-    }
-
-    /**
-     * Method to get the last picture taken on this device.
-     * To detect if a picture is taken
-     * and to get the reference to this picture if it should by connected to a point
-     * Code adapted from: http://stackoverflow.com/questions/7636697/get-path-and-filename-from-camera-intent-result
-     * @return the id of the photo or '0' if any problem occurred
-     */
-    private int getLastImageId()
-    {
-        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
-        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
-        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
-        if(imageCursor.moveToFirst())
-        {
-            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
-            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            Log.d(DEBUGTAG, "getLastImageId::id " + id);
-            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
-            return id;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    public String getLastPhotoReference()
-    {
-        String photoRef = null;
-        final String[] imageColumns = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DATA };
-        final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
-        imageCursor = managedQuery(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageColumns, null, null, imageOrderBy);
-        if(imageCursor.moveToFirst())
-        {
-            int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
-            String fullPath = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            Log.d(DEBUGTAG, "getLastImageId::id " + id);
-            Log.d(DEBUGTAG, "getLastImageId::path " + fullPath);
-            return fullPath;
-        }
-        else
-        {
-            return null;
-        }
     }
 
     @Override
