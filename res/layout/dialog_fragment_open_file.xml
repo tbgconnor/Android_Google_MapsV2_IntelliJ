@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/textview_dlgfrag_openfile_path"
+            android:id="@+id/textView_openfile_path" android:layout_gravity="left|center_vertical"
+            android:layout_weight="0"/>
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listView_dlgfrag_openfile_folderview" android:layout_weight="1"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" android:layout_weight="0">
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_dlgfrag_openfile_open"
+                android:id="@+id/button_dlgfrag_openfile_open" android:layout_weight="1"/>
+        <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_dlgfrag_openfile_cancel"
+                android:id="@+id/button_dlgfrag_openfile_cancel" android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

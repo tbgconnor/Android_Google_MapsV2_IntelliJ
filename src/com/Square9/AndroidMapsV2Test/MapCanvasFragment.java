@@ -310,4 +310,9 @@ public class MapCanvasFragment extends MapFragment
         else
             return BitmapDescriptorFactory.HUE_RED;
     }
+
+    public void clearMap()
+    {
+        map.clear();
+    }
 }

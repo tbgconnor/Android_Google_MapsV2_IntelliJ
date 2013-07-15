@@ -21,10 +21,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 
-public class MapTest extends Activity implements OnDialogDoneListener, SaveToFile.SaveToFileEvent, onMapFragmentEventListener
+public class MapTest extends Activity implements OnDialogDoneListener, SaveToFile.SaveToFileEvent, ReadFromFile.ReadFromFileEvent, onMapFragmentEventListener
 {
     private final static String DEBUGTAG = "MapTestAct";
 
@@ -66,10 +68,14 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         Log.d(DEBUGTAG, "on Create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        if(savedInstanceState != null) // Recreating the previously destroyed instance of the activity
+        {
+            Log.d(DEBUGTAG, "Recreating the previously destroyed instance of the activity");
+            layerManager = savedInstanceState.getParcelable("layerManager");
+            //TODO there is more persistant data ...
+        }
         // Actionbar dependency
         actionBarLayers = new ArrayList<String>();
-
         if(layerManager == null)
         {
             Log.d(DEBUGTAG, "Creating new Instance of LayerManager");
@@ -202,7 +208,34 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         super.onDestroy();
         //Generally is recommended to close cursors in Activity's life-cycle method either onStop() or onDestroy() method.
         // Cursor for photo 's taken
-        imageCursor.close();
+        if(imageCursor != null)// If no photo taken, then imageCursor is not initialized
+        {
+            imageCursor.close();
+        }
+        // Clean up location based services
+        locationManager.removeUpdates(locationListener);
+    }
+
+
+    /*
+     * Only Called if Killed by the OS...
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        Log.d(DEBUGTAG, "Saving act instance state");
+        // Save all measurements ect....
+        outState.putParcelable("layerManager", layerManager);
+        // Save the view hierarchy state
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        Log.d(DEBUGTAG, "Restoring instance state");
+        layerManager = savedInstanceState.getParcelable("layerManager");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -237,6 +270,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 infoDialog.showDialog();
                 return true;
             case R.id.actionBar_openfile:
+                showOpenFileDialog();
                 return true;
             case R.id.actionBar_saveToFile:
                 showSaveToFileDialog();
@@ -472,6 +506,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     {
             ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", Color.RED, 3);
             FragmentManager fm = getFragmentManager();
+            //TODO is ft needed ?
             FragmentTransaction ft = fm.beginTransaction();
             alsd.show(fm, "NEWLAYERSETTINGS");
     }
@@ -497,6 +532,17 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         frag.show(fm, "ADDTEXT");
+    }
+
+    /**
+     * Method to launch open file dialog
+     */
+    private void showOpenFileDialog()
+    {
+        OpenFileDialogFragment dlg = OpenFileDialogFragment.newInstance();
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction ft = manager.beginTransaction();
+        dlg.show(manager, "OPENFILE");
     }
 
     @Override
@@ -577,6 +623,28 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     }
 
     @Override
+    public void onDialogDone(String tag, boolean cancelled, File selectedFile)
+    {
+        if(tag.equals("OPENFILE") && selectedFile != null)
+        {
+           //start AsyncTask openFile
+            ReadFromFile rff = new ReadFromFile(MapTest.this, MapTest.this);
+            rff.execute(selectedFile);
+            // MeanWhile
+            // explicit dereference previous layer manager
+            layerManager = null;
+            // Clear Map
+            getMapFragment().clearMap();
+            // Clear Layer list from actionbar spinner
+            actionBarLayers.clear();
+        }
+        else
+        {
+            Log.d(DEBUGTAG, "Error: callback from open file dialog failed -> incorrect tag or file = null");
+        }
+    }
+
+    @Override
     public void onSaveToFileCompleted(Integer result)
     {
         String msg;
@@ -601,6 +669,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         }
         Toast.makeText(MapTest.this, msg, Toast.LENGTH_LONG).show();
     }
+
+
 
     @Override
     public void onMarkerClicked(Marker marker)
@@ -630,6 +700,15 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         {
             marker.showInfoWindow();
         }
+    }
+
+    @Override
+    public void onReadFromFileCompleted(LayerManager layerManager)
+    {
+        // New LayerManager Instance:
+        this.layerManager = layerManager;
+        //Populate the map
+        populateMap();
     }
 
     /**
@@ -753,6 +832,50 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         actionId = 0;
         if(cancelled)
             Toast.makeText(MapTest.this, "Action Canceled", Toast.LENGTH_SHORT).show();
+    }
+
+    public void populateMap()
+    {
+        Iterator<MeasurementLayer> layerIterator = layerManager.getMeasurementLayerIterator();
+        while(layerIterator.hasNext())
+        {
+            MeasurementLayer layer = layerIterator.next();
+            //Add to actionbar spinner:
+            actionBarLayers.add(layer.getLayerName());
+            //Set this layer as current layer:
+            layerManager.setCurrentLayer(layer.getLayerName());
+            // update the actionbar spinner to set the new layer as selected on the top
+            int newLayerPosition = actionBarLayers.size() - 1;
+            actionBar.setSelectedNavigationItem(newLayerPosition);
+            int currentColor = layer.getColor();
+            int currentLineWidth = layer.getLineWidth();
+            for(int pointIndex = 0; pointIndex < layer.getNumberOfMeasurementPoints(); pointIndex++)
+            {
+               // Add the marker to the map
+                //Create a temp measurementPoint
+                MeasurementPoint mp = layer.getMeasurementPointByIndex(pointIndex);
+                //Add marker to the map
+                LatLng markerPos = getMapFragment().addMarker(mp.getPosition(), layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
+                //Add marker position to measurement point
+                mp.setMarkerPositioOnMap(markerPos);
+            }
+            Iterator<MapLine> lineIterator = layer.getMapLineIterator();
+            while(lineIterator.hasNext())
+            {
+                MapLine line = lineIterator.next();
+                //Create polylineOptions instance
+                PolylineOptions lineOptions = new PolylineOptions();
+                //Line point 1
+                lineOptions.add(line.getPointOne()); //TODO: use Map positions here ?! --> read from file the map positions are unkmown
+                //Line point 2
+                lineOptions.add(line.getPointTwo());
+                lineOptions.color(layerManager.getCurrentLayer().getColor());
+                lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
+                //Draw the line on the map
+                getMapFragment().drawLine(lineOptions);
+            }
+            //TODO More Map elements
+        }
     }
 }
 

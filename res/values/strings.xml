@@ -55,4 +55,10 @@
     <string name="dlgfrag_addtext_title">Add/Change Comments</string>
     <string name="dlgfrag_addtext_hint">comment...</string>
 
+    <string name="dlgfrag_openfile_title">Open a file:</string>
+    <string name="textview_dlgfrag_openfile_path">path</string>
+    <string name="button_dlgfrag_openfile_open">open</string>
+    <string name="button_dlgfrag_openfile_cancel">cancel</string>
+
+
 </resources>

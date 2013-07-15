@@ -45,7 +45,6 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
         measurementLayers.add(currentLayer);
     }
 
-
     /**
      * Add a new Layer and set it to the current
      * @param name the new layer name
@@ -69,6 +68,34 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
             MeasurementLayer ml = new MeasurementLayer(name, color, lineWidth);
             measurementLayers.add(ml);
             currentLayer = ml;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Method to add a new layer and set it as current layer
+     * @param layer MeasurementLayer Instance
+     * @return  (boolean) returns false: the layer with the name all ready exists if there is no duplicate it returns true
+     */
+    public boolean addNewLayer(MeasurementLayer layer)
+    {
+        int index;
+        boolean duplicateNameFound = false;
+        for(index = 0; index < measurementLayers.size(); index++)
+        {
+            if(measurementLayers.get(index).getLayerName().equals(layer.getLayerName()))
+            {
+                duplicateNameFound = true;
+            }
+        }
+        if(!duplicateNameFound)
+        {
+            measurementLayers.add(layer);
+            currentLayer = layer;
             return true;
         }
         else
