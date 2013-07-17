@@ -122,8 +122,8 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\t<Line>\n");
                 result.append("\tLatitude 1: " + line.getPointOne().latitude  + "\n");
                 result.append("\tLongitude 1: " + line.getPointOne().longitude  + "\n");
-                result.append("\tlatitude 2: " + line.getPointTwo().latitude  + "\n");
-                result.append("\tlatitude 2: " + line.getPointTwo().longitude  + "\n");
+                result.append("\tLatitude 2: " + line.getPointTwo().latitude  + "\n");
+                result.append("\tLongitude 2: " + line.getPointTwo().longitude  + "\n");
                 result.append("\t</Line>\n");
             }
             // [5] for each arc in this layer

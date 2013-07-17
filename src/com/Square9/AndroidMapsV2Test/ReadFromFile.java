@@ -3,7 +3,6 @@ package com.Square9.AndroidMapsV2Test;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.BufferedReader;
@@ -86,38 +85,44 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
             //Create a buffered Reader
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
-            //TODO: fix buggy parsing
-
             while ((line = bufferedReader.readLine()) != null)
             {
                 Log.d(DEBUGTAG, "Reading Line: " + line);
                 if(line.contains(OPEN_LAYER_TAG))
                 {
-                    Log.d(DEBUGTAG, "Open Layer Tag Found");
                     String layerName = "";
                     int layerColor = 0;
                     int layerLineWidth = 0;
 
                     String nextLine = bufferedReader.readLine();
-                    Log.d(DEBUGTAG, "Reading Next line: " + nextLine);
                     if(nextLine.contains(LAYER_NAME))
-                        layerName = nextLine.substring(nextLine.indexOf(':')+1).trim();
-                    Log.d(DEBUGTAG, "LayerName: " + layerName);
+                    {
+                        layerName = getSubStringBehindToken(nextLine, ':');
+                    }
+
                     nextLine = bufferedReader.readLine();
-                    Log.d(DEBUGTAG, "Reading Next line: " + nextLine);
                     if(nextLine.contains(LAYER_COLOR))
-                        layerColor = stringColorToIntColor(nextLine.substring(nextLine.indexOf(':')+1).trim());
-                    Log.d(DEBUGTAG, "LayerColor: " + Integer.toString(layerColor));
-                     nextLine = bufferedReader.readLine();
-                    Log.d(DEBUGTAG, "Reading Next line: " + nextLine);
+                    {
+                        int color = stringLineColorToIntColor(nextLine);
+                        if(color == -1)
+                        {
+                            // Parsing error if return -1
+                            color = 16777215; // 0xFFFFFF (white)
+                        }
+                        layerColor = color;
+                    }
+
+                    nextLine = bufferedReader.readLine();
                     if(nextLine.contains(LAYER_LINEWIDTH))
+                    {
                         layerLineWidth = stringLineWidthToIntLineWidth(nextLine);
-                    Log.d(DEBUGTAG, "Line Width: " + layerLineWidth);
+                    }
                     // Create a new Measurement layer and set is as current layer of the layer manager
+                    Log.d(DEBUGTAG, "LayerName: " + layerName);
+                    Log.d(DEBUGTAG, "LayerColor: " + Integer.toString(layerColor));
+                    Log.d(DEBUGTAG, "Line Width: " + layerLineWidth);
                     MeasurementLayer ml = new MeasurementLayer(layerName, layerColor, layerLineWidth);
-                    Log.d(DEBUGTAG, "Created new Layer");
                     result.addNewLayer(ml);
-                    Log.d(DEBUGTAG, "Added Layer to LayerManager");
                 }
                 if(line.contains(OPEN_MEASUREMENTPOINT_TAG))
                 {
@@ -125,25 +130,34 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     double lat = 0.0;
                     double lon = 0.0;
                     String photoRef = "";
+
                     String nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(USER_COMMENT))
-                        userComment = nextLine.substring(nextLine.indexOf(':') + 1).trim();
+                    if(nextLine.contains(USER_COMMENT))   //	User Comment: test
+                        userComment = getSubStringBehindToken(nextLine, ':');
+
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LATITUDE))
+                    if(nextLine.contains(LATITUDE))      // 	Latitude: 50.87406459824764
                     {
-                        String sLat = nextLine.substring(nextLine.indexOf(":")+1);
-                        lat = Double.parseDouble(sLat);
+                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        lat = decimalNumberStringToDouble(sLat);
                     }
+
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LONGITUDE))
+                    if(nextLine.contains(LONGITUDE)) // Longitude: 5.273974682895753
                     {
-                        String sLon = nextLine.substring(nextLine.indexOf(":")+1);
-                        lon = Double.parseDouble(sLon);
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon = decimalNumberStringToDouble(sLon);
                     }
+
                     nextLine = bufferedReader.readLine();
                     if(nextLine.contains(PHOTO))
-                        photoRef = nextLine.substring(nextLine.indexOf(":")+1);
+                        photoRef = getSubStringBehindToken(nextLine, ':');
+
                     //Create a new Measurement Point
+                    Log.d(DEBUGTAG, "User Comment: " + userComment);
+                    Log.d(DEBUGTAG, "Latitude: " + Double.toString(lat));
+                    Log.d(DEBUGTAG, "Longitude: " + Double.toString(lon));
+                    Log.d(DEBUGTAG, "Photo: " + photoRef);
                     LatLng pos = new LatLng(lat, lon);
                     MeasurementPoint mp = new MeasurementPoint(pos);
                     mp.setComment(userComment);
@@ -157,31 +171,39 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     double lon1 = 0.0;
                     double lat2= 0.0;
                     double lon2 = 0.0;
+
                     String nextLine = bufferedReader.readLine();
                     if(nextLine.contains(LINE_LAT1))
                     {
-                        String sLat = nextLine.substring(nextLine.indexOf(':')+1).trim();
-                        lat1 = Double.parseDouble(sLat);
+                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        lat1 = decimalNumberStringToDouble(sLat);
                     }
+
                     nextLine = bufferedReader.readLine();
                     if(nextLine.contains(LINE_LON1))
                     {
-                        String sLon = nextLine.substring(nextLine.indexOf(':')+1).trim();
-                        lon1 = Double.parseDouble(sLon);
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon1 = decimalNumberStringToDouble(sLon);
                     }
+
                     nextLine = bufferedReader.readLine();
                     if(nextLine.contains(LINE_LAT2))
                     {
-                        String sLat = nextLine.substring(nextLine.indexOf(':')+1).trim();
-                        lat2 = Double.parseDouble(sLat);
+                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        lat2 = decimalNumberStringToDouble(sLat);
                     }
+
                     nextLine = bufferedReader.readLine();
                     if(nextLine.contains(LINE_LON2))
                     {
-                        String sLon = nextLine.substring(nextLine.indexOf(':')+1).trim();
-                        lon2 = Double.parseDouble(sLon);
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon2 = decimalNumberStringToDouble(sLon);
                     }
                     // Create a new line instance
+                    Log.d(DEBUGTAG, "Lat 1: " + Double.toString(lat1));
+                    Log.d(DEBUGTAG, "Lon 1: " + Double.toString(lon1));
+                    Log.d(DEBUGTAG, "Lat 2: " + Double.toString(lat2));
+                    Log.d(DEBUGTAG, "Lon 2: " + Double.toString(lon2));
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
                     // Constructor of MapLine requires the Position on map,
@@ -191,9 +213,6 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     // add Map line to current layer in layermanager
                     result.getCurrentLayer().addLine(lineElement);
                 }
-
-
-
             }
             bufferedReader.close();
             inputStreamReader.close();
@@ -208,20 +227,24 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
 
 
     /**
-     * Method to convert #AARRGGBB to 3452233
-     * @param color string representation of color
+     * Method to convert Color: #ff007fff ->  4278222847
+     * @param lineColor string representation of Line color
      * @return integer representation of color
      */
-    public int stringColorToIntColor(String color)
+    public int stringLineColorToIntColor(String lineColor)
     {
-        Log.d(DEBUGTAG, "Converting Color: " + color);
-        // Strip '#'
-        String strippedColor = color.substring(color.indexOf('#')+1).trim();
-        Log.d(DEBUGTAG, "Stripped Color: " + strippedColor);
-        // Parse Int with radix 16
-        int colorValue = (int) Long.parseLong(strippedColor, 16);
-        Log.d(DEBUGTAG, "Color Value: " +  Integer.toString(colorValue));
-        return colorValue;
+        //get substring behind '#' ->> Color: #ff007fff
+        String strippedColor = getSubStringBehindToken(lineColor, '#');     // e.g.: Color: #ff007fff
+        strippedColor = strippedColor.toLowerCase();
+        if(strippedColor.length() == 8 && strippedColor.matches("[0-9a-f]+"))    //if the substring color is exactly 8 chars long (4 -2digit- hex values) AND is a hexadecimal value
+        {
+            int colorValue = (int) Long.parseLong(strippedColor, 16);
+            return colorValue;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     /**
@@ -232,11 +255,64 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     public int stringLineWidthToIntLineWidth(String lw)
     {
         //start "Line width: 3px"
-        //pixel => "3px"
-        String pixels = lw.substring(lw.indexOf(':')+1).trim();
-        String[] lwSplit = pixels.split("p");
-        String lwValue = lwSplit[0];
-        return Integer.parseInt(lwValue, 10);
+        //pixels => "3px"
+        String pixels = getSubStringBehindToken(lw, ':');
+        //pixelValue => "3"
+        String pixelValue[] = pixels.split("p");
+        if(pixelValue[0].matches("[0-9]+")) //if it only contains numbers its ok
+        {
+            return  Integer.parseInt(pixelValue[0], 10);
+        }
+        else
+        {
+            return -1; //invalid value
+        }
+    }
+
+    /**
+     * Method to retrieve the substring behind a char token in the property declaration line
+     * e.g.:  token = ':' --> line = Latitude: 50.87421464954512 --> returns --> 50.87421464954512
+     * @param line String line containing a property declaration
+     * @return  the substring behind the token
+     */
+    private String getSubStringBehindToken(String line, char token)
+    {
+        int colonPos = line.indexOf(token);
+        String subString;
+        // colonPos = -1 if the colon did not occur in string line.
+        if(colonPos != -1)
+        {
+            subString = line.substring(colonPos+1).trim();
+            if(subString.length() > 0)
+            {
+                return  subString;
+            }
+            else
+            {
+                return "no user comment";
+            }
+        }
+        else
+        {
+            return "missing token in property declaration";
+        }
+    }
+
+    /**
+     * Method to convert decimal number string to double
+     * @param value Can only contain number values and decimal point [0-9 && .]
+     * @return double value of string or 0.0 if failed to convert -> due to not obeying the regex rule ;-)
+     */
+    private double decimalNumberStringToDouble(String value)
+    {
+        if(value.matches("[0-9]*\\.?[0-9]+"))
+        {
+            return  Double.parseDouble(value);
+        }
+        else
+        {
+            return 0.0;
+        }
     }
 
 }
