@@ -1,28 +1,24 @@
 package com.Square9.AndroidMapsV2Test;
 
 import android.app.Activity;
-import android.graphics.*;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
-import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.*;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class MapCanvasFragment extends MapFragment
 {
     private static final String DEBUGTAG = "MapFragment";
     private static final int MAXZOOM = 21;
-    private static final double EARTH_RADIUS = 6378100.0;
-    private int offset;
     private static final LatLng defaultLocation = new LatLng(50.879668, 5.309296); // Alken Belgium
     private Marker currentPositionMarker;
-    private LatLng currentPosition;
     private GoogleMap map;
 
     private onMapFragmentEventListener onMapFragmentEventListener;
@@ -164,6 +160,16 @@ public class MapCanvasFragment extends MapFragment
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, MAXZOOM));
     }
 
+    public void restoreCurrentPositionMarker(LatLng currentPosition)
+    {
+        currentPositionMarker = map.addMarker(new MarkerOptions().position(currentPosition));
+        currentPositionMarker.setTitle("Position Loaded from file");
+        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_large));
+        currentPositionMarker.setAnchor(0.5f, 0.5f);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, MAXZOOM));
+    }
+
+
     /**
      * methode to move the 'current position marker' to a new location
      * @param newPosition the new position
@@ -172,7 +178,6 @@ public class MapCanvasFragment extends MapFragment
     {
         String mTitle = "Current Postion";
         String mSnippet = newPosition.toString();
-        currentPosition = newPosition;
         currentPositionMarker.setPosition(newPosition);
         map.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
         currentPositionMarker.setTitle(mTitle);
@@ -253,10 +258,20 @@ public class MapCanvasFragment extends MapFragment
         }
     };
 
-    public void drawLine(PolylineOptions options)
+    public List<LatLng> drawLine(PolylineOptions options)
     {
-        map.addPolyline(options);
+        Polyline line = map.addPolyline(options);
+        return line.getPoints();
     }
+
+
+    public void drawArc(LatLng start, LatLng end, double radius)
+    {
+        Projection pjctn = map.getProjection();
+        pjctn.fromScreenLocation(new Point());
+
+    }
+
 
     /**
      * Anonymous Inner Class for map clicks

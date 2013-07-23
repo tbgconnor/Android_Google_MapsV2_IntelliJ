@@ -26,6 +26,18 @@
             android:title="@string/action_bar_map"/>
 
     <item
+            android:id="@+id/actionBar_undo"
+            android:icon="@drawable/ic_content_undo"
+            android:showAsAction="always"
+            android:title="@string/action_bar_undo" />
+
+    <item
+            android:id="@+id/actionBar_redo"
+            android:icon="@drawable/ic_content_redo"
+            android:showAsAction="always"
+            android:title="@string/action_bar_redo" />
+
+    <item
             android:id="@+id/actionBar_measurementPoint"
             android:icon="@drawable/ic_device_access_location_searching"
             android:showAsAction="always"
@@ -72,4 +84,11 @@
             android:icon="@drawable/ic_cancel_action"
             android:showAsAction="always"
             android:title="@string/action_bar_actionCancel" />
+
+    <item
+            android:id="@+id/actionBar_delete"
+            android:icon="@drawable/ic_content_discard"
+            android:showAsAction="always"
+            android:title="@string/action_bar_delete" />
+
 </menu>

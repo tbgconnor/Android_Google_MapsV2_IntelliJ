@@ -289,7 +289,7 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
             }
             else
             {
-                return "no user comment";
+                return "";
             }
         }
         else

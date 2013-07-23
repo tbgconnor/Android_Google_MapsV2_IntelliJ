@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class MapTest extends Activity implements OnDialogDoneListener, SaveToFile.SaveToFileEvent, ReadFromFile.ReadFromFileEvent, onMapFragmentEventListener
@@ -640,6 +641,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         }
         else
         {
+            Toast.makeText(MapTest.this, "Error: Invalid file", Toast.LENGTH_LONG).show();
             Log.d(DEBUGTAG, "Error: callback from open file dialog failed -> incorrect tag or file = null");
         }
     }
@@ -705,10 +707,18 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onReadFromFileCompleted(LayerManager layerManager)
     {
-        // New LayerManager Instance:
-        this.layerManager = layerManager;
-        //Populate the map
-        populateMap();
+        if(layerManager != null)
+        {
+            // New LayerManager Instance:
+            this.layerManager = layerManager;
+            //Populate the map
+            populateMap();
+        }
+        else
+        {
+            Log.d(DEBUGTAG, "Error: Parsing error in file");
+            Toast.makeText(MapTest.this, "Error: something went wrong while reading the file", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
@@ -744,9 +754,9 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                     lineOptions.color(layerManager.getCurrentLayer().getColor());
                     lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
                     //Draw the line on the map
-                    getMapFragment().drawLine(lineOptions);
+                    List<LatLng> mapPoints =  getMapFragment().drawLine(lineOptions);
                     //Create a new Mapline(REAL POSITION1, REAL POSITION2, MAP POSITION1, MAP POSITION2)
-                    MapLine line = new MapLine(mp01.getPosition(), mp02.getPosition(), mapPos01, mapPos02);
+                    MapLine line = new MapLine(mp01.getPosition(), mp02.getPosition(), mapPoints.get(0), mapPoints.get(1));
                     layerManager.getCurrentLayer().addLine(line);
                     // reset variables
                     // ->> User Comment to snippet of marker
@@ -837,6 +847,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     public void populateMap()
     {
         Iterator<MeasurementLayer> layerIterator = layerManager.getMeasurementLayerIterator();
+        LatLng markerPos = new LatLng(51.759275,5.738796); //ergens in Nederland
         while(layerIterator.hasNext())
         {
             MeasurementLayer layer = layerIterator.next();
@@ -855,7 +866,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 //Create a temp measurementPoint
                 MeasurementPoint mp = layer.getMeasurementPointByIndex(pointIndex);
                 //Add marker to the map
-                LatLng markerPos = getMapFragment().addMarker(mp.getPosition(), layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
+                markerPos = getMapFragment().addMarker(mp.getPosition(), layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
                 //Add marker position to measurement point
                 mp.setMarkerPositioOnMap(markerPos);
             }
@@ -866,16 +877,22 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 //Create polylineOptions instance
                 PolylineOptions lineOptions = new PolylineOptions();
                 //Line point 1
-                lineOptions.add(line.getPointOne()); //TODO: use Map positions here ?! --> read from file the map positions are unkmown
+                lineOptions.add(line.getPointOne());
                 //Line point 2
                 lineOptions.add(line.getPointTwo());
                 lineOptions.color(layerManager.getCurrentLayer().getColor());
                 lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
                 //Draw the line on the map
-                getMapFragment().drawLine(lineOptions);
+                List<LatLng> mapPoints = getMapFragment().drawLine(lineOptions);
+                // Update the line position on the map
+                line.setLinePositioOnMap01(mapPoints.get(0));
+                line.setLinePositioOnMap02(mapPoints.get(1));
             }
             //TODO More Map elements
+
         }
+        //restore current position marker to last point added:
+        getMapFragment().restoreCurrentPositionMarker(markerPos);
     }
 }
 
