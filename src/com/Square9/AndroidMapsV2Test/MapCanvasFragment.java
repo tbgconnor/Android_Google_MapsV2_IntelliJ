@@ -94,7 +94,9 @@ public class MapCanvasFragment extends MapFragment
         super.onStart();
         if(map != null)
         {
+            // Register event listeners
             map.setOnMarkerClickListener(onMarkerClick);
+            map.setOnMapClickListener(onMapClickListener);
             map.setOnMapLongClickListener(onMapLongClick);
         }
     }
@@ -244,19 +246,17 @@ public class MapCanvasFragment extends MapFragment
         return newMarker.getPosition();
     }
 
-    /*
-     * Anonymous Inner Class the define marker onClick events
-     */
-    GoogleMap.OnMarkerClickListener onMarkerClick = new GoogleMap.OnMarkerClickListener()
+    public Marker addMarkerToMap(LatLng position, String title, String snippet, int color)
     {
-        @Override
-        public boolean onMarkerClick(Marker marker)
-        {
-            // Just pass it on to the Activity
-            onMapFragmentEventListener.onMarkerClicked(marker);
-            return true;
-        }
-    };
+        MarkerOptions mOptions = new MarkerOptions();
+        mOptions.title(title);
+        mOptions.snippet(snippet);
+        mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
+        mOptions.position(position);
+        Marker newMarker = map.addMarker(mOptions);
+        //Return the markerPosition as it differs from the position set (Google maps API bug)
+        return newMarker;
+    }
 
     public List<LatLng> drawLine(PolylineOptions options)
     {
@@ -272,15 +272,39 @@ public class MapCanvasFragment extends MapFragment
 
     }
 
+    /*
+     * Anonymous Inner Class the define marker onClick events
+     */
+    GoogleMap.OnMarkerClickListener onMarkerClick = new GoogleMap.OnMarkerClickListener()
+    {
+        @Override
+        public boolean onMarkerClick(Marker marker)
+        {
+            // Just pass it on to the Activity
+            onMapFragmentEventListener.onMarkerClicked(marker);
+            return true;
+        }
+    };
 
     /**
-     * Anonymous Inner Class for map clicks
+     *  Anonymous Inner Class for map clicks
+     */
+    GoogleMap.OnMapClickListener onMapClickListener = new GoogleMap.OnMapClickListener() {
+        @Override
+        public void onMapClick(LatLng latLng)
+        {
+            onMapFragmentEventListener.onMapClicked(latLng);
+        }
+    };
+
+    /**
+     * Anonymous Inner Class for map LONG clicks
      */
     GoogleMap.OnMapLongClickListener onMapLongClick = new GoogleMap.OnMapLongClickListener() {
         @Override
         public void onMapLongClick(LatLng latLng)
         {
-
+            onMapFragmentEventListener.onMapLongClicked(latLng);
         }
     };
 

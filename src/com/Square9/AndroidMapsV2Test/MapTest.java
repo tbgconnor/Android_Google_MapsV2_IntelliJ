@@ -37,7 +37,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     private boolean gpsFix;
     private ProgressDialog pdGPSFix;
 
-   //actionbar
+    //actionbar
     private ActionBar actionBar;
     private ArrayList<String> actionBarLayers;
 
@@ -50,6 +50,9 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     private boolean photoIntent;
     private int lastPhotoId;
     private int newPhotoId;
+
+    //Command Design Pattern Instances
+    private UndoRedo commandBuffer;
 
     /*
      * Actions:
@@ -120,6 +123,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         newPhotoId = 0;
         actionId = 0;
         selectedMarkers = new ArrayList<Marker>(0);
+        commandBuffer = new UndoRedo();
     }
 
     @Override
@@ -279,11 +283,27 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             case R.id.actionBar_maptype:
                 showMapTypeDialog();
                 return true;
+            case R.id.actionBar_undo:
+                if(!commandBuffer.undo())
+                {
+                    Toast.makeText(MapTest.this, "Nothing to undo", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.actionBar_redo:
+                if(!commandBuffer.redo())
+                {
+                    Toast.makeText(MapTest.this, "Nothing to redo", Toast.LENGTH_LONG).show();
+                }
+                return true;
             case R.id.actionBar_measurementPoint:
                 if(gpsSetup && currentLocation != null)
                 {
-                   actionId = 1;
-                   addMeasurementPoint(currentLocation);
+                   //actionId = 1;
+                   //addMeasurementPoint(currentLocation);
+
+                    CommandAddMeasurementPoint addMeasurementPoint = new CommandAddMeasurementPoint(layerManager, currentLocation, getMapFragment());
+                    commandBuffer.addToUndoBuffer(addMeasurementPoint);
+
                 }
                 else
                 {
@@ -702,6 +722,18 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         {
             marker.showInfoWindow();
         }
+    }
+
+    @Override
+    public void onMapClicked(LatLng clickPosition)
+    {
+        Toast.makeText(MapTest.this, "map on click callback received", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMapLongClicked(LatLng longClickPosition)
+    {
+        Toast.makeText(MapTest.this, "map on LONG click callback received", Toast.LENGTH_SHORT).show();
     }
 
     @Override
