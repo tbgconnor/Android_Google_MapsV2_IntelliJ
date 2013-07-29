@@ -29,7 +29,7 @@ public class MeasurementPoint implements Parcelable
     {
         this.position = position;
         comment = ""; //prevent null pointer errors on simple string object
-        photoFilePath = "No Photo attached";
+        photoFilePath = "";
         markerPositioOnMap = position;
     }
 
@@ -85,6 +85,27 @@ public class MeasurementPoint implements Parcelable
     }
 
     /**
+     * Getter for photo filename
+     * @return photo filename if available else an empty string is returned
+     */
+    public String getPhotoFileName()
+    {
+        //if filename contains a '/' then there it is assumed that there is a path + filename present
+        int lastSlashIndex = photoFilePath.lastIndexOf('/');
+        if(lastSlashIndex != -1)
+        {
+            //return the substring starting from last index
+            return photoFilePath.substring(lastSlashIndex);
+        }
+        else
+        {
+            return "";
+        }
+
+    }
+
+
+    /**
      * Getter for marker position on map (used for cross ref) (bypassing google play maps v2 api bug)
      * @return the (LatLng) position of the marker on the map
      */
@@ -118,7 +139,7 @@ public class MeasurementPoint implements Parcelable
     {
         comment = "";
         position = new LatLng(50.879668, 5.309296);
-        photoFilePath = "No photo attached";
+        photoFilePath = "";
         markerPositioOnMap = new LatLng(50.879668, 5.309296);
         readFromParcel(in);
     }

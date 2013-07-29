@@ -14,7 +14,7 @@ import java.util.Iterator;
  * @version 1.0
  * @author  K. Gilissen
  */
-public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
+public class LayerManager implements Parcelable
 {
     private ArrayList<MeasurementLayer> measurementLayers;
     private MeasurementLayer currentLayer;
@@ -224,54 +224,25 @@ public class LayerManager implements Iterable<MeasurementPoint>, Parcelable
         return layer;
     }
 
-
     /**
-     *  Anonymous Inner Class implementing a custom Iterator Object
-     *  Iterator implementation joins all layers so that all MeasurementPoint objects can be accessed in one continuous fashion
-     * @return  Iterator<MeasurementPoint>
+     * Method to search all layer for a measurement point returns the first measurement point found on the position
+     * @param position of the measurement point
+     * @return null if not found | the first measurment point at that position
      */
-    @Override
-    public Iterator<MeasurementPoint> iterator() {
-      return new Iterator<MeasurementPoint>()
-      {
-          int iteratorCounter;
-
-          @Override
-          public boolean hasNext()
-          {
-              int totalOfMeasurementPoints = 0;
-              for(MeasurementLayer layer : measurementLayers)
-              {
-                  totalOfMeasurementPoints = totalOfMeasurementPoints + layer.getNumberOfMeasurementPoints();
-              }
-              return iteratorCounter < totalOfMeasurementPoints;
-          }
-
-          @Override
-          public MeasurementPoint next()
-          {
-              int lowerLimit = 0;
-              MeasurementPoint mP = new MeasurementPoint(new LatLng(50.879752,5.308601));
-              for(MeasurementLayer layer : measurementLayers)
-              {
-                  if(iteratorCounter >= lowerLimit && iteratorCounter <= (lowerLimit+layer.getNumberOfMeasurementPoints()-1))
-                  {
-                      mP = layer.getMeasurementPointByIndex((iteratorCounter - lowerLimit));
-
-                  }
-                  else
-                  {
-                      lowerLimit = lowerLimit + layer.getNumberOfMeasurementPoints();
-                  }
-              }
-              iteratorCounter++;
-              return mP;
-          }
-
-          @Override
-          public void remove(){}
-      };
+    public MeasurementPoint getMeasurementPointByPosition(LatLng position)
+    {
+        MeasurementPoint mp = null;
+        for(int index = 0; index < measurementLayers.size(); index++)
+        {
+            if((mp = measurementLayers.get(index).getMeasurementPointByPosition(position)) != null)
+            {
+                break;
+            }
+        }
+        return mp;
     }
+
+
 
     /**
      * Overloaded constructor which expects a Parcel as a parameter and calls the readFromParcel() utility method

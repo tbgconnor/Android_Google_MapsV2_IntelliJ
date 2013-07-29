@@ -261,7 +261,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 String msg = "No Gps Fix";
                 if(gpsFix)
                 {
-                    //TODO get accuracy of GPS
                     msg = "Accuracy: ???";
                 }
                 CustomAlertDialog infoDialog = new CustomAlertDialog(MapTest.this, title, msg, new DialogInterface.OnClickListener() {
@@ -298,12 +297,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             case R.id.actionBar_measurementPoint:
                 if(gpsSetup && currentLocation != null)
                 {
-                   //actionId = 1;
-                   //addMeasurementPoint(currentLocation);
-
                     CommandAddMeasurementPoint addMeasurementPoint = new CommandAddMeasurementPoint(layerManager, currentLocation, getMapFragment());
                     commandBuffer.addToUndoBuffer(addMeasurementPoint);
-
                 }
                 else
                 {
@@ -697,43 +692,67 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMarkerClicked(Marker marker)
     {
-        Log.d(DEBUGTAG, "on Marker Click Call Back Received");
-        Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
-        if(actionId > 1)
+        String layerName = marker.getTitle();
+        String snippet = marker.getSnippet();
+        LatLng markerPosition = marker.getPosition();
+        String selectedSnippet = getResources().getString(R.string.marker_snippet_selected);
+
+        //Check if it is a "selected" marker or a measurement point marker to be selected ...
+        if(snippet.equals(selectedSnippet)) // deselect the marker
         {
-            // Markers SHOULD be in the CURRENT (ACTIVE) LAYER
-            // Marker Layers names are stored in the title
-            String markerLayerName = marker.getTitle();
-            String currentLayer = layerManager.getCurrentLayer().getLayerName();
-            if(currentLayer.equals(markerLayerName))
+            MeasurementLayer layer = layerManager.getLayerByName(layerName);
+            if(layer != null)
             {
-                // Add marker to Selected arraylist
-                selectedMarkers.add(marker);
-                // Set marker snippet to 'Selected'
-                marker.setSnippet("[" + Integer.toString(selectedMarkers.size()) + "]" + " Selected");
-                marker.showInfoWindow();
+                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
+                if(mp != null)
+                {
+                    Log.d(DEBUGTAG, "Deselecting marker");
+                    getMapFragment().deselectMarkerAt(markerPosition, mp.getPosition(), layerName, mp.getComment(), layer.getColor() );
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Error: while deselecting marker: measurement point not found in layer: " + layerName);
+                }
             }
             else
             {
-                Toast.makeText(MapTest.this, "Please select a marker from the Current Active Layer!", Toast.LENGTH_LONG).show();
+                Log.d(DEBUGTAG, "Error: while deselecting marker:  Layer not found...");
             }
+
         }
-        else
+        else // Select the marker
         {
-            marker.showInfoWindow();
+            MeasurementLayer layer = layerManager.getLayerByName(layerName);
+            if(layer != null)
+            {
+                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
+                if(mp != null)
+                {
+                    Log.d(DEBUGTAG, "Selecting marker");
+                    getMapFragment().selectMarker(mp.getMarkerPositioOnMap(), layerName, selectedSnippet);
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Error: while selecting marker: measurement point not found in layer: " + layerName);
+                }
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Error: while selecting marker:  Layer not found...");
+            }
         }
     }
 
     @Override
     public void onMapClicked(LatLng clickPosition)
     {
-        Toast.makeText(MapTest.this, "map on click callback received", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
     public void onMapLongClicked(LatLng longClickPosition)
     {
-        Toast.makeText(MapTest.this, "map on LONG click callback received", Toast.LENGTH_SHORT).show();
+        getMapFragment().clearAllSelectedMarkers();
     }
 
     @Override

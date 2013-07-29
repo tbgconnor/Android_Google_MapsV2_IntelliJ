@@ -104,6 +104,7 @@ public class MeasurementLayer implements Parcelable
             if(point.getPosition().equals(position))
             {
                 mP = point;
+                break;
             }
         }
         return mP;
@@ -122,6 +123,7 @@ public class MeasurementLayer implements Parcelable
             if(point.getMarkerPositioOnMap().equals(markerPosition))
             {
                 mP = point;
+                break;
             }
         }
         return mP;
@@ -142,6 +144,7 @@ public class MeasurementLayer implements Parcelable
             {
                 measurementPoints.remove(i);
                 succesfullRemoved = true;
+                break;
 
             }
         }

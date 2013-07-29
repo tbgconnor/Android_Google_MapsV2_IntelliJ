@@ -1,5 +1,6 @@
 package com.Square9.AndroidMapsV2Test;
 
+import android.content.Context;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -35,7 +36,7 @@ public class CommandAddMeasurementPoint implements Icommand
     {
         // Create A measurement point
         measurementPoint = new MeasurementPoint(position);
-        // Add marker to map
+        // Add marker to map.
         markerOnMap = mapCanvas.addMarkerToMap(position, layer.getLayerName(), "", layer.getColor());
         // Add marker position to measurementPoint
         measurementPoint.setMarkerPositioOnMap(markerOnMap.getPosition());
@@ -50,15 +51,20 @@ public class CommandAddMeasurementPoint implements Icommand
     @Override
     public void unexecute()
     {
-        //remove marker
-        markerOnMap.remove();
-        markerOnMap = null;
-        //remove measurementPoint from layer
-        if(!layer.removeMeasurementPointByPosition(measurementPoint.getPosition()))
+        // Try to find the measurment point in the layer
+        // if the measurement point is found and removed
+        if(layer.removeMeasurementPointByPosition(measurementPoint.getPosition()))
+        {
+            //remove measurementPoint from layer
+            measurementPoint = null;
+            //remove marker
+            markerOnMap.remove();
+            markerOnMap = null;
+        }
+        else
         {
             Log.d(DEBUGTAG, "Error: MeasurementPoint not found in layer!");
         }
-        measurementPoint = null;
         Log.d(DEBUGTAG, "Command AddMeasurement Point Unexecuted");
     }
 }

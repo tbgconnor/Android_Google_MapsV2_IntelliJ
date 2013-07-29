@@ -63,5 +63,7 @@
     <string name="button_dlgfrag_openfile_open">open</string>
     <string name="button_dlgfrag_openfile_cancel">cancel</string>
 
+    <string name="marker_snippet_selected">Selected</string>
+
 
 </resources>

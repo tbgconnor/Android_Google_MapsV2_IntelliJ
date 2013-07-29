@@ -10,6 +10,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,9 +25,11 @@ public class MapCanvasFragment extends MapFragment
 
     private onMapFragmentEventListener onMapFragmentEventListener;
 
+    private ArrayList<Marker> measurementPointMarkers;
+    private ArrayList<Marker> selectedMarkers;
+
     /**
      * Creates a new instance of the mapfragment
-     * initializing the instance with data and layermanager
      * @return new mapCanvasFragment instance
      */
     public static MapCanvasFragment newInstance()
@@ -99,6 +103,9 @@ public class MapCanvasFragment extends MapFragment
             map.setOnMapClickListener(onMapClickListener);
             map.setOnMapLongClickListener(onMapLongClick);
         }
+        // init local variables
+        measurementPointMarkers = new ArrayList<Marker>();
+        selectedMarkers = new ArrayList<Marker>();
     }
 
     @Override
@@ -106,8 +113,6 @@ public class MapCanvasFragment extends MapFragment
     {
         super.onSaveInstanceState(bundle);
     }
-
-
 
     /*
      * makes the fragment interacting with the user (based on its containing activity being resumed).
@@ -162,6 +167,10 @@ public class MapCanvasFragment extends MapFragment
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, MAXZOOM));
     }
 
+    /**
+     * Method to restore the current Position marker
+     * @param currentPosition the current position to center to map on
+     */
     public void restoreCurrentPositionMarker(LatLng currentPosition)
     {
         currentPositionMarker = map.addMarker(new MarkerOptions().position(currentPosition));
@@ -173,12 +182,12 @@ public class MapCanvasFragment extends MapFragment
 
 
     /**
-     * methode to move the 'current position marker' to a new location
+     * method to move the 'current position marker' to a new location
      * @param newPosition the new position
      */
     public void moveCurrentPositionMarker(LatLng newPosition)
     {
-        String mTitle = "Current Postion";
+        String mTitle = "Current Position";
         String mSnippet = newPosition.toString();
         currentPositionMarker.setPosition(newPosition);
         map.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
@@ -231,7 +240,7 @@ public class MapCanvasFragment extends MapFragment
      * @param position LatLng object for the position
      * @param title title of the info window
      * @param snippet snippet of the info window
-     * @param color the color of the marker
+     * @param color the color of the marker (The resource id)
      * @return The position of the marker (LatLng)
      */
     public LatLng addMarker(LatLng position, String title, String snippet, int color)
@@ -242,10 +251,56 @@ public class MapCanvasFragment extends MapFragment
         mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
         mOptions.position(position);
         Marker newMarker = map.addMarker(mOptions);
+        // Add to list
+        measurementPointMarkers.add(newMarker);
         //Return the markerPosition as it differs from the position set (Google maps API bug)
         return newMarker.getPosition();
     }
 
+    public boolean removeMarkerFromMap(LatLng markerPosition)
+    {
+        boolean successfulRemoval = false;
+        for(int index = 0; index < measurementPointMarkers.size(); index++)
+        {
+            if(markerPosition.equals(measurementPointMarkers.get(index).getPosition()))
+            {
+                // Remove it from the map
+                measurementPointMarkers.get(index).remove();
+                // Remove it from the Arraylist
+                measurementPointMarkers.remove(index);
+                successfulRemoval = true;
+                break;
+            }
+        }
+        return successfulRemoval;
+    }
+
+    public boolean removeSelectedMarkerFromMap(LatLng markerPosition)
+    {
+        boolean successfulRemoval = false;
+        for(int index = 0; index < selectedMarkers.size(); index++)
+        {
+            if(markerPosition.equals(selectedMarkers.get(index).getPosition()))
+            {
+                // Remove it from the map
+                selectedMarkers.get(index).remove();
+                // Remove it from the ArrayList
+                selectedMarkers.remove(index);
+                successfulRemoval = true;
+                break;
+            }
+        }
+        return successfulRemoval;
+    }
+
+    /**
+     * Add a marker object to the map
+     * @param position position of the marker
+     * @param title title of the marker
+     * @param snippet snippet of the marker
+     * @param color the color of the marker (The resource id)
+     * @return Marker object add to the map
+     */
     public Marker addMarkerToMap(LatLng position, String title, String snippet, int color)
     {
         MarkerOptions mOptions = new MarkerOptions();
@@ -254,7 +309,9 @@ public class MapCanvasFragment extends MapFragment
         mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
         mOptions.position(position);
         Marker newMarker = map.addMarker(mOptions);
-        //Return the markerPosition as it differs from the position set (Google maps API bug)
+        // Add to list
+        measurementPointMarkers.add(newMarker);
+        //Return the marker as ref
         return newMarker;
     }
 
@@ -272,6 +329,53 @@ public class MapCanvasFragment extends MapFragment
 
     }
 
+    public void selectMarker(LatLng markerPosition, String layerName, String snippet)
+    {
+        // Remove the Measurement Point marker (temp)
+        this.removeMarkerFromMap(markerPosition);
+        // Create a new Selected marker for this measurement point
+        MarkerOptions mOptions = new MarkerOptions();
+        mOptions.title(layerName);
+        mOptions.snippet(snippet);
+        mOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_selected_marker));
+        mOptions.position(markerPosition);
+        // Add it to map
+        Marker selectedMarker = map.addMarker(mOptions);
+        // Add it to the ArrayList
+        selectedMarkers.add(selectedMarker);
+    }
+
+    public LatLng deselectMarkerAt(LatLng positionOnMap, LatLng measurementPointPosition, String layerName, String snippet, int color)
+    {
+        LatLng positionOftheNewMarkerOnMap = null;
+        // Remove Selected Marker
+        for(int i = 0; i < selectedMarkers.size(); i++)
+        {
+            LatLng positionOfSelectedMarker = selectedMarkers.get(i).getPosition();
+            if(positionOfSelectedMarker.equals(positionOnMap))
+            {
+                //Remove from arraylist and from map
+                selectedMarkers.remove(i).remove();
+                break;
+            }
+        }
+        // Replace original measurement point
+        positionOftheNewMarkerOnMap = this.addMarker(measurementPointPosition, layerName, snippet, color);
+        return positionOftheNewMarkerOnMap;
+    }
+
+    public void clearAllSelectedMarkers()
+    {
+        if(selectedMarkers.size() > 0)
+        {
+            for(int i = 0; i < selectedMarkers.size(); i++)
+            {
+                selectedMarkers.get(i).remove();
+            }
+            selectedMarkers.clear();
+        }
+    }
+
     /*
      * Anonymous Inner Class the define marker onClick events
      */
@@ -285,6 +389,7 @@ public class MapCanvasFragment extends MapFragment
             return true;
         }
     };
+
 
     /**
      *  Anonymous Inner Class for map clicks
