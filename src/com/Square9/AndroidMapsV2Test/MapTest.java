@@ -696,6 +696,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         String snippet = marker.getSnippet();
         LatLng markerPosition = marker.getPosition();
         String selectedSnippet = getResources().getString(R.string.marker_snippet_selected);
+        Log.d(DEBUGTAG, "Snippet from clicked marker: " + snippet);
 
         //Check if it is a "selected" marker or a measurement point marker to be selected ...
         if(snippet.equals(selectedSnippet)) // deselect the marker
@@ -707,7 +708,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 if(mp != null)
                 {
                     Log.d(DEBUGTAG, "Deselecting marker");
-                    getMapFragment().deselectMarkerAt(markerPosition, mp.getPosition(), layerName, mp.getComment(), layer.getColor() );
+                    getMapFragment().deselectMarker(marker, mp.getComment(), layer.getColor());
                 }
                 else
                 {
@@ -722,24 +723,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         }
         else // Select the marker
         {
-            MeasurementLayer layer = layerManager.getLayerByName(layerName);
-            if(layer != null)
-            {
-                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
-                if(mp != null)
-                {
-                    Log.d(DEBUGTAG, "Selecting marker");
-                    getMapFragment().selectMarker(mp.getMarkerPositioOnMap(), layerName, selectedSnippet);
-                }
-                else
-                {
-                    Log.d(DEBUGTAG, "Error: while selecting marker: measurement point not found in layer: " + layerName);
-                }
-            }
-            else
-            {
-                Log.d(DEBUGTAG, "Error: while selecting marker:  Layer not found...");
-            }
+            Log.d(DEBUGTAG, "Selecting marker");
+            getMapFragment().selectMarker(marker);
         }
     }
 
@@ -752,7 +737,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMapLongClicked(LatLng longClickPosition)
     {
-        getMapFragment().clearAllSelectedMarkers();
+
     }
 
     @Override

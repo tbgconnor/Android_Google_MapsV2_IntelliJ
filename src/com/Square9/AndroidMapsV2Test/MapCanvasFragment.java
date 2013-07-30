@@ -264,55 +264,21 @@ public class MapCanvasFragment extends MapFragment
         {
             if(markerPosition.equals(measurementPointMarkers.get(index).getPosition()))
             {
+                String markerSnippet = measurementPointMarkers.get(index).getSnippet();
+                // If it is a selected marker also remove it from the selected list
+                if(markerSnippet.equals(getActivity().getString(R.string.marker_snippet_selected)))
+                {
+                    selectedMarkers.remove(measurementPointMarkers.get(index));
+                }
                 // Remove it from the map
                 measurementPointMarkers.get(index).remove();
-                // Remove it from the Arraylist
+                // Remove it from the MeasurmentPoint Arraylist
                 measurementPointMarkers.remove(index);
                 successfulRemoval = true;
                 break;
             }
         }
         return successfulRemoval;
-    }
-
-    public boolean removeSelectedMarkerFromMap(LatLng markerPosition)
-    {
-        boolean successfulRemoval = false;
-        for(int index = 0; index < selectedMarkers.size(); index++)
-        {
-            if(markerPosition.equals(selectedMarkers.get(index).getPosition()))
-            {
-                // Remove it from the map
-                selectedMarkers.get(index).remove();
-                // Remove it from the ArrayList
-                selectedMarkers.remove(index);
-                successfulRemoval = true;
-                break;
-            }
-        }
-        return successfulRemoval;
-    }
-
-    /**
-     * Add a marker object to the map
-     * @param position position of the marker
-     * @param title title of the marker
-     * @param snippet snippet of the marker
-     * @param color the color of the marker (The resource id)
-     * @return Marker object add to the map
-     */
-    public Marker addMarkerToMap(LatLng position, String title, String snippet, int color)
-    {
-        MarkerOptions mOptions = new MarkerOptions();
-        mOptions.title(title);
-        mOptions.snippet(snippet);
-        mOptions.icon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
-        mOptions.position(position);
-        Marker newMarker = map.addMarker(mOptions);
-        // Add to list
-        measurementPointMarkers.add(newMarker);
-        //Return the marker as ref
-        return newMarker;
     }
 
     public List<LatLng> drawLine(PolylineOptions options)
@@ -329,50 +295,27 @@ public class MapCanvasFragment extends MapFragment
 
     }
 
-    public void selectMarker(LatLng markerPosition, String layerName, String snippet)
+    public void selectMarker(Marker marker)
     {
-        // Remove the Measurement Point marker (temp)
-        this.removeMarkerFromMap(markerPosition);
-        // Create a new Selected marker for this measurement point
-        MarkerOptions mOptions = new MarkerOptions();
-        mOptions.title(layerName);
-        mOptions.snippet(snippet);
-        mOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_selected_marker));
-        mOptions.position(markerPosition);
-        // Add it to map
-        Marker selectedMarker = map.addMarker(mOptions);
+        String snippet = getActivity().getResources().getString(R.string.marker_snippet_selected);
+        // Replace snippet
+        marker.setSnippet(snippet);
+        // Replace Icon
+        marker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_selected_marker));
         // Add it to the ArrayList
-        selectedMarkers.add(selectedMarker);
+        selectedMarkers.add(marker);
     }
 
-    public LatLng deselectMarkerAt(LatLng positionOnMap, LatLng measurementPointPosition, String layerName, String snippet, int color)
+    public void deselectMarker(Marker marker, String userComment, int color)
     {
-        LatLng positionOftheNewMarkerOnMap = null;
-        // Remove Selected Marker
-        for(int i = 0; i < selectedMarkers.size(); i++)
+        // Put Snippet back
+        marker.setSnippet(userComment);
+        // Put Icon back
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(resolveColorOfMarker(color)));
+        // Remove it from the selected Marker list
+        if(!selectedMarkers.remove(marker))
         {
-            LatLng positionOfSelectedMarker = selectedMarkers.get(i).getPosition();
-            if(positionOfSelectedMarker.equals(positionOnMap))
-            {
-                //Remove from arraylist and from map
-                selectedMarkers.remove(i).remove();
-                break;
-            }
-        }
-        // Replace original measurement point
-        positionOftheNewMarkerOnMap = this.addMarker(measurementPointPosition, layerName, snippet, color);
-        return positionOftheNewMarkerOnMap;
-    }
-
-    public void clearAllSelectedMarkers()
-    {
-        if(selectedMarkers.size() > 0)
-        {
-            for(int i = 0; i < selectedMarkers.size(); i++)
-            {
-                selectedMarkers.get(i).remove();
-            }
-            selectedMarkers.clear();
+            Log.d(DEBUGTAG, "Error: could not find the marker in selected list to remove it from the list while deselecting the marker");
         }
     }
 
@@ -455,8 +398,16 @@ public class MapCanvasFragment extends MapFragment
             return BitmapDescriptorFactory.HUE_RED;
     }
 
+    /**
+     * Method to remove all markers from map and clear all local references to those markers
+     */
     public void clearMap()
     {
+        // Remove all m.p. markers from arraylist
+        measurementPointMarkers.clear();
+        // Remove all selected markers from ArrayList
+        selectedMarkers.clear();
+        // Remove all markers from map
         map.clear();
     }
 }

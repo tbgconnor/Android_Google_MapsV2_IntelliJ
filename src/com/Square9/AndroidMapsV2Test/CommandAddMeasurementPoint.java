@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.Marker;
 /**
  * Command Class for adding a measurement point
  * @author K. Gilissen
- * @version 1.0
+ * @version 1.1
  */
 public class CommandAddMeasurementPoint implements Icommand
 {
@@ -17,17 +17,19 @@ public class CommandAddMeasurementPoint implements Icommand
     private LatLng position;
     private MeasurementPoint measurementPoint;
     private MapCanvasFragment mapCanvas;
-    private Marker markerOnMap;
+    private LatLng markerPositionOnMap;
     private MeasurementLayer layer;
 
     public CommandAddMeasurementPoint(LayerManager lm, LatLng position, MapCanvasFragment mapCanvas)
     {
         Log.d(DEBUGTAG, "Command AddMeasurement Point Created");
         layerManager = lm;
+        // maintaining a ref to the layer where the measurement points will be in create
+        // the user can switch active layers before undoing or redoing....
         layer = layerManager.getCurrentLayer();
-        Log.d(DEBUGTAG, "Current Layer: " + layer.getLayerName() + " code: " + layer.hashCode());
         this.position = position;
         this.mapCanvas = mapCanvas;
+        // When CommandAddMeasurementPoint instance is created also EXECUTE the command
         execute();
     }
 
@@ -36,30 +38,33 @@ public class CommandAddMeasurementPoint implements Icommand
     {
         // Create A measurement point
         measurementPoint = new MeasurementPoint(position);
-        // Add marker to map.
-        markerOnMap = mapCanvas.addMarkerToMap(position, layer.getLayerName(), "", layer.getColor());
+        // Add marker to map and get the position of the marker on the map
+        markerPositionOnMap = mapCanvas.addMarker(position, layer.getLayerName(), "", layer.getColor());
         // Add marker position to measurementPoint
-        measurementPoint.setMarkerPositioOnMap(markerOnMap.getPosition());
+        measurementPoint.setMarkerPositioOnMap(markerPositionOnMap);
         // Add measurementPoint to layerManager
         layer.addMeasurementPoint(measurementPoint);
-        Log.d(DEBUGTAG, "Adding MP to Layer: " + layer.getLayerName() + " code: " + layer.hashCode());
-        Log.d(DEBUGTAG, "Command AddMeasurement Point Executed");
-        Log.d(DEBUGTAG, "MeasurementPoint position (real): " + measurementPoint.getPosition());
-        Log.d(DEBUGTAG, "MeasurementPoint position (On Map): " + measurementPoint.getMarkerPositioOnMap());
     }
 
     @Override
     public void unexecute()
     {
-        // Try to find the measurment point in the layer
+        // Try to find the measurement point in the layer
         // if the measurement point is found and removed
         if(layer.removeMeasurementPointByPosition(measurementPoint.getPosition()))
         {
-            //remove measurementPoint from layer
+            //remove local reference to the measurement point
             measurementPoint = null;
             //remove marker
-            markerOnMap.remove();
-            markerOnMap = null;
+            if(mapCanvas.removeMarkerFromMap(markerPositionOnMap))
+            {
+                 markerPositionOnMap = null;
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Error: While undoing 'add measurement point' could not remove the marker");
+            }
+
         }
         else
         {

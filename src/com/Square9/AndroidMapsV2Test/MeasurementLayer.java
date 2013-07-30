@@ -137,15 +137,13 @@ public class MeasurementLayer implements Parcelable
     public boolean removeMeasurementPointByPosition(LatLng position)
     {
         boolean succesfullRemoved = false;
-        int i = 0;
-        for(i = 0; i < measurementPoints.size(); i++)
+        for(int i = 0; i < measurementPoints.size(); i++)
         {
             if(measurementPoints.get(i).getPosition().equals(position))
             {
                 measurementPoints.remove(i);
                 succesfullRemoved = true;
                 break;
-
             }
         }
         return succesfullRemoved;
