@@ -44,6 +44,12 @@
             android:title="@string/action_bar_measurementPoint"/>
 
     <item
+            android:id="@+id/actionBar_selectionMode"
+            android:icon="@drawable/ic_selection_mode"
+            android:showAsAction="always"
+            android:title="@string/action_bar_selection_mode"/>
+
+    <item
             android:id="@+id/actionBar_addLayer"
             android:icon="@drawable/ic_add_layer"
             android:showAsAction="always"
@@ -66,12 +72,6 @@
             android:icon="@drawable/ic_actionbar_device_access_camera"
             android:showAsAction="always"
             android:title="@string/action_bar_take_pic"/>
-
-    <item
-            android:id="@+id/actionBar_text"
-            android:icon="@drawable/ic_actionbar_addtext"
-            android:showAsAction="always"
-            android:title="@string/action_bar_text"/>
 
     <item
             android:id="@+id/actionBar_actionConfirm"

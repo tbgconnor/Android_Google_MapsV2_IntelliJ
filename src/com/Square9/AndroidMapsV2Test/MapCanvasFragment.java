@@ -102,6 +102,7 @@ public class MapCanvasFragment extends MapFragment
             map.setOnMarkerClickListener(onMarkerClick);
             map.setOnMapClickListener(onMapClickListener);
             map.setOnMapLongClickListener(onMapLongClick);
+            map.setOnInfoWindowClickListener(onInfoWindowClick);
         }
         // init local variables
         measurementPointMarkers = new ArrayList<Marker>();
@@ -281,6 +282,25 @@ public class MapCanvasFragment extends MapFragment
         return successfulRemoval;
     }
 
+    public boolean updateMarkerSnippet(LatLng markerPosition, String newSnippet)
+    {
+        boolean markerFound = false;
+        for(int mCounter = 0; mCounter < measurementPointMarkers.size(); mCounter++)
+        {
+            Marker m = measurementPointMarkers.get(mCounter);
+            if( markerPosition.equals(m.getPosition()))
+            {
+                // Hide info window if shown...
+                if(m.isInfoWindowShown())
+                    m.hideInfoWindow();
+                markerFound = true;
+                m.setSnippet(newSnippet);
+                m.showInfoWindow();
+            }
+        }
+        return markerFound;
+    }
+
     public List<LatLng> drawLine(PolylineOptions options)
     {
         Polyline line = map.addPolyline(options);
@@ -334,7 +354,7 @@ public class MapCanvasFragment extends MapFragment
     };
 
 
-    /**
+    /*
      *  Anonymous Inner Class for map clicks
      */
     GoogleMap.OnMapClickListener onMapClickListener = new GoogleMap.OnMapClickListener() {
@@ -345,7 +365,7 @@ public class MapCanvasFragment extends MapFragment
         }
     };
 
-    /**
+    /*
      * Anonymous Inner Class for map LONG clicks
      */
     GoogleMap.OnMapLongClickListener onMapLongClick = new GoogleMap.OnMapLongClickListener() {
@@ -353,6 +373,17 @@ public class MapCanvasFragment extends MapFragment
         public void onMapLongClick(LatLng latLng)
         {
             onMapFragmentEventListener.onMapLongClicked(latLng);
+        }
+    };
+
+    /*
+     * Anonymous Inner Class for info window clicks
+     */
+    GoogleMap.OnInfoWindowClickListener onInfoWindowClick = new GoogleMap.OnInfoWindowClickListener() {
+        @Override
+        public void onInfoWindowClick(Marker marker)
+        {
+            onMapFragmentEventListener.onInfoWindowClicked(marker);
         }
     };
 

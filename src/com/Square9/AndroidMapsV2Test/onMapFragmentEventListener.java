@@ -13,4 +13,5 @@ public interface onMapFragmentEventListener
     void onMarkerClicked(Marker marker);
     void onMapClicked(LatLng clickPosition);
     void onMapLongClicked(LatLng longClickPosition);
+    void onInfoWindowClicked(Marker marker);
 }

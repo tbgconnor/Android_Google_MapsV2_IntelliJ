@@ -54,6 +54,10 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     //Command Design Pattern Instances
     private UndoRedo commandBuffer;
 
+    // Selection mode
+    private boolean selectionMode;
+    private MeasurementPoint mpOninfoWindowClicked;
+
     /*
      * Actions:
      * 0:
@@ -124,6 +128,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         actionId = 0;
         selectedMarkers = new ArrayList<Marker>(0);
         commandBuffer = new UndoRedo();
+        selectionMode = false;
+        mpOninfoWindowClicked = null;
     }
 
     @Override
@@ -305,6 +311,13 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                     Toast.makeText(MapTest.this, "Waiting for GPS FIX...", Toast.LENGTH_LONG).show();
                 }
                 return true;
+            case R.id.actionBar_selectionMode:
+                selectionMode = !selectionMode;
+                if(selectionMode)
+                    Toast.makeText(MapTest.this, "Selection mode ON", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(MapTest.this, "Selection mode OFF", Toast.LENGTH_LONG).show();
+                return true;
             case R.id.actionBar_addLayer:
                 Toast.makeText(MapTest.this, "Add a new layer", Toast.LENGTH_LONG).show();
                 showNewLayerSettingsDialog();
@@ -322,12 +335,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 photoIntent = true;
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivity(intent);
-                return true;
-            case R.id.actionBar_text:
-                actionId = 5;
-                Log.d(DEBUGTAG, "add text button pushed");
-                Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
-                Toast.makeText(MapTest.this, "Please Select 1 measurement point and confirm", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.actionBar_actionConfirm:
                 Log.d(DEBUGTAG, "Confirm Action button pushed");
@@ -579,20 +586,10 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         }
         else if(!cancelled && tag.equals("ADDTEXT"))
         {
-            Log.d("DEBUGTAG", "# selected markers: " + Integer.toString(selectedMarkers.size()));
-
-            if(message != null && selectedMarkers.size() == 1)
-            {
-                LatLng markerPos = selectedMarkers.get(0).getPosition();
-                MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
-                mp.setComment(message);
-                finishAction(false);
-            }
-            else
-            {
-                Toast.makeText(MapTest.this, "Something went very wrong...", Toast.LENGTH_LONG).show();
-            }
-
+            Log.d(DEBUGTAG, "received callback from add text dialog: " + message.trim());
+            mpOninfoWindowClicked.setComment(message.trim());
+            getMapFragment().updateMarkerSnippet(mpOninfoWindowClicked.getMarkerPositioOnMap(), message.trim());
+            mpOninfoWindowClicked = null;
         }
     }
 
@@ -692,39 +689,46 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMarkerClicked(Marker marker)
     {
-        String layerName = marker.getTitle();
-        String snippet = marker.getSnippet();
-        LatLng markerPosition = marker.getPosition();
-        String selectedSnippet = getResources().getString(R.string.marker_snippet_selected);
-        Log.d(DEBUGTAG, "Snippet from clicked marker: " + snippet);
-
-        //Check if it is a "selected" marker or a measurement point marker to be selected ...
-        if(snippet.equals(selectedSnippet)) // deselect the marker
+        if(selectionMode)
         {
-            MeasurementLayer layer = layerManager.getLayerByName(layerName);
-            if(layer != null)
+            String layerName = marker.getTitle();
+            String snippet = marker.getSnippet();
+            LatLng markerPosition = marker.getPosition();
+            String selectedSnippet = getResources().getString(R.string.marker_snippet_selected);
+            Log.d(DEBUGTAG, "Snippet from clicked marker: " + snippet);
+
+            //Check if it is a "selected" marker or a measurement point marker to be selected ...
+            if(snippet.equals(selectedSnippet)) // deselect the marker
             {
-                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
-                if(mp != null)
+                MeasurementLayer layer = layerManager.getLayerByName(layerName);
+                if(layer != null)
                 {
-                    Log.d(DEBUGTAG, "Deselecting marker");
-                    getMapFragment().deselectMarker(marker, mp.getComment(), layer.getColor());
+                    MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
+                    if(mp != null)
+                    {
+                        Log.d(DEBUGTAG, "Deselecting marker");
+                        getMapFragment().deselectMarker(marker, mp.getComment(), layer.getColor());
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG, "Error: while deselecting marker: measurement point not found in layer: " + layerName);
+                    }
                 }
                 else
                 {
-                    Log.d(DEBUGTAG, "Error: while deselecting marker: measurement point not found in layer: " + layerName);
+                    Log.d(DEBUGTAG, "Error: while deselecting marker:  Layer not found...");
                 }
-            }
-            else
-            {
-                Log.d(DEBUGTAG, "Error: while deselecting marker:  Layer not found...");
-            }
 
+            }
+            else // Select the marker
+            {
+                Log.d(DEBUGTAG, "Selecting marker");
+                getMapFragment().selectMarker(marker);
+            }
         }
-        else // Select the marker
+        else
         {
-            Log.d(DEBUGTAG, "Selecting marker");
-            getMapFragment().selectMarker(marker);
+            marker.showInfoWindow();
         }
     }
 
@@ -738,6 +742,36 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     public void onMapLongClicked(LatLng longClickPosition)
     {
 
+    }
+
+    @Override
+    public void onInfoWindowClicked(Marker marker)
+    {
+        String snippet = marker.getSnippet();
+        // Infowindow clicked is only for not selected markers :-)
+        if(!snippet.equals(getResources().getString(R.string.marker_snippet_selected)))
+        {
+            String layerName = marker.getTitle();
+            MeasurementLayer layer = layerManager.getLayerByName(layerName);
+            String userComment;
+            if( layer != null)
+            {
+                mpOninfoWindowClicked = layer.getMeasurementPointByMarkerPosition(marker.getPosition());
+                if(mpOninfoWindowClicked  != null)
+                {
+                    userComment = mpOninfoWindowClicked.getComment();
+                    showAddTextDialog(userComment);
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Error: infowindow Clicked could not find measurement point by marker position on map");
+                }
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Error: infowindow Clicked could not find layer from marker title");
+            }
+        }
     }
 
     @Override
