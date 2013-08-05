@@ -206,10 +206,10 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     Log.d(DEBUGTAG, "Lon 2: " + Double.toString(lon2));
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
-                    // Constructor of MapLine requires the Position on map,
+                    // Constructor of MeasurementLine requires the Position on map,
                     // A this point this can not be passed, so i'm passing the measurement data points
                     // They should be set when map is populated for each line
-                    MapLine lineElement = new MapLine(point1, point2, point1, point2);
+                    MeasurementLine lineElement = new MeasurementLine(point1, point2, point1, point2);
                     // add Map line to current layer in layermanager
                     result.getCurrentLayer().addLine(lineElement);
                 }

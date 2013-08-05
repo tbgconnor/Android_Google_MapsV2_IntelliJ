@@ -7,22 +7,22 @@ import com.google.android.gms.maps.model.LatLng;
 /**
  * Class represents a model for a line added to the map by the user
  */
-public class MapLine implements Parcelable
+public class MeasurementLine implements Parcelable
 {
     private LatLng pointOne;
     private LatLng pointTwo;
     // Google maps API bug: Map Objects postion read back does not equal the set position.
     // see: https://code.google.com/p/gmaps-api-issues/issues/detail?id=5353
-    private LatLng linePositioOnMap01;
-    private LatLng linePositioOnMap02;
+    private LatLng linePositionOnMap01;
+    private LatLng linePositionOnMap02;
 
 
-    public MapLine(LatLng pointOne, LatLng pointTwo, LatLng posOnMap01, LatLng posOnMap02)
+    public MeasurementLine(LatLng pointOne, LatLng pointTwo, LatLng posOnMap01, LatLng posOnMap02)
     {
         this.pointOne = pointOne;
         this.pointTwo = pointTwo;
-        linePositioOnMap01 = posOnMap01;
-        linePositioOnMap02 = posOnMap02;
+        linePositionOnMap01 = posOnMap01;
+        linePositionOnMap02 = posOnMap02;
     }
 
     public LatLng getPointOne() {
@@ -41,40 +41,40 @@ public class MapLine implements Parcelable
         this.pointTwo = pointTwo;
     }
 
-    public LatLng getLinePositioOnMap01() {
-        return linePositioOnMap01;
+    public LatLng getLinePositionOnMap01() {
+        return linePositionOnMap01;
     }
 
-    public void setLinePositioOnMap01(LatLng linePositioOnMap01) {
-        this.linePositioOnMap01 = linePositioOnMap01;
+    public void setLinePositionOnMap01(LatLng linePositionOnMap01) {
+        this.linePositionOnMap01 = linePositionOnMap01;
     }
 
-    public LatLng getLinePositioOnMap02() {
-        return linePositioOnMap02;
+    public LatLng getLinePositionOnMap02() {
+        return linePositionOnMap02;
     }
 
-    public void setLinePositioOnMap02(LatLng linePositioOnMap02) {
-        this.linePositioOnMap02 = linePositioOnMap02;
+    public void setLinePositionOnMap02(LatLng linePositionOnMap02) {
+        this.linePositionOnMap02 = linePositionOnMap02;
     }
 
-    public MapLine(Parcel in)
+    public MeasurementLine(Parcel in)
     {
         pointOne = new LatLng(50.879668, 5.309296);
         pointTwo = new LatLng(50.879668, 5.309296);
-        linePositioOnMap01 = new LatLng(50.879668, 5.309296);
-        linePositioOnMap02 = new LatLng(50.879668, 5.309296);
+        linePositionOnMap01 = new LatLng(50.879668, 5.309296);
+        linePositionOnMap02 = new LatLng(50.879668, 5.309296);
 
         readFromParcel(in);
     }
 
-    public static final Parcelable.Creator<MapLine> CREATOR
-            = new Parcelable.Creator<MapLine>() {
-        public MapLine createFromParcel(Parcel in) {
-            return new MapLine(in);
+    public static final Parcelable.Creator<MeasurementLine> CREATOR
+            = new Parcelable.Creator<MeasurementLine>() {
+        public MeasurementLine createFromParcel(Parcel in) {
+            return new MeasurementLine(in);
         }
 
-        public MapLine[] newArray(int size) {
-            return new MapLine[size];
+        public MeasurementLine[] newArray(int size) {
+            return new MeasurementLine[size];
         }
     };
 
@@ -88,15 +88,15 @@ public class MapLine implements Parcelable
     {
         dest.writeParcelable(pointOne, 0);
         dest.writeParcelable(pointTwo, 0);
-        dest.writeParcelable(linePositioOnMap01, 0);
-        dest.writeParcelable(linePositioOnMap02, 0);
+        dest.writeParcelable(linePositionOnMap01, 0);
+        dest.writeParcelable(linePositionOnMap02, 0);
     }
 
     private void readFromParcel(Parcel in)
     {
         pointOne = in.readParcelable(LatLng.class.getClassLoader());
         pointTwo = in.readParcelable(LatLng.class.getClassLoader());
-        linePositioOnMap01 = in.readParcelable(LatLng.class.getClassLoader());
-        linePositioOnMap02 = in.readParcelable(LatLng.class.getClassLoader());
+        linePositionOnMap01 = in.readParcelable(LatLng.class.getClassLoader());
+        linePositionOnMap02 = in.readParcelable(LatLng.class.getClassLoader());
     }
 }

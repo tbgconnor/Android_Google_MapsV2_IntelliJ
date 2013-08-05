@@ -323,8 +323,25 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 showNewLayerSettingsDialog();
                 return true;
             case R.id.actionBar_drawLine:
-                actionId = 2;
-                Toast.makeText(MapTest.this, "Please Select 2 measurement points and Confirm", Toast.LENGTH_LONG).show();
+                //figure out how many measurement points are selected
+                if(getMapFragment().getNumberOfSelectedMarkers() == 2)
+                {
+                    MeasurementLayer currentLayer = layerManager.getCurrentLayer();
+                    LatLng positionOfSelectedMarker01 = getMapFragment().getSelectedMarkerPositionAtIndex(0);
+                    LatLng positionOfSelectedMarker02 = getMapFragment().getSelectedMarkerPositionAtIndex(1);
+                    CommandAddMeasurementLine addMeasurementLine = new CommandAddMeasurementLine(layerManager, positionOfSelectedMarker01, positionOfSelectedMarker02, getMapFragment());
+                    commandBuffer.addToUndoBuffer(addMeasurementLine);
+                }
+                else
+                {
+                     CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Line", "Select 2 measurement points to draw a line!", new DialogInterface.OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialog, int which) {
+                             dialog.dismiss();
+                         }
+                     });
+                    selectionAlert.showDialog();
+                }
                 return true;
             case R.id.actionBar_drawArc:
                 actionId = 3;
@@ -689,6 +706,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMarkerClicked(Marker marker)
     {
+
         if(selectionMode)
         {
             String layerName = marker.getTitle();
@@ -741,15 +759,15 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMapLongClicked(LatLng longClickPosition)
     {
-
+        getMapFragment().clearMap();
     }
 
     @Override
     public void onInfoWindowClicked(Marker marker)
     {
         String snippet = marker.getSnippet();
-        // Infowindow clicked is only for not selected markers :-)
-        if(!snippet.equals(getResources().getString(R.string.marker_snippet_selected)))
+        // Infowindow clicked is only for not selected markers and should not be the current position marker :-)
+        if(!snippet.equals(getResources().getString(R.string.marker_snippet_selected)) && layerManager.getLayerByName(marker.getTitle()) != null)
         {
             String layerName = marker.getTitle();
             MeasurementLayer layer = layerManager.getLayerByName(layerName);
@@ -807,39 +825,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
 
                 return;
             case 2: // Draw Line
-                if(selectedMarkers.size() == 2) //need 2 markers selected to draw a line no more, no less
-                {
-                    //get the marker positions
-                    LatLng mapPos01 = selectedMarkers.get(0).getPosition();
-                    LatLng mapPos02 = selectedMarkers.get(1).getPosition();
-                    //get the associated measurement points from the layer manager
-                    MeasurementPoint mp01 = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(mapPos01);
-                    MeasurementPoint mp02 = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(mapPos02);
-                    //Create polylineOptions instance
-                    PolylineOptions lineOptions = new PolylineOptions();
-                    //Line point 1
-                    lineOptions.add(mapPos01); //use Map positions here ?!
-                    //Line point 2
-                    lineOptions.add(mapPos02); //use Map positions here ?!
-                    lineOptions.color(layerManager.getCurrentLayer().getColor());
-                    lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
-                    //Draw the line on the map
-                    List<LatLng> mapPoints =  getMapFragment().drawLine(lineOptions);
-                    //Create a new Mapline(REAL POSITION1, REAL POSITION2, MAP POSITION1, MAP POSITION2)
-                    MapLine line = new MapLine(mp01.getPosition(), mp02.getPosition(), mapPoints.get(0), mapPoints.get(1));
-                    layerManager.getCurrentLayer().addLine(line);
-                    // reset variables
-                    // ->> User Comment to snippet of marker
-                    selectedMarkers.get(0).setSnippet(mp01.getComment());
-                    selectedMarkers.get(1).setSnippet(mp02.getComment());
-                    // Cancel Action
-                    finishAction(false);
-                }
-                else
-                {
-                    Toast.makeText(MapTest.this, "There are not enough points selected to draw the line CANCELING THE ACTION", Toast.LENGTH_LONG).show();
-                    finishAction(true);
-                }
+
                 return;
             case 3: // Draw Arc
                 Toast.makeText(MapTest.this, "Drawing Arc", Toast.LENGTH_LONG).show();
@@ -940,23 +926,20 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 //Add marker position to measurement point
                 mp.setMarkerPositioOnMap(markerPos);
             }
-            Iterator<MapLine> lineIterator = layer.getMapLineIterator();
+            Iterator<MeasurementLine> lineIterator = layer.getMapLineIterator();
             while(lineIterator.hasNext())
             {
-                MapLine line = lineIterator.next();
-                //Create polylineOptions instance
-                PolylineOptions lineOptions = new PolylineOptions();
-                //Line point 1
-                lineOptions.add(line.getPointOne());
-                //Line point 2
-                lineOptions.add(line.getPointTwo());
-                lineOptions.color(layerManager.getCurrentLayer().getColor());
-                lineOptions.width((float) layerManager.getCurrentLayer().getLineWidth());
-                //Draw the line on the map
-                List<LatLng> mapPoints = getMapFragment().drawLine(lineOptions);
+                MeasurementLine line = lineIterator.next();
+                String layerName = layerManager.getCurrentLayer().getLayerName();
+                LatLng p1 = line.getPointOne();
+                LatLng p2 = line.getPointTwo();
+                int color = layerManager.getCurrentLayer().getColor();
+                int lineWidth = layerManager.getCurrentLayer().getLineWidth();
+                //Draw Line on Map
+                List<LatLng> pointsOnMap = getMapFragment().drawLine(p1, p2, layerName, color, lineWidth);
                 // Update the line position on the map
-                line.setLinePositioOnMap01(mapPoints.get(0));
-                line.setLinePositioOnMap02(mapPoints.get(1));
+                line.setLinePositionOnMap01(pointsOnMap.get(0));
+                line.setLinePositionOnMap02(pointsOnMap.get(1));
             }
             //TODO More Map elements
 

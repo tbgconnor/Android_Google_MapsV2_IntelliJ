@@ -27,6 +27,7 @@ public class MapCanvasFragment extends MapFragment
 
     private ArrayList<Marker> measurementPointMarkers;
     private ArrayList<Marker> selectedMarkers;
+    private ArrayList<MeasurementLineOnMap> measurementLinesOnMap;
 
     /**
      * Creates a new instance of the mapfragment
@@ -107,6 +108,7 @@ public class MapCanvasFragment extends MapFragment
         // init local variables
         measurementPointMarkers = new ArrayList<Marker>();
         selectedMarkers = new ArrayList<Marker>();
+        measurementLinesOnMap = new ArrayList<MeasurementLineOnMap>();
     }
 
     @Override
@@ -152,7 +154,7 @@ public class MapCanvasFragment extends MapFragment
     }
 
     /**
-     *  Internal methode for initializing the Map object, can only be used if map object exists!
+     *  Internal method for initializing the Map object, can only be used if map object exists!
      *  sets map type to normal
      *  sets default values for infowindow title and snippet
      *  moves camera to default position
@@ -282,39 +284,6 @@ public class MapCanvasFragment extends MapFragment
         return successfulRemoval;
     }
 
-    public boolean updateMarkerSnippet(LatLng markerPosition, String newSnippet)
-    {
-        boolean markerFound = false;
-        for(int mCounter = 0; mCounter < measurementPointMarkers.size(); mCounter++)
-        {
-            Marker m = measurementPointMarkers.get(mCounter);
-            if( markerPosition.equals(m.getPosition()))
-            {
-                // Hide info window if shown...
-                if(m.isInfoWindowShown())
-                    m.hideInfoWindow();
-                markerFound = true;
-                m.setSnippet(newSnippet);
-                m.showInfoWindow();
-            }
-        }
-        return markerFound;
-    }
-
-    public List<LatLng> drawLine(PolylineOptions options)
-    {
-        Polyline line = map.addPolyline(options);
-        return line.getPoints();
-    }
-
-
-    public void drawArc(LatLng start, LatLng end, double radius)
-    {
-        Projection pjctn = map.getProjection();
-        pjctn.fromScreenLocation(new Point());
-
-    }
-
     public void selectMarker(Marker marker)
     {
         String snippet = getActivity().getResources().getString(R.string.marker_snippet_selected);
@@ -339,6 +308,88 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    public boolean updateMarkerSnippet(LatLng markerPosition, String newSnippet)
+    {
+        boolean markerFound = false;
+        for(int mCounter = 0; mCounter < measurementPointMarkers.size(); mCounter++)
+        {
+            Marker m = measurementPointMarkers.get(mCounter);
+            if( markerPosition.equals(m.getPosition()))
+            {
+                // Hide info window if shown...
+                if(m.isInfoWindowShown())
+                    m.hideInfoWindow();
+                markerFound = true;
+                m.setSnippet(newSnippet);
+                m.showInfoWindow();
+            }
+        }
+        return markerFound;
+    }
+
+    public int getNumberOfSelectedMarkers()
+    {
+        return selectedMarkers.size();
+    }
+
+    public LatLng getSelectedMarkerPositionAtIndex(int index)
+    {
+        if(index < selectedMarkers.size())
+        {
+            return selectedMarkers.get(index).getPosition();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public List<LatLng> drawLine(LatLng position01, LatLng position02, String layerName, int color, int lineWidth)
+    {
+        //Create new polyLineOptions instance
+        PolylineOptions lineOptions = new PolylineOptions();
+        lineOptions.add(position01);
+        lineOptions.add(position02);
+        lineOptions.color(color);
+        lineOptions.width((float) lineWidth);
+        //add line to map
+        Polyline line = map.addPolyline(lineOptions);
+        //Create new MeasurementLineOnMap instance
+        MeasurementLineOnMap lineOnMap = new MeasurementLineOnMap(line, layerName);
+        // add it to the arryalist for future references
+        measurementLinesOnMap.add(lineOnMap);
+        //Return the positions of the line on the map
+        return line.getPoints();
+    }
+
+    public boolean removeLine(String layerName, LatLng pos1OnMap, LatLng pos2OnMap)
+    {
+        boolean succesfulRemoval = false;
+        for(MeasurementLineOnMap lineOnMap : measurementLinesOnMap)
+        {
+            if(layerName.equals(lineOnMap.getLayerName()) && pos1OnMap.equals(lineOnMap.getLine().getPoints().get(0)) && pos2OnMap.equals(lineOnMap.getLine().getPoints().get(1))
+                || layerName.equals(lineOnMap.getLayerName()) && pos1OnMap.equals(lineOnMap.getLine().getPoints().get(1)) && pos2OnMap.equals(lineOnMap.getLine().getPoints().get(0)))
+            {
+                //remove line from map
+                lineOnMap.getLine().remove();
+                //remove it from the arrayList
+                measurementLinesOnMap.remove(lineOnMap);
+                succesfulRemoval = true;
+                break;
+            }
+        }
+        return succesfulRemoval;
+    }
+
+
+    public void drawArc(LatLng start, LatLng end, double radius)
+    {
+        Projection pjctn = map.getProjection();
+        pjctn.fromScreenLocation(new Point());
+
+    }
+
+
     /*
      * Anonymous Inner Class the define marker onClick events
      */
@@ -347,6 +398,9 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public boolean onMarkerClick(Marker marker)
         {
+            Point p = map.getProjection().toScreenLocation(marker.getPosition());
+            Log.d(DEBUGTAG, "Marker at xy: " + p.toString());
+
             // Just pass it on to the Activity
             onMapFragmentEventListener.onMarkerClicked(marker);
             return true;
@@ -361,6 +415,8 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public void onMapClick(LatLng latLng)
         {
+            Point p = map.getProjection().toScreenLocation(latLng);
+            Log.d(DEBUGTAG, "Map Clicked postition: " + p.toString());
             onMapFragmentEventListener.onMapClicked(latLng);
         }
     };

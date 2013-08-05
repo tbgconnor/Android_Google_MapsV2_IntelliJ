@@ -2,8 +2,6 @@ package com.Square9.AndroidMapsV2Test;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.text.format.Time;
 
@@ -115,10 +113,10 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\t</Measurement Point>\n");
             }
             // [4] for each line in this layer
-            Iterator<MapLine> lineIterator = layer.getMapLineIterator();
+            Iterator<MeasurementLine> lineIterator = layer.getMapLineIterator();
             while(lineIterator.hasNext())
             {
-                MapLine line = lineIterator.next();
+                MeasurementLine line = lineIterator.next();
                 result.append("\t<Line>\n");
                 result.append("\tLatitude 1: " + line.getPointOne().latitude  + "\n");
                 result.append("\tLongitude 1: " + line.getPointOne().longitude  + "\n");

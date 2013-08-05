@@ -20,7 +20,7 @@ public class MeasurementLayer implements Parcelable
     private int color;
     private int lineWidth;
 
-    private ArrayList<MapLine> lines;
+    private ArrayList<MeasurementLine> lines;
 
     /**
      * MeasurementLayer constructor
@@ -34,7 +34,7 @@ public class MeasurementLayer implements Parcelable
         measurementPoints = new ArrayList<MeasurementPoint>();
         this.color = color;
         this.lineWidth = lineWidth;
-        lines = new ArrayList<MapLine>();
+        lines = new ArrayList<MeasurementLine>();
     }
 
     /**
@@ -196,7 +196,7 @@ public class MeasurementLayer implements Parcelable
      * Method to add a line to the layer
      * @param line lineObject
      */
-    public void addLine(MapLine line)
+    public void addLine(MeasurementLine line)
     {
         lines.add(line);
     }
@@ -206,13 +206,13 @@ public class MeasurementLayer implements Parcelable
      * @param line the line object to remove
      * @return boolean success or fail
      */
-    public boolean removeLine(MapLine line)
+    public boolean removeLine(MeasurementLine line)
     {
         return lines.remove(line);
     }
 
 
-    public Iterator<MapLine> getMapLineIterator()
+    public Iterator<MeasurementLine> getMapLineIterator()
     {
         return lines.iterator();
     }
@@ -223,7 +223,7 @@ public class MeasurementLayer implements Parcelable
         layerName = new String();
         color = Color.RED;
         lineWidth = 3;
-        lines = new ArrayList<MapLine>();
+        lines = new ArrayList<MeasurementLine>();
         readFromParcel(in);
     }
 
@@ -289,7 +289,7 @@ public class MeasurementLayer implements Parcelable
         color = in.readInt();
         lineWidth = in.readInt();
         in.readTypedList(measurementPoints, MeasurementPoint.CREATOR);
-        in.readTypedList(lines, MapLine.CREATOR);
+        in.readTypedList(lines, MeasurementLine.CREATOR);
     }
 }
 
