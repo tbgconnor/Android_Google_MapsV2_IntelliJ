@@ -114,6 +114,12 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             @Override
             public boolean onNavigationItemSelected(int itemPosition, long itemId)
             {
+                // Deselect all measurement items of previous current layer
+                if(getMapFragment().getNumberOfSelectedMarkers() > 0)
+                {
+                    deSelectAllMeasurementItems();
+                    selectionMode = false;
+                }
                 layerManager.setCurrentLayerByIndex(itemPosition);
                 String newCurrentLayer = layerManager.getCurrentLayer().getLayerName();
                 Toast.makeText(MapTest.this, "Active Layer: " + newCurrentLayer, Toast.LENGTH_LONG).show();
@@ -461,9 +467,9 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         MeasurementPoint mp = new MeasurementPoint(measurementPosition);
         //Add marker to the map
         LatLng markerPos = getMapFragment().addMarker(measurementPosition, layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
-        //Add marker position to measurment point
+        //Add marker position to measurement point
         mp.setMarkerPositioOnMap(markerPos);
-        //add it to the currentlayer
+        //add it to the current layer
         layerManager.addMeasurementPointToLayer(mp);
     }
 
@@ -718,30 +724,30 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             //Check if it is a "selected" marker or a measurement point marker to be selected ...
             if(snippet.equals(selectedSnippet)) // deselect the marker
             {
-                MeasurementLayer layer = layerManager.getLayerByName(layerName);
-                if(layer != null)
+                MeasurementLayer layer = layerManager.getCurrentLayer();
+                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
+                if(mp != null)
                 {
-                    MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(markerPosition);
-                    if(mp != null)
-                    {
-                        Log.d(DEBUGTAG, "Deselecting marker");
-                        getMapFragment().deselectMarker(marker, mp.getComment(), layer.getColor());
-                    }
-                    else
-                    {
-                        Log.d(DEBUGTAG, "Error: while deselecting marker: measurement point not found in layer: " + layerName);
-                    }
+                    Log.d(DEBUGTAG, "Deselecting marker");
+                    getMapFragment().deselectMarker(marker, mp.getComment(), layer.getColor());
                 }
                 else
                 {
-                    Log.d(DEBUGTAG, "Error: while deselecting marker:  Layer not found...");
+                    Log.d(DEBUGTAG, "Error: while deselecting marker: measurement point not found in layer: " + layerName);
                 }
-
             }
             else // Select the marker
             {
-                Log.d(DEBUGTAG, "Selecting marker");
-                getMapFragment().selectMarker(marker);
+                // ONLY select markers of current active layer! (to limit the search)
+                if(layerManager.getCurrentLayer().getLayerName().equals(layerName))
+                {
+                    getMapFragment().selectMarker(marker);
+                }
+                else
+                {
+                    marker.showInfoWindow();
+                    Toast.makeText(MapTest.this, "Measurement Point not in active Layer!", Toast.LENGTH_LONG).show();
+                }
             }
         }
         else
@@ -759,7 +765,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMapLongClicked(LatLng longClickPosition)
     {
-        getMapFragment().clearMap();
+        deSelectAllMeasurementItems();
     }
 
     @Override
@@ -902,6 +908,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
 
     public void populateMap()
     {
+        // Clear all layers in Actionbar spinner
+        actionBarLayers.clear();
         Iterator<MeasurementLayer> layerIterator = layerManager.getMeasurementLayerIterator();
         LatLng markerPos = new LatLng(51.759275,5.738796); //ergens in Nederland
         while(layerIterator.hasNext())
@@ -947,5 +955,36 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         //restore current position marker to last point added:
         getMapFragment().restoreCurrentPositionMarker(markerPos);
     }
+
+    public void deSelectAllMeasurementItems()
+    {
+        int numberOfSelectedMarkers = getMapFragment().getNumberOfSelectedMarkers();
+        MeasurementLayer layer = layerManager.getCurrentLayer();
+        //Deselect all measurementpoints
+        for(int index = numberOfSelectedMarkers-1; index >= 0; index--)
+        {
+            Log.d(DEBUGTAG, "Index: " + index);
+            Marker selectedMarker = getMapFragment().getSelectedMarkerAtIndex(index);
+            if(selectedMarker != null)
+            {
+                MeasurementPoint mp = layer.getMeasurementPointByMarkerPosition(selectedMarker.getPosition());
+                if(mp != null)
+                {
+                    getMapFragment().deselectMarker(selectedMarker, mp.getComment(), layer.getColor());
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Measurement Point is NULL!");
+                }
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Selected Marker is null");
+            }
+
+        }
+    }
+
+
 }
 

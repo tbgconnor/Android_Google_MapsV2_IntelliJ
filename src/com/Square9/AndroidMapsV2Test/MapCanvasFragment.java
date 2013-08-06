@@ -344,6 +344,18 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    public Marker getSelectedMarkerAtIndex(int index)
+    {
+        if(index < selectedMarkers.size())
+        {
+            return selectedMarkers.get(index);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     public List<LatLng> drawLine(LatLng position01, LatLng position02, String layerName, int color, int lineWidth)
     {
         //Create new polyLineOptions instance
