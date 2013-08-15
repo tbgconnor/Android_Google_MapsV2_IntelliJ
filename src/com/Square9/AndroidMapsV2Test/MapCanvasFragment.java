@@ -163,9 +163,9 @@ public class MapCanvasFragment extends MapFragment
     {
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         currentPositionMarker = map.addMarker(new MarkerOptions().position(defaultLocation));
-        currentPositionMarker.setTitle("Default Location");
-        currentPositionMarker.setSnippet("Lat: 50.879668° Long:  5.309296°");
-        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_large));
+        currentPositionMarker.setTitle(getResources().getString(R.string.currentPositionMarkerTitle));
+        currentPositionMarker.setSnippet(defaultLocation.toString());
+        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_small));
         currentPositionMarker.setAnchor(0.5f, 0.5f);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, MAXZOOM));
     }
@@ -177,8 +177,9 @@ public class MapCanvasFragment extends MapFragment
     public void restoreCurrentPositionMarker(LatLng currentPosition)
     {
         currentPositionMarker = map.addMarker(new MarkerOptions().position(currentPosition));
-        currentPositionMarker.setTitle("Position Loaded from file");
-        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_large));
+        currentPositionMarker.setTitle(getResources().getString(R.string.currentPositionMarkerTitle));
+        currentPositionMarker.setSnippet(currentPosition.toString());
+        currentPositionMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_current_position_arrow_small));
         currentPositionMarker.setAnchor(0.5f, 0.5f);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, MAXZOOM));
     }
@@ -190,7 +191,7 @@ public class MapCanvasFragment extends MapFragment
      */
     public void moveCurrentPositionMarker(LatLng newPosition)
     {
-        String mTitle = "Current Position";
+        String mTitle = getResources().getString(R.string.currentPositionMarkerTitle);
         String mSnippet = newPosition.toString();
         currentPositionMarker.setPosition(newPosition);
         map.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
@@ -286,6 +287,7 @@ public class MapCanvasFragment extends MapFragment
 
     public void selectMarker(Marker marker)
     {
+        Log.d(DEBUGTAG, "Selecting Marker: " + marker.getId());
         String snippet = getActivity().getResources().getString(R.string.marker_snippet_selected);
         // Replace snippet
         marker.setSnippet(snippet);
@@ -297,6 +299,7 @@ public class MapCanvasFragment extends MapFragment
 
     public void deselectMarker(Marker marker, String userComment, int color)
     {
+        Log.d(DEBUGTAG, "Deselecting Marker: " + marker.getId());
         // Put Snippet back
         marker.setSnippet(userComment);
         // Put Icon back
@@ -410,10 +413,8 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public boolean onMarkerClick(Marker marker)
         {
-            Point p = map.getProjection().toScreenLocation(marker.getPosition());
-            Log.d(DEBUGTAG, "Marker at xy: " + p.toString());
-
             // Just pass it on to the Activity
+            Log.d(DEBUGTAG, "Marker Clicked Event received in MapCanvas " + marker.getId());
             onMapFragmentEventListener.onMarkerClicked(marker);
             return true;
         }

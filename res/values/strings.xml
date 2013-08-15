@@ -66,5 +66,7 @@
 
     <string name="marker_snippet_selected">Selected</string>
 
+    <string name="currentPositionMarkerTitle">Current Position</string>
+
 
 </resources>

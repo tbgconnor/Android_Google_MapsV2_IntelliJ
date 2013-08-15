@@ -76,38 +76,16 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         Log.d(DEBUGTAG, "on Create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        if(savedInstanceState != null) // Recreating the previously destroyed instance of the activity
-        {
-            Log.d(DEBUGTAG, "Recreating the previously destroyed instance of the activity");
-            layerManager = savedInstanceState.getParcelable("layerManager");
-            //TODO there is more persistant data ...
-        }
-        // Actionbar dependency
+
+        layerManager = new LayerManager();
+
+        // Actionbar
         actionBarLayers = new ArrayList<String>();
-        if(layerManager == null)
-        {
-            Log.d(DEBUGTAG, "Creating new Instance of LayerManager");
-            layerManager = new LayerManager();
-            String layerName = layerManager.getCurrentLayer().getLayerName();
-            actionBarLayers.add(layerName);
-        }
-
-        //Map fragment
-        FragmentManager fm = getFragmentManager();
-        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
-        if(frag == null)
-        {
-            Log.d(DEBUGTAG, "Creating new Instance of MapCanvasFragment");
-            frag = MapCanvasFragment.newInstance();
-            fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
-        }
-
-        //actionbar
+        String layerName = layerManager.getCurrentLayer().getLayerName();
+        actionBarLayers.add(layerName);
         actionBar = getActionBar();
         actionBar.setDisplayUseLogoEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
-
-
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,actionBarLayers);
         actionBar.setListNavigationCallbacks(adapter, new ActionBar.OnNavigationListener() {
@@ -126,8 +104,17 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 return true;
             }
         });
-
         actionBar.show();
+        //Map fragment
+        FragmentManager fm = getFragmentManager();
+        Fragment frag = fm.findFragmentById(R.id.main_fragment_container);
+        if(frag == null)
+        {
+            Log.d(DEBUGTAG, "Creating new Instance of MapCanvasFragment");
+            frag = MapCanvasFragment.newInstance();
+            fm.beginTransaction().add(R.id.main_fragment_container, frag).commit();
+        }
+
         photoIntent = false;
         lastPhotoId = 0;
         newPhotoId = 0;
@@ -194,8 +181,35 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             newPhotoId = getLastImageId(); //Get the id of last image taken
             if(lastPhotoId != newPhotoId && newPhotoId != 0)// if a new photo was taken by the user
             {
-                Toast.makeText(MapTest.this, "Please Select a Measurement Point, and confirm, to attach the photo to the measurement point!", Toast.LENGTH_LONG).show();
-                actionId = 4;
+                //Add photo ref to measurement point
+                // Intent is only executed if 1 measurement point was selected from the current layer
+                LatLng measurementPointPositionOnMap = getMapFragment().getSelectedMarkerPositionAtIndex(0);
+                if(measurementPointPositionOnMap != null)
+                {
+                    //Test if current layer name (layerManager) equals selected marker title
+                    String selectedMarkerTitle = getMapFragment().getSelectedMarkerAtIndex(0).getTitle();
+                    String currentLayerName = layerManager.getCurrentLayer().getLayerName();
+                    if(currentLayerName.equals(selectedMarkerTitle))
+                    {
+                        MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(measurementPointPositionOnMap);
+                        if(mp != null)
+                        {
+                            mp.setPhotoFilePath(getLastPhotoReference());
+                        }
+                        else
+                        {
+                            Log.d(DEBUGTAG, "Error: [Attach Photo] Could not find measurement point by marker position!");
+                        }
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG,"Error: [Attach Photo] Current Layer Name does not match marker title");
+                    }
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Error: [Attach Photo] trying to attach photo ref to measurement point but the selected marker position is nul ?!");
+                }
             }
             else
             {
@@ -252,6 +266,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     {
         Log.d(DEBUGTAG, "Restoring instance state");
         layerManager = savedInstanceState.getParcelable("layerManager");
+        populateMap();
         super.onRestoreInstanceState(savedInstanceState);
     }
 
@@ -354,10 +369,17 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 confirmedAction();
                 return true;
             case R.id.actionBar_takePic:
-                lastPhotoId = getLastImageId();
-                photoIntent = true;
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivity(intent);
+                if(getMapFragment().getNumberOfSelectedMarkers() == 1)
+                {
+                    lastPhotoId = getLastImageId();
+                    photoIntent = true;
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivity(intent);
+                }
+                else
+                {
+                    Toast.makeText(MapTest.this, "Select 1 measurement point to attach the photo to!", Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.actionBar_actionConfirm:
                 Log.d(DEBUGTAG, "Confirm Action button pushed");
@@ -712,14 +734,17 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMarkerClicked(Marker marker)
     {
+        Log.d(DEBUGTAG, "On Marker Clicked Event Received in Main Activity " + marker.getId());
+        String currentPositionMarkerTitle = getResources().getString(R.string.currentPositionMarkerTitle);
 
-        if(selectionMode)
+        if(selectionMode && !marker.getTitle().equals(currentPositionMarkerTitle))
         {
             String layerName = marker.getTitle();
             String snippet = marker.getSnippet();
             LatLng markerPosition = marker.getPosition();
             String selectedSnippet = getResources().getString(R.string.marker_snippet_selected);
-            Log.d(DEBUGTAG, "Snippet from clicked marker: " + snippet);
+            Log.d(DEBUGTAG, "Marker Title: " + layerName);
+            Log.d(DEBUGTAG, "Marker Snippet: " + snippet);
 
             //Check if it is a "selected" marker or a measurement point marker to be selected ...
             if(snippet.equals(selectedSnippet)) // deselect the marker
@@ -741,6 +766,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 // ONLY select markers of current active layer! (to limit the search)
                 if(layerManager.getCurrentLayer().getLayerName().equals(layerName))
                 {
+                    Log.d(DEBUGTAG, "Selecting Marker");
                     getMapFragment().selectMarker(marker);
                 }
                 else
@@ -750,7 +776,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 }
             }
         }
-        else
+        else if(!selectionMode && !marker.getTitle().equals(currentPositionMarkerTitle))
         {
             marker.showInfoWindow();
         }
@@ -908,6 +934,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
 
     public void populateMap()
     {
+        Log.d(DEBUGTAG, "Populating Map!");
         // Clear all layers in Actionbar spinner
         actionBarLayers.clear();
         Iterator<MeasurementLayer> layerIterator = layerManager.getMeasurementLayerIterator();
