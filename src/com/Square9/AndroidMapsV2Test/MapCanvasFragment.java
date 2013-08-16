@@ -28,6 +28,7 @@ public class MapCanvasFragment extends MapFragment
     private ArrayList<Marker> measurementPointMarkers;
     private ArrayList<Marker> selectedMarkers;
     private ArrayList<MeasurementLineOnMap> measurementLinesOnMap;
+    private ArrayList<MeasurementLineOnMap> selectedLines;
 
     /**
      * Creates a new instance of the mapfragment
@@ -109,6 +110,7 @@ public class MapCanvasFragment extends MapFragment
         measurementPointMarkers = new ArrayList<Marker>();
         selectedMarkers = new ArrayList<Marker>();
         measurementLinesOnMap = new ArrayList<MeasurementLineOnMap>();
+        selectedLines = new ArrayList<MeasurementLineOnMap>();
     }
 
     @Override
@@ -428,8 +430,6 @@ public class MapCanvasFragment extends MapFragment
         @Override
         public void onMapClick(LatLng latLng)
         {
-            Point p = map.getProjection().toScreenLocation(latLng);
-            Log.d(DEBUGTAG, "Map Clicked postition: " + p.toString());
             onMapFragmentEventListener.onMapClicked(latLng);
         }
     };
@@ -507,7 +507,84 @@ public class MapCanvasFragment extends MapFragment
         measurementPointMarkers.clear();
         // Remove all selected markers from ArrayList
         selectedMarkers.clear();
+        // Remove all lines
+        measurementLinesOnMap.clear();
+        //todo remove all selected lines and arcs selected arcs
         // Remove all markers from map
         map.clear();
     }
+
+    /**
+     * Method to convert geographic coordinates on the surface of the Earth in screen location XY coordinates
+     * @param position (LatLng) the postition
+     * @return (point) x,y coordinates
+     */
+    public Point getMapProjection(LatLng position)
+    {
+        Projection proj = map.getProjection();
+        Point points = proj.toScreenLocation(position);
+        return points;
+    }
+
+    public ArrayList<Point> getLineProjectionPointsOfLayer(String layerName)
+    {
+        ArrayList<Point> result = new ArrayList<Point>();
+
+        for(int index = 0; index < measurementLinesOnMap.size(); index ++)
+        {
+            if(measurementLinesOnMap.get(index).getLayerName().equals(layerName))
+            {
+                LatLng ll1 = measurementLinesOnMap.get(index).getLine().getPoints().get(0);
+                LatLng ll2 = measurementLinesOnMap.get(index).getLine().getPoints().get(1);
+                Point p1 = getMapProjection(ll1);
+                Point p2 = getMapProjection(ll2);
+                result.add(p1);
+                result.add(p2);
+            }
+        }
+        return result;
+    }
+
+    public void selectLineByIndex(String layerName, int color, int lineNumber)
+    {
+        int lineNumberCounter = 0;
+        for(int index = 0; index < measurementLinesOnMap.size(); index++)
+        {
+            if(measurementLinesOnMap.get(index).getLayerName().equals(layerName) && lineNumberCounter == lineNumber)
+            {
+                //LINE FOUND
+                MeasurementLineOnMap selectedLine = measurementLinesOnMap.get(index);
+                Polyline selectedPolyLine = selectedLine.getLine();
+                if(selectedPolyLine.getColor() == getResources().getColor(R.color.selectionColor)) //It is selected and should be deselected
+                {
+                    selectedLines.remove(selectedLine);
+                    selectedPolyLine.setColor(color);
+                }
+                else //Not Selected and should be selected
+                {
+                    selectedLines.add(selectedLine);
+                    selectedPolyLine.setColor(getResources().getColor(R.color.selectionColor));
+                }
+
+                break;
+            }
+            else if( measurementLinesOnMap.get(index).getLayerName().equals(layerName) && lineNumberCounter != lineNumber )
+            {
+                lineNumberCounter++;
+            }
+
+        }
+    }
+
+    public void deselectAllMeasurementLinesOnMap(int color)
+    {
+        for(int index = selectedLines.size()-1; index >= 0; index--)
+        {
+            // Replace Color
+            selectedLines.get(index).getLine().setColor(color);
+            // Remove the line from the "selected (array) list"
+            selectedLines.remove(index);
+        }
+    }
+
 }

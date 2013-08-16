@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.*;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -58,18 +59,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     private MeasurementPoint mpOninfoWindowClicked;
     private MeasurementPoint mpPhotoAttach;
 
-    /*
-     * Actions:
-     * 0:
-     * 1: add measurement point to current layer
-     * 2: draw line
-     * 3: draw arc
-     * 4: attach photo to measurement point
-     * 5: add/change user comment of measurement point
-     */
-    private int actionId;
-    private ArrayList<Marker> selectedMarkers;
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -118,8 +107,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         photoIntent = false;
         lastPhotoId = 0;
         newPhotoId = 0;
-        actionId = 0;
-        selectedMarkers = new ArrayList<Marker>(0);
         commandBuffer = new UndoRedo();
         selectionMode = false;
         mpOninfoWindowClicked = null;
@@ -339,8 +326,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 }
                 return true;
             case R.id.actionBar_drawArc:
-                actionId = 3;
-                confirmedAction();
+
                 return true;
             case R.id.actionBar_takePic:
                 if(getMapFragment().getNumberOfSelectedMarkers() == 1)
@@ -370,13 +356,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                     Toast.makeText(MapTest.this, "Select 1 measurement point to attach the photo to!", Toast.LENGTH_LONG).show();
                 }
                 return true;
-            case R.id.actionBar_actionConfirm:
-                Log.d(DEBUGTAG, "Confirm Action button pushed");
-                Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
-                confirmedAction();// Action Performed
-                return true;
-            case R.id.actionBar_actionCancel:
-                finishAction(true);
+            case R.id.actionBar_delete:
+
                 return true;
         }
         return(super.onOptionsItemSelected(item));
@@ -605,10 +586,9 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onDialogDone(String tag, boolean cancelled, String message)
     {
-        Log.d(DEBUGTAG, "on Dialog Done Call Back...");
-        Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
         if(!cancelled && tag.equals("SAVETOFILE"))
         {
+            Log.d(DEBUGTAG, "Saving to file...");
             if(!FileHandler.checkMediaAvailability()) //if public external storage is not available do nothing
                 Toast.makeText(MapTest.this, "Error, could not reach storage media",Toast.LENGTH_LONG).show();
             else
@@ -774,7 +754,66 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     @Override
     public void onMapClicked(LatLng clickPosition)
     {
-
+        if(selectionMode)
+        {
+            // Point conversion of clickPosition LatLng -->> XY
+            Point pointClicked = getMapFragment().getMapProjection(clickPosition);
+            // Line Points in Current Layer [XY]
+            ArrayList<Point> layerLinePoints = getMapFragment().getLineProjectionPointsOfLayer(layerManager.getCurrentLayer().getLayerName());
+            // If the current layer contains LINES:
+            if(!layerLinePoints.isEmpty())
+            {
+                //Check if we got an even number of points (every lines has to points so the size must be even...)
+                int numberOfLinePoints = layerLinePoints.size();
+                int remainder = numberOfLinePoints % 2;
+                if(remainder == 0) // Even #LinePoints is required
+                {
+                    // lines are at paired indexes: [0,1] [2,3] ... [n, n+1] --> 0 is point1 of line0 and 1 is point2 of line0 --> 2 is point1 of line1 and 3 is point2 of line1 --> ....
+                    // Line Index :                  0     1    .... n/2     --> ever pair n and n+1 is a line so the position of the line in array would be n/2
+                    int lineIndex = 0;
+                    for(int index = 0; index < layerLinePoints.size()-1; index=index+2)
+                    {
+                        Point pOne = layerLinePoints.get(index);
+                        Point pTwo = layerLinePoints.get(index+1);
+                        // y = ax + c
+                        double a = getLineSlope(pOne, pTwo);
+                        double c = getLineOffset(pOne, a);
+                        int errorMargin = 10; // Only for Y
+                        // Determine X bounds
+                        int xUpperBound = 0;
+                        int xLowerBound = 0;
+                        if(pOne.x > pTwo.x)
+                        {
+                            xUpperBound = pOne.x;
+                            xLowerBound = pTwo.x;
+                        }
+                        else
+                        {
+                            xUpperBound = pTwo.x;
+                            xLowerBound = pOne.x;
+                        }
+                        // Check if the click is within the bounds (x and y)
+                        if( (pointClicked.y + errorMargin ) >= (a*pointClicked.x+c) && (pointClicked.y - errorMargin ) <= (a*pointClicked.x+c)
+                                && pointClicked.x < xUpperBound && pointClicked.x > xLowerBound )
+                        {
+                            // Calc lineIndex
+                            lineIndex = index / 2;
+                            // Select the line by this index
+                            getMapFragment().selectLineByIndex(layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor(), lineIndex);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    Log.d(DEBUGTAG, "Error: (Map Clicked) uneven number of line points received!");
+                }
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "(Map Clicked) No lines in current layer");
+            }
+        }
     }
 
     @Override
@@ -828,97 +867,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             Log.d(DEBUGTAG, "Error: Parsing error in file");
             Toast.makeText(MapTest.this, "Error: something went wrong while reading the file", Toast.LENGTH_LONG).show();
         }
-    }
-
-    /**
-     * User can perform 'actions' on the map such as draw lines ....
-     * These actions are confirmed by an action bar button  but of the activity.
-     * This method performs the desired action
-     */
-    public void confirmedAction()
-    {
-        switch(actionId)
-        {
-            case 0: // NO ACTION
-                //DO NOTHING
-                return;
-            case 1://add marker to map
-
-                return;
-            case 2: // Draw Line
-
-                return;
-            case 3: // Draw Arc
-                Toast.makeText(MapTest.this, "Drawing Arc", Toast.LENGTH_LONG).show();
-                actionId = 0; // Reset action id
-                return;
-            case 4: // add photo
-                if(selectedMarkers.size() == 1) // Correct #points selected (1)
-                {
-                    String photoPath = getLastPhotoReference();
-                    LatLng markerPos = selectedMarkers.get(0).getPosition();
-                    MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
-                    mp.setPhotoFilePath(photoPath);
-                    Toast.makeText(MapTest.this, "Photo Added!", Toast.LENGTH_LONG).show();
-                    finishAction(false);
-                }
-                else if(selectedMarkers.size() == 0) // no Point Selected
-                {
-                    Toast.makeText(MapTest.this, "no Measurement Point Selected, Please Selected a Point and Confirm!", Toast.LENGTH_LONG).show();
-                    selectedMarkers.clear();
-                }
-                else //too many points selected
-                {
-                    Toast.makeText(MapTest.this, "Too Many Measurement Points Selected,  Please Selected ONE Point and Confirm!", Toast.LENGTH_LONG).show();
-                    selectedMarkers.clear();
-                }
-                return;
-            case 5: // Add/Change User Comment of measurement point
-                if(selectedMarkers.size() == 1) // Correct #points selected (1)
-                {
-                    Log.d(DEBUGTAG, "Action Confirmed... Launching dialog");
-                    Log.d(DEBUGTAG, "ActionId = " + Integer.toString(actionId) + "#Selected points = " + Integer.toString(selectedMarkers.size()));
-                    LatLng markerPos = selectedMarkers.get(0).getPosition();
-                    MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(markerPos);
-                    String userComment = mp.getComment();
-                    showAddTextDialog(userComment);
-                }
-                else if(selectedMarkers.size() == 0) // no Point Selected
-                {
-                    Toast.makeText(MapTest.this, "no Measurement Point Selected, Please Selected a Point and Confirm!", Toast.LENGTH_LONG).show();
-                    selectedMarkers.clear();
-                }
-                else //too many points selected
-                {
-                    Toast.makeText(MapTest.this, "Too Many Measurement Points Selected,  Please Selected ONE Point and Confirm!", Toast.LENGTH_LONG).show();
-                    selectedMarkers.clear();
-                }
-                return;
-            default:
-                return;
-        }
-    }
-
-    /**
-     * Method for cancelling the Action
-     */
-    public void finishAction(Boolean cancelled)
-    {
-        // Reset User Comment to snippet
-        for(Marker m : selectedMarkers)
-        {
-            MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(m.getPosition());
-            if(mp != null)
-            {
-                m.setSnippet(mp.getComment());
-            }
-        }
-        //dereference selected markers
-        selectedMarkers.clear();
-        //clear user selected action
-        actionId = 0;
-        if(cancelled)
-            Toast.makeText(MapTest.this, "Action Canceled", Toast.LENGTH_SHORT).show();
     }
 
     public void populateMap()
@@ -999,6 +947,37 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             }
 
         }
+        // Deselect all measurmentLines
+        getMapFragment().deselectAllMeasurementLinesOnMap(layerManager.getCurrentLayer().getColor());
+        //TODO Deselect all MeasurementArcs
+    }
+
+    /**
+     * Method to calculate a lines slope based on 2 points ( 2D orthogonal space XY)
+     * in terms of y = a*x +c --> a = slope
+     * @param one a point of the line
+     * @param two another point of the line
+     * @return the slope
+     */
+    public double getLineSlope(Point one, Point two)
+    {
+        double deltaX = (double) (two.x - one.x);
+        double deltaY = (double) (two.y - one.y);
+        double result = deltaY/deltaX;
+        return result;
+    }
+
+    /**
+     * Method to calculate a lines offset based on 1 points and the slope of the line ( 2D orthogonal space XY)
+     * @param one a point of the line
+     * @param slope the slope of the line
+     * @return the offset of the line
+     */
+    public double getLineOffset(Point one, double slope)
+    {
+        // y = ax+c => c = y - ax
+        double result = one.y - (slope*one.x);
+        return result;
     }
 
 

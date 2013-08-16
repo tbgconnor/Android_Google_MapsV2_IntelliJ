@@ -10,4 +10,6 @@
     <color name="rose">#ff8ce6</color>
     <color name="violet">#8f00ff</color>
     <color name="yellow">#ffff00</color>
+
+    <color name="selectionColor">#ffa5a8b5</color>
 </resources>

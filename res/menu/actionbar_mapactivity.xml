@@ -74,18 +74,6 @@
             android:title="@string/action_bar_take_pic"/>
 
     <item
-            android:id="@+id/actionBar_actionConfirm"
-            android:icon="@drawable/ic_confirm_action"
-            android:showAsAction="always"
-            android:title="@string/action_bar_actionConfirm" />
-
-    <item
-            android:id="@+id/actionBar_actionCancel"
-            android:icon="@drawable/ic_cancel_action"
-            android:showAsAction="always"
-            android:title="@string/action_bar_actionCancel" />
-
-    <item
             android:id="@+id/actionBar_delete"
             android:icon="@drawable/ic_content_discard"
             android:showAsAction="always"
