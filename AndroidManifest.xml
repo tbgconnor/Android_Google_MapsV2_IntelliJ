@@ -32,7 +32,8 @@
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
         <activity android:name="com.Square9.AndroidMapsV2Test.MapTest"
                   android:label="@string/app_name"
-                  android:theme="@android:style/Theme.DeviceDefault">
+                  android:theme="@android:style/Theme.DeviceDefault"
+                  android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -19,7 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +56,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
     // Selection mode
     private boolean selectionMode;
     private MeasurementPoint mpOninfoWindowClicked;
+    private MeasurementPoint mpPhotoAttach;
 
     /*
      * Actions:
@@ -123,6 +123,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         commandBuffer = new UndoRedo();
         selectionMode = false;
         mpOninfoWindowClicked = null;
+        mpPhotoAttach = null;
     }
 
     @Override
@@ -181,35 +182,8 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             newPhotoId = getLastImageId(); //Get the id of last image taken
             if(lastPhotoId != newPhotoId && newPhotoId != 0)// if a new photo was taken by the user
             {
-                //Add photo ref to measurement point
-                // Intent is only executed if 1 measurement point was selected from the current layer
-                LatLng measurementPointPositionOnMap = getMapFragment().getSelectedMarkerPositionAtIndex(0);
-                if(measurementPointPositionOnMap != null)
-                {
-                    //Test if current layer name (layerManager) equals selected marker title
-                    String selectedMarkerTitle = getMapFragment().getSelectedMarkerAtIndex(0).getTitle();
-                    String currentLayerName = layerManager.getCurrentLayer().getLayerName();
-                    if(currentLayerName.equals(selectedMarkerTitle))
-                    {
-                        MeasurementPoint mp = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(measurementPointPositionOnMap);
-                        if(mp != null)
-                        {
-                            mp.setPhotoFilePath(getLastPhotoReference());
-                        }
-                        else
-                        {
-                            Log.d(DEBUGTAG, "Error: [Attach Photo] Could not find measurement point by marker position!");
-                        }
-                    }
-                    else
-                    {
-                        Log.d(DEBUGTAG,"Error: [Attach Photo] Current Layer Name does not match marker title");
-                    }
-                }
-                else
-                {
-                    Log.d(DEBUGTAG, "Error: [Attach Photo] trying to attach photo ref to measurement point but the selected marker position is nul ?!");
-                }
+                mpPhotoAttach.setPhotoFilePath(getLastPhotoReference());
+                Toast.makeText(MapTest.this, "Photo added", Toast.LENGTH_LONG).show();
             }
             else
             {
@@ -371,10 +345,25 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
             case R.id.actionBar_takePic:
                 if(getMapFragment().getNumberOfSelectedMarkers() == 1)
                 {
-                    lastPhotoId = getLastImageId();
-                    photoIntent = true;
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivity(intent);
+                    // Get the position of the marker to add the photo to
+                    LatLng photoPosition = getMapFragment().getSelectedMarkerPositionAtIndex(0);
+                    // Find corresponding measurement Point
+                    mpPhotoAttach = layerManager.getCurrentLayer().getMeasurementPointByMarkerPosition(photoPosition);
+                    if(mpPhotoAttach != null)
+                    {
+                        // Deselect the marker
+                        getMapFragment().deselectMarker(getMapFragment().getSelectedMarkerAtIndex(0), mpPhotoAttach.getComment(), layerManager.getCurrentLayer().getColor());
+                        // Get the last image id
+                        lastPhotoId = getLastImageId();
+                        // Start the intent
+                        photoIntent = true;
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivity(intent);
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG, "Could not find the corresponding Measurement Point for the selected marker to attach a photo");
+                    }
                 }
                 else
                 {
