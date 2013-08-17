@@ -1,9 +1,7 @@
 package com.Square9.AndroidMapsV2Test;
 
-import android.content.Context;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 
 /**
  * Command Class for adding a measurement point
@@ -41,7 +39,7 @@ public class CommandAddMeasurementPoint implements Icommand
         // Add marker to map and get the position of the marker on the map
         markerPositionOnMap = mapCanvas.addMarker(position, layer.getLayerName(), "", layer.getColor());
         // Add marker position to measurementPoint
-        measurementPoint.setMarkerPositioOnMap(markerPositionOnMap);
+        measurementPoint.setMarkerPositionOnMap(markerPositionOnMap);
         // Add measurementPoint to layerManager
         layer.addMeasurementPoint(measurementPoint);
     }

@@ -21,6 +21,7 @@ public class MeasurementLayer implements Parcelable
     private int lineWidth;
 
     private ArrayList<MeasurementLine> lines;
+    private ArrayList<MeasurementArc> arcs;
 
     /**
      * MeasurementLayer constructor
@@ -35,6 +36,7 @@ public class MeasurementLayer implements Parcelable
         this.color = color;
         this.lineWidth = lineWidth;
         lines = new ArrayList<MeasurementLine>();
+        arcs = new ArrayList<MeasurementArc>();
     }
 
     /**
@@ -120,7 +122,7 @@ public class MeasurementLayer implements Parcelable
         MeasurementPoint mP = null;
         for( MeasurementPoint point : measurementPoints)
         {
-            if(point.getMarkerPositioOnMap().equals(markerPosition))
+            if(point.getMarkerPositionOnMap().equals(markerPosition))
             {
                 mP = point;
                 break;
@@ -194,7 +196,7 @@ public class MeasurementLayer implements Parcelable
 
     /**
      * Method to add a line to the layer
-     * @param line lineObject
+     * @param line line Object
      */
     public void addLine(MeasurementLine line)
     {
@@ -211,11 +213,44 @@ public class MeasurementLayer implements Parcelable
         return lines.remove(line);
     }
 
-
-    public Iterator<MeasurementLine> getMapLineIterator()
+    /**
+     * Method to get MeasurementLine Iterator
+     * @return iterator for measurement line collection
+     */
+    public Iterator<MeasurementLine> getMeasurementLineIterator()
     {
         return lines.iterator();
     }
+
+    /**
+     * Method to add an arc to the layer
+     * @param arc arc Object
+     */
+    public void addArc(MeasurementArc arc)
+    {
+        arcs.add(arc);
+    }
+
+    /**
+     * Method to remove an arc from the layer
+     * @param arc arc Object
+     * @return success or fail
+     */
+    public boolean removeArc(MeasurementArc arc)
+    {
+        return arcs.remove(arc);
+    }
+
+    /**
+     * Method to get the arcs Iterator
+     * @return Iterator for measurement arc collection
+     */
+    public Iterator<MeasurementArc> getMeasurementArcIterator()
+    {
+        return arcs.iterator();
+    }
+
+
 
     public MeasurementLayer(Parcel in)
     {
@@ -224,6 +259,7 @@ public class MeasurementLayer implements Parcelable
         color = Color.RED;
         lineWidth = 3;
         lines = new ArrayList<MeasurementLine>();
+        arcs = new ArrayList<MeasurementArc>();
         readFromParcel(in);
     }
 
@@ -281,6 +317,7 @@ public class MeasurementLayer implements Parcelable
         dest.writeInt(lineWidth);
         dest.writeTypedList(measurementPoints);
         dest.writeTypedList(lines);
+        dest.writeTypedList(arcs);
     }
 
     private void readFromParcel(Parcel in)
@@ -290,6 +327,7 @@ public class MeasurementLayer implements Parcelable
         lineWidth = in.readInt();
         in.readTypedList(measurementPoints, MeasurementPoint.CREATOR);
         in.readTypedList(lines, MeasurementLine.CREATOR);
+        in.readTypedList(arcs, MeasurementArc.CREATOR);
     }
 }
 

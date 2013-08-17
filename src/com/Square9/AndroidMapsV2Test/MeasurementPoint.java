@@ -19,7 +19,7 @@ public class MeasurementPoint implements Parcelable
     private String photoFilePath;
     // Google maps API bug: marker postion read back does not equal the set position.
     // see: https://code.google.com/p/gmaps-api-issues/issues/detail?id=5353
-    private LatLng markerPositioOnMap;
+    private LatLng markerPositionOnMap;
 
     /**
      * Constructor for Measurement Point Object
@@ -30,7 +30,7 @@ public class MeasurementPoint implements Parcelable
         this.position = position;
         comment = ""; //prevent null pointer errors on simple string object
         photoFilePath = "";
-        markerPositioOnMap = position;
+        markerPositionOnMap = position;
     }
 
     /**
@@ -109,16 +109,16 @@ public class MeasurementPoint implements Parcelable
      * Getter for marker position on map (used for cross ref) (bypassing google play maps v2 api bug)
      * @return the (LatLng) position of the marker on the map
      */
-    public LatLng getMarkerPositioOnMap() {
-        return markerPositioOnMap;
+    public LatLng getMarkerPositionOnMap() {
+        return markerPositionOnMap;
     }
 
     /**
      * Setter for marker position on map (used for cross ref) (bypassing google play maps v2 api bug)
-     * @param markerPositioOnMap the position of the marker on the map after instantiation of the marker representing this measurement point
+     * @param markerPositionOnMap the position of the marker on the map after instantiation of the marker representing this measurement point
      */
-    public void setMarkerPositioOnMap(LatLng markerPositioOnMap) {
-        this.markerPositioOnMap = markerPositioOnMap;
+    public void setMarkerPositionOnMap(LatLng markerPositionOnMap) {
+        this.markerPositionOnMap = markerPositionOnMap;
     }
 
     public static final Parcelable.Creator<MeasurementPoint> CREATOR
@@ -140,7 +140,7 @@ public class MeasurementPoint implements Parcelable
         comment = "";
         position = new LatLng(50.879668, 5.309296);
         photoFilePath = "";
-        markerPositioOnMap = new LatLng(50.879668, 5.309296);
+        markerPositionOnMap = new LatLng(50.879668, 5.309296);
         readFromParcel(in);
     }
 
@@ -168,7 +168,7 @@ public class MeasurementPoint implements Parcelable
         dest.writeString(comment);
         dest.writeParcelable(position, 0);
         dest.writeString(photoFilePath);
-        dest.writeParcelable(markerPositioOnMap, 0);
+        dest.writeParcelable(markerPositionOnMap, 0);
     }
 
     private void readFromParcel(Parcel in)
@@ -176,6 +176,6 @@ public class MeasurementPoint implements Parcelable
         comment = in.readString();
         position = in.readParcelable(LatLng.class.getClassLoader());
         photoFilePath = in.readString();
-        markerPositioOnMap = in.readParcelable(LatLng.class.getClassLoader());
+        markerPositionOnMap = in.readParcelable(LatLng.class.getClassLoader());
     }
 }

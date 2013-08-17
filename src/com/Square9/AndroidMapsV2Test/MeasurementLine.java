@@ -67,20 +67,22 @@ public class MeasurementLine implements Parcelable
         readFromParcel(in);
     }
 
-    public static final Parcelable.Creator<MeasurementLine> CREATOR
-            = new Parcelable.Creator<MeasurementLine>() {
-        public MeasurementLine createFromParcel(Parcel in) {
+    public static final Parcelable.Creator<MeasurementLine> CREATOR = new Parcelable.Creator<MeasurementLine>()
+    {
+        public MeasurementLine createFromParcel(Parcel in)
+        {
             return new MeasurementLine(in);
         }
 
-        public MeasurementLine[] newArray(int size) {
+        public MeasurementLine[] newArray(int size)
+        {
             return new MeasurementLine[size];
         }
     };
 
     @Override
     public int describeContents() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return 0;
     }
 
     @Override

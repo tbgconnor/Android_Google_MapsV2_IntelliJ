@@ -460,7 +460,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         //Add marker to the map
         LatLng markerPos = getMapFragment().addMarker(measurementPosition, layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
         //Add marker position to measurement point
-        mp.setMarkerPositioOnMap(markerPos);
+        mp.setMarkerPositionOnMap(markerPos);
         //add it to the current layer
         layerManager.addMeasurementPointToLayer(mp);
     }
@@ -602,7 +602,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
         {
             Log.d(DEBUGTAG, "received callback from add text dialog: " + message.trim());
             mpOninfoWindowClicked.setComment(message.trim());
-            getMapFragment().updateMarkerSnippet(mpOninfoWindowClicked.getMarkerPositioOnMap(), message.trim());
+            getMapFragment().updateMarkerSnippet(mpOninfoWindowClicked.getMarkerPositionOnMap(), message.trim());
             mpOninfoWindowClicked = null;
         }
     }
@@ -896,9 +896,9 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 //Add marker to the map
                 markerPos = getMapFragment().addMarker(mp.getPosition(), layerManager.getCurrentLayer().getLayerName(), mp.getComment(), layerManager.getCurrentLayer().getColor());
                 //Add marker position to measurement point
-                mp.setMarkerPositioOnMap(markerPos);
+                mp.setMarkerPositionOnMap(markerPos);
             }
-            Iterator<MeasurementLine> lineIterator = layer.getMapLineIterator();
+            Iterator<MeasurementLine> lineIterator = layer.getMeasurementLineIterator();
             while(lineIterator.hasNext())
             {
                 MeasurementLine line = lineIterator.next();
@@ -913,7 +913,20 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 line.setLinePositionOnMap01(pointsOnMap.get(0));
                 line.setLinePositionOnMap02(pointsOnMap.get(1));
             }
-            //TODO More Map elements
+            Iterator<MeasurementArc> arcIterator =layer.getMeasurementArcIterator();
+            while (arcIterator.hasNext())
+            {
+                MeasurementArc arc = arcIterator.next();
+                String layerName = layerManager.getCurrentLayer().getLayerName();
+                int color = layerManager.getCurrentLayer().getColor();
+                int lineWidth = layerManager.getCurrentLayer().getLineWidth();
+                LatLng mP1 = arc.getMeasurementPositions().get(0);
+                LatLng mP2 = arc.getMeasurementPositions().get(1);
+                LatLng mP3 = arc.getMeasurementPositions().get(2);
+                //TODO Draw the ARC on the map
+                //TODO get the positions on the map of the arc
+                //TODO Update Arc instance in the model
+            }
 
         }
         //restore current position marker to last point added:

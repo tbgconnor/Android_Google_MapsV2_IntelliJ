@@ -38,6 +38,16 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     private final String LINE_LAT2 = "Latitude 2:";
     private final String LINE_LON2 = "Longitude 2:";
     private final String CLOSE_LINE_TAG = "</Line>";
+    private final String OPEN_ARC_TAG = "<Arc>";
+    private final String ARC_LAT1 = "Latitude 1:";
+    private final String ARC_LON1 = "Longitude 1:";
+    private final String ARC_LAT2 = "Latitude 2:";
+    private final String ARC_LON2 = "Longitude 2:";
+    private final String ARC_LAT3 = "Latitude 3:";
+    private final String ARC_LON3 = "Longitude 3:";
+    private final String CLOSE_ARC_TAG = "</ARC>";
+
+
 
     public interface ReadFromFileEvent
     {
@@ -169,7 +179,7 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                 {
                     double lat1 = 0.0;
                     double lon1 = 0.0;
-                    double lat2= 0.0;
+                    double lat2 = 0.0;
                     double lon2 = 0.0;
 
                     String nextLine = bufferedReader.readLine();
@@ -212,6 +222,69 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     MeasurementLine lineElement = new MeasurementLine(point1, point2, point1, point2);
                     // add Map line to current layer in layermanager
                     result.getCurrentLayer().addLine(lineElement);
+                }
+                if(line.contains(OPEN_ARC_TAG))
+                {
+                    double lat1 = 0.0;
+                    double lon1 = 0.0;
+                    double lat2 = 0.0;
+                    double lon2 = 0.0;
+                    double lat3 = 0.0;
+                    double lon3 = 0.0;
+
+
+                    String nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LAT1))
+                    {
+                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        lat1 = decimalNumberStringToDouble(sLat);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LON1))
+                    {
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon1 = decimalNumberStringToDouble(sLon);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LAT2))
+                    {
+                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        lat2 = decimalNumberStringToDouble(sLat);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LON2))
+                    {
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon2 = decimalNumberStringToDouble(sLon);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LAT3))
+                    {
+                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        lat3 = decimalNumberStringToDouble(sLat);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(ARC_LON3))
+                    {
+                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        lon3 = decimalNumberStringToDouble(sLon);
+                    }
+
+                    // Create a new Arc instance
+                    LatLng point1 = new LatLng(lat1, lon1);
+                    LatLng point2 = new LatLng(lat2, lon2);
+                    LatLng point3 = new LatLng(lat3, lon3);
+                    // Constructor of MeasurementArc requires the Position on map,
+                    // A this point this can not be passed, so i'm passing the measurement data points
+                    // They should be set, when map is populated, for each arc
+                    MeasurementArc arc = new MeasurementArc(point1, point2, point3, point1, point2, point3);
+                    // add Arc to current layer in layermanager
+                    result.getCurrentLayer().addArc(arc);
                 }
             }
             bufferedReader.close();
