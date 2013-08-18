@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.Marker;
  * @author Koen Gilissen
  * @version 1.0
  */
-public interface onMapFragmentEventListener
+public interface IonMapFragmentEventListener
 {
     void onMarkerClicked(Marker marker);
     void onMapClicked(LatLng clickPosition);

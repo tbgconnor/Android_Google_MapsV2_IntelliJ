@@ -20,7 +20,7 @@ public class MapTypeDialogFragment extends DialogFragment
     private final static String DEBUGTAG = "MapTypeDialogFragment";
     private int selectedMapType;
     private int currentMapType;
-    private OnDialogDoneListener mListener;
+    private IonDialogDoneListener mListener;
 
     public static MapTypeDialogFragment newInstance(int currentMapType)
     {
@@ -45,7 +45,7 @@ public class MapTypeDialogFragment extends DialogFragment
         try
         {
             // Instantiate the MapTypeDialogListener so we can send events to the host
-            mListener = (OnDialogDoneListener) activity;
+            mListener = (IonDialogDoneListener) activity;
             Log.d(DEBUGTAG, "mListener instantiated...");
         }
         catch(Exception e)

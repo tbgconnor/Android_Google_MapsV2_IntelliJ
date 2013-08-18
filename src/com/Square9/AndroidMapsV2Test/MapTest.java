@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class MapTest extends Activity implements OnDialogDoneListener, SaveToFile.SaveToFileEvent, ReadFromFile.ReadFromFileEvent, onMapFragmentEventListener
+public class MapTest extends Activity implements IonDialogDoneListener, SaveToFile.SaveToFileEvent, ReadFromFile.ReadFromFileEvent, IonMapFragmentEventListener
 {
     private final static String DEBUGTAG = "MapTestAct";
 
@@ -305,7 +305,6 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 showNewLayerSettingsDialog();
                 return true;
             case R.id.actionBar_drawLine:
-                //figure out how many measurement points are selected
                 if(getMapFragment().getNumberOfSelectedMarkers() == 2)
                 {
                     MeasurementLayer currentLayer = layerManager.getCurrentLayer();
@@ -316,7 +315,7 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 }
                 else
                 {
-                     CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Line", "Select 2 measurement points to draw a line!", new DialogInterface.OnClickListener() {
+                     CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Line", "Select 2 measurement points to draw a Line!", new DialogInterface.OnClickListener() {
                          @Override
                          public void onClick(DialogInterface dialog, int which) {
                              dialog.dismiss();
@@ -326,6 +325,25 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                 }
                 return true;
             case R.id.actionBar_drawArc:
+                if(getMapFragment().getNumberOfSelectedMarkers() == 3)
+                {
+                    MeasurementLayer currentLayer = layerManager.getCurrentLayer();
+                    LatLng positionOfSelectedMarker01 = getMapFragment().getSelectedMarkerPositionAtIndex(0);
+                    LatLng positionOfSelectedMarker02 = getMapFragment().getSelectedMarkerPositionAtIndex(1);
+                    LatLng positionOfSelectedMarker03 = getMapFragment().getSelectedMarkerPositionAtIndex(2);
+                    getMapFragment().drawArc(positionOfSelectedMarker01, positionOfSelectedMarker02, positionOfSelectedMarker03, currentLayer.getLayerName(), currentLayer.getColor(), currentLayer.getLineWidth());
+                    //TODO call Command
+                }
+                else
+                {
+                    CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Arc", "Select 3 measurement points to draw an Arc!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    selectionAlert.showDialog();
+                }
 
                 return true;
             case R.id.actionBar_takePic:
@@ -348,12 +366,18 @@ public class MapTest extends Activity implements OnDialogDoneListener, SaveToFil
                     }
                     else
                     {
-                        Log.d(DEBUGTAG, "Could not find the corresponding Measurement Point for the selected marker to attach a photo");
+                        Log.d(DEBUGTAG, "Could not find the corresponding Measurement Point for the selected marker to attach a Photo");
                     }
                 }
                 else
                 {
-                    Toast.makeText(MapTest.this, "Select 1 measurement point to attach the photo to!", Toast.LENGTH_LONG).show();
+                    CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Add Photo", "Select 1 measurement point to attach the photo to!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    selectionAlert.showDialog();
                 }
                 return true;
             case R.id.actionBar_delete:

@@ -30,7 +30,7 @@ public class OpenFileDialogFragment extends DialogFragment
     private File selected;
     private Button buttonOpen;
     private Button buttonCancel;
-    private OnDialogDoneListener onDialogDoneListener;
+    private IonDialogDoneListener onDialogDoneListener;
 
     public static OpenFileDialogFragment newInstance()
     {
@@ -44,7 +44,7 @@ public class OpenFileDialogFragment extends DialogFragment
         super.onAttach(activity);
         try
         {
-            onDialogDoneListener = (OnDialogDoneListener) activity;
+            onDialogDoneListener = (IonDialogDoneListener) activity;
         }
         catch(ClassCastException cce)
         {

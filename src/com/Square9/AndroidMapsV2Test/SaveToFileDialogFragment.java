@@ -1,9 +1,7 @@
 package com.Square9.AndroidMapsV2Test;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +19,7 @@ public class SaveToFileDialogFragment extends DialogFragment
 {
     private String fileName;
     private String fileExtension;
-    private OnDialogDoneListener mListener;
+    private IonDialogDoneListener mListener;
     private TextView textViewFileExtension;  // Provided in the back-end design, at the moment not used-> file extension loaded from xml resource
     private EditText editTextFileName;
     private Button buttonSave;
@@ -39,7 +37,7 @@ public class SaveToFileDialogFragment extends DialogFragment
         super.onAttach(activity);
         try
         {
-            mListener = (OnDialogDoneListener) activity;
+            mListener = (IonDialogDoneListener) activity;
         }
         catch(Exception e)
         {

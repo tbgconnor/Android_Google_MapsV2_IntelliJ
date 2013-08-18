@@ -19,7 +19,7 @@ public class AddTextDialogFragment extends DialogFragment
 {
     private static final String DEBUGTAG = "AddTextDialogFragment";
     private String userComment;
-    private OnDialogDoneListener mListener;
+    private IonDialogDoneListener mListener;
     private EditText editTextUserComment;
     private Button buttonSave;
     private Button buttonCancel;
@@ -41,7 +41,7 @@ public class AddTextDialogFragment extends DialogFragment
         try
         {
             Log.d(DEBUGTAG, "Activity checks out ;-)");
-            mListener = (OnDialogDoneListener) activity;
+            mListener = (IonDialogDoneListener) activity;
         }
         catch (ClassCastException cce)
         {

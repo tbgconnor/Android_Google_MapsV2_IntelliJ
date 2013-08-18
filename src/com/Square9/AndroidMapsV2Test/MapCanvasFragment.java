@@ -23,7 +23,7 @@ public class MapCanvasFragment extends MapFragment
     private Marker currentPositionMarker;
     private GoogleMap map;
 
-    private onMapFragmentEventListener onMapFragmentEventListener;
+    private IonMapFragmentEventListener onMapFragmentEventListener;
 
     private ArrayList<Marker> measurementPointMarkers;
     private ArrayList<Marker> selectedMarkers;
@@ -50,7 +50,7 @@ public class MapCanvasFragment extends MapFragment
         super.onAttach(activity);
         try
         {
-            onMapFragmentEventListener = (onMapFragmentEventListener) activity;
+            onMapFragmentEventListener = (IonMapFragmentEventListener) activity;
         }
         catch(Exception exp)
         {
@@ -585,6 +585,163 @@ public class MapCanvasFragment extends MapFragment
             // Remove the line from the "selected (array) list"
             selectedLines.remove(index);
         }
+    }
+
+    public double calcSlope(Point a, Point b)
+    {
+        double deltaY = (double) a.y - (double) b.y;
+        double deltaX = (double) a.x - (double) b.x;
+        return deltaY/deltaX;
+    }
+
+    /**
+     * Method to calculate the angle of a radius line (from circle center to a point on the circle circumference) in an orthogonal axis space
+     * @param a  point on the circle circumference
+     * @param center circle center
+     * @return angle in radiance (RAD)
+     */
+    public double calcRadAngleOfRadiusLine(Point a, Point center)
+    {
+        double deltaY = (double) a.y - (double) center.y;
+        double deltaX = (double) a.x - (double) center.x;
+        double angle = Math.atan(deltaY/deltaX);
+        if(deltaY > 0 && deltaX > 0) // First Quadrant
+        {
+            return angle;
+        }
+        else if(deltaY > 0 && deltaX < 0) // Second Quadrant
+        {
+            return angle + Math.PI;
+        }
+        else if(deltaY < 0 && deltaX < 0) // Third Quadrant
+        {
+            return angle + Math.PI;
+        }
+        else                              // Fourth Quadrant
+        {
+            return angle + (2*Math.PI);
+        }
+
+    }
+
+    // from: http://www.regentsprep.org/Regents/math/geometry/GCG6/RCir.htm
+    public void drawArc(LatLng posA, LatLng posB, LatLng posC, String layerName, int color, int lineWidth)
+    {
+        // Get the cartesian coordinates for the 3 positions
+        Point pointA = map.getProjection().toScreenLocation(posA);
+        Point pointB = map.getProjection().toScreenLocation(posB);
+        Point pointC = map.getProjection().toScreenLocation(posC);
+        Log.d(DEBUGTAG, "point A = " + " [" + pointA.x + " ; " + pointA.y + "] ");
+        Log.d(DEBUGTAG, "point B = " + " [" + pointB.x + " ; " + pointB.y + "] ");
+        Log.d(DEBUGTAG, "point C = " + " [" + pointC.x + " ; " + pointC.y + "] ");
+        //Calculate Slopes of Circle Cords [AB] sT & [BC] sR
+        double sR = calcSlope(pointA, pointB);
+        double sT = calcSlope(pointB, pointC);
+        // Get coordinates of the 3 points
+        double x1 = (double) pointA.x;
+        double y1 = (double) pointA.y;
+        double x2 = (double) pointB.x;
+        double y2 = (double) pointB.y;
+        double x3 = (double) pointC.x;
+        double y3 = (double) pointC.y;
+        // Calculate Center X
+        double cXnum = ((sR*sT*(y3-y1)) + (sR*(x2+x3)) - (sT*(x1+x2)));
+        double cXden = (2*(sR-sT));
+        double cX = cXnum/cXden;
+        Log.d(DEBUGTAG, "Center X = " + cX);
+        // Calculate Center Y
+        double cY = (-(1/sR) * (cX - ((x1+x2)/2))) + ((y1+y2)/2);
+        Log.d(DEBUGTAG, "Center Y = " + cY);
+        Point center = new Point((int) cX, (int) cY); //TODO loss of precision --> is this a problem ???
+        this.addMarker(map.getProjection().fromScreenLocation(center), layerName, "center", color);
+        // Calculate Circle Radius
+        double dx =  x1-cX;
+        double dy =  y1-cY;
+        double r = Math.sqrt(Math.pow(dx, 2)+Math.pow(dy ,2));
+        Log.d(DEBUGTAG, "Radius = " + r);
+        // Calculate Radius line Angles
+        double alpha = calcRadAngleOfRadiusLine(pointA, center);
+        double beta = calcRadAngleOfRadiusLine(pointB, center);
+        double gamma = calcRadAngleOfRadiusLine(pointC, center);
+        Log.d(DEBUGTAG, "alpha = " + alpha);
+        Log.d(DEBUGTAG, "beta = " + beta);
+        Log.d(DEBUGTAG, "gamma = " + gamma);
+        // the number of line segments will increase with increasing circle radius
+        // 1/10 rad per unit length
+        double deltaAngle = 1/r;
+        Log.d(DEBUGTAG, "delta angle = " + deltaAngle);
+        // Calculate number of line segments between Point A and B
+        double numberOfLineSegmentsAB =  Math.abs(alpha-beta) / deltaAngle;
+        Log.d(DEBUGTAG, "number of segments AB = " + numberOfLineSegmentsAB);
+        // Calculate number of line segments between Point B and C
+        double numberOfLineSegmentsBC =  Math.abs(beta-gamma) / deltaAngle;
+        Log.d(DEBUGTAG, "number of segments BC = " + numberOfLineSegmentsBC);
+        numberOfLineSegmentsAB = Math.floor(numberOfLineSegmentsAB); // Floor
+        numberOfLineSegmentsBC = Math.floor(numberOfLineSegmentsBC);
+        // Create a polyline that approximates the circle segment between A and C via B
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.color(color);
+        polylineOptions.width((float) lineWidth);
+        //Start from smallest angle and go to largest
+        double movingAngle = 0.0;
+        Point newPoint = new Point(0, 0);
+        if(alpha < beta && alpha < gamma && beta < gamma)
+        {
+            Log.d(DEBUGTAG, "a<b<g");
+            polylineOptions.add(posA); // Start point of line
+
+            for(int i = 0; i < numberOfLineSegmentsAB - 1; i++)
+            {
+                //determine new angle
+                movingAngle = alpha + (i+1)*deltaAngle;
+                Log.d(DEBUGTAG, "moving angle= " + movingAngle);
+                // Calculate new points on circumference of circle segment
+                newPoint.x = center.x + (int) (r * Math.cos(movingAngle));
+                newPoint.y = center.y + (int) (r * Math.sin(movingAngle));
+                polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
+            }
+            polylineOptions.add(posB);
+            for(int i = 0; i < numberOfLineSegmentsBC - 1; i++)
+            {
+                //determine new angle
+                movingAngle = beta + (i+1)*deltaAngle;
+                Log.d(DEBUGTAG, "moving angle= " + movingAngle);
+                // Calculate new points on circumference of circle segment
+                newPoint.x = center.x + (int) (r * Math.cos(movingAngle));
+                newPoint.y = center.y + (int) (r * Math.sin(movingAngle));
+                polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
+            }
+            polylineOptions.add(posC); // End of circle segment
+        }
+        else if(alpha > beta && alpha > gamma && beta > gamma)
+        {
+            Log.d(DEBUGTAG, "a>b>g");
+            polylineOptions.add(posC); // Start point of line
+            for(int i = 0; i < numberOfLineSegmentsBC - 1; i++)
+            {
+                //determine new angle
+                movingAngle = gamma + (i+1)*deltaAngle;
+                Log.d(DEBUGTAG, "moving angle= " + movingAngle);
+                // Calculate new points on circumference of circle segment
+                newPoint.x = center.x + (int) (r * Math.cos(movingAngle));
+                newPoint.y = center.y + (int) (r * Math.sin(movingAngle));
+                polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
+            }
+            polylineOptions.add(posB);
+            for(int i = 0; i < numberOfLineSegmentsAB - 1; i++)
+            {
+                //determine new angle
+                movingAngle = beta + (i+1)*deltaAngle;
+                Log.d(DEBUGTAG, "moving angle= " + movingAngle);
+                // Calculate new points on circumference of circle segment
+                newPoint.x = center.x + (int) (r * Math.cos(movingAngle));
+                newPoint.y = center.y + (int) (r * Math.sin(movingAngle));
+                polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
+            }
+            polylineOptions.add(posA); // End of circle segment
+        }
+        Log.d(DEBUGTAG, "Arc is drawn...");
+        map.addPolyline(polylineOptions);
     }
 
 }

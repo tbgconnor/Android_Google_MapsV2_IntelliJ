@@ -76,13 +76,13 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
     {
         super.onAttach(activity);
         // If the activity you're being attached to has
-        // not implemented the OnDialogDoneListener
+        // not implemented the IonDialogDoneListener
         // interface, the following line will throw a
         // ClassCastException. This is the earliest you
         // can test if you have a well-behaved activity.
         try
         {
-            OnDialogDoneListener test = (OnDialogDoneListener) activity;
+            IonDialogDoneListener test = (IonDialogDoneListener) activity;
         }
         catch (ClassCastException cce)
         {
@@ -175,7 +175,7 @@ public class ActiveLayerSettingsDialogFragment extends DialogFragment
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            OnDialogDoneListener act = (OnDialogDoneListener) getActivity();
+            IonDialogDoneListener act = (IonDialogDoneListener) getActivity();
             switch(v.getId())
             {
                 case(R.id.button_apply_layer_settings):
