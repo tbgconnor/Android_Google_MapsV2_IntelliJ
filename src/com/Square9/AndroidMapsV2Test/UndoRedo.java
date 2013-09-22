@@ -1,5 +1,7 @@
 package com.Square9.AndroidMapsV2Test;
 
+import android.util.Log;
+
 import java.util.Stack;
 
 /**
@@ -9,6 +11,7 @@ import java.util.Stack;
  */
 public class UndoRedo
 {
+    private static final String DEBUGTAG = "UndoRedo";
     private Stack<Icommand> undoStack;
     private Stack<Icommand> redoStack;
 
@@ -24,6 +27,7 @@ public class UndoRedo
      */
     public boolean undo()
     {
+        Log.d(DEBUGTAG, "Undo: size of undo buffer: " + undoStack.size() + " size of redo buffer:  " + redoStack.size());
         //First check whether UndoStack is empty or not. If empty, then return otherwise proceed.
         if(undoStack.empty())
         {
@@ -47,6 +51,7 @@ public class UndoRedo
      */
     public boolean redo()
     {
+        Log.d(DEBUGTAG, "Redo: size of undo buffer: " + undoStack.size() + " size of redo buffer:  " + redoStack.size());
         // check whether there is something to redo
         if(redoStack.empty())
         {
@@ -75,5 +80,14 @@ public class UndoRedo
         //clear redo buffer
         redoStack.clear();
 
+    }
+
+    /**
+     * Method to clear the buffers
+     */
+    public void clearBuffers()
+    {
+        undoStack.clear();
+        redoStack.clear();
     }
 }

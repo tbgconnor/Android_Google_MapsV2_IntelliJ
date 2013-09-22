@@ -307,11 +307,23 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             case R.id.actionBar_drawLine:
                 if(getMapFragment().getNumberOfSelectedMarkers() == 2)
                 {
+                    //get current layer
                     MeasurementLayer currentLayer = layerManager.getCurrentLayer();
+                    //get the position of the markers
                     LatLng positionOfSelectedMarker01 = getMapFragment().getSelectedMarkerPositionAtIndex(0);
                     LatLng positionOfSelectedMarker02 = getMapFragment().getSelectedMarkerPositionAtIndex(1);
-                    CommandAddMeasurementLine addMeasurementLine = new CommandAddMeasurementLine(layerManager, positionOfSelectedMarker01, positionOfSelectedMarker02, getMapFragment());
-                    commandBuffer.addToUndoBuffer(addMeasurementLine);
+                    //find the measurement point position associated with the markers
+                    LatLng mpPosition01 = currentLayer.getMeasurementPointByMarkerPosition(positionOfSelectedMarker01).getPosition();
+                    LatLng mpPosition02 = currentLayer.getMeasurementPointByMarkerPosition(positionOfSelectedMarker02).getPosition();
+                    if(mpPosition01 != null && mpPosition02 != null)
+                    {
+                        CommandAddMeasurementLine addMeasurementLine = new CommandAddMeasurementLine(layerManager, mpPosition01, mpPosition02, getMapFragment());
+                        commandBuffer.addToUndoBuffer(addMeasurementLine);
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG, "Error: [Line] selected marker positions not found in measurment point layer! (positions do not match)");
+                    }
                 }
                 else
                 {
@@ -327,12 +339,25 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             case R.id.actionBar_drawArc:
                 if(getMapFragment().getNumberOfSelectedMarkers() == 3)
                 {
+                    //Get current Layer
                     MeasurementLayer currentLayer = layerManager.getCurrentLayer();
+                    //Get the positions of the selected markers
                     LatLng positionOfSelectedMarker01 = getMapFragment().getSelectedMarkerPositionAtIndex(0);
                     LatLng positionOfSelectedMarker02 = getMapFragment().getSelectedMarkerPositionAtIndex(1);
                     LatLng positionOfSelectedMarker03 = getMapFragment().getSelectedMarkerPositionAtIndex(2);
-                    getMapFragment().drawArc(positionOfSelectedMarker01, positionOfSelectedMarker02, positionOfSelectedMarker03, currentLayer.getLayerName(), currentLayer.getColor(), currentLayer.getLineWidth());
-                    //TODO call Command
+                    //Get the corresponding positions of the associated measurement points
+                    LatLng mpPosition01 = currentLayer.getMeasurementPointByMarkerPosition(positionOfSelectedMarker01).getPosition();
+                    LatLng mpPosition02 = currentLayer.getMeasurementPointByMarkerPosition(positionOfSelectedMarker02).getPosition();
+                    LatLng mpPosition03 = currentLayer.getMeasurementPointByMarkerPosition(positionOfSelectedMarker03).getPosition();
+                    if(mpPosition01 != null && mpPosition02 != null && mpPosition03 != null)
+                    {
+                        CommandAddMeasurementArc cmd = new CommandAddMeasurementArc(layerManager, mpPosition01, mpPosition02, mpPosition03, getMapFragment());
+                        commandBuffer.addToUndoBuffer(cmd);
+                    }
+                    else
+                    {
+                        Log.d(DEBUGTAG, "Error: [Arc] selected marker positions not found in measurment point layer! (positions do not match)");
+                    }
                 }
                 else
                 {
@@ -688,6 +713,8 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             getMapFragment().clearMap();
             // Clear Layer list from actionbar spinner
             actionBarLayers.clear();
+            //Clear undo redo buffers
+            commandBuffer.clearBuffers();
         }
         else
         {
@@ -947,6 +974,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 LatLng mP1 = arc.getMeasurementPositions().get(0);
                 LatLng mP2 = arc.getMeasurementPositions().get(1);
                 LatLng mP3 = arc.getMeasurementPositions().get(2);
+                getMapFragment().drawArc(mP1, mP2, mP3, layerName, color, lineWidth);
                 //TODO Draw the ARC on the map
                 //TODO get the positions on the map of the arc
                 //TODO Update Arc instance in the model

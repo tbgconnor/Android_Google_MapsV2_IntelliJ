@@ -22,15 +22,7 @@ public class MeasurementLineOnMap
         return line;
     }
 
-    public void setLine(Polyline line) {
-        this.line = line;
-    }
-
     public String getLayerName() {
         return layerName;
-    }
-
-    public void setLayerName(String layerName) {
-        this.layerName = layerName;
     }
 }

@@ -29,6 +29,8 @@ public class MapCanvasFragment extends MapFragment
     private ArrayList<Marker> selectedMarkers;
     private ArrayList<MeasurementLineOnMap> measurementLinesOnMap;
     private ArrayList<MeasurementLineOnMap> selectedLines;
+    private ArrayList<MeasurementArcOnMap> measurementArcsOnMap;
+    private ArrayList<MeasurementArcOnMap> selectedArcs;
 
     /**
      * Creates a new instance of the mapfragment
@@ -111,6 +113,8 @@ public class MapCanvasFragment extends MapFragment
         selectedMarkers = new ArrayList<Marker>();
         measurementLinesOnMap = new ArrayList<MeasurementLineOnMap>();
         selectedLines = new ArrayList<MeasurementLineOnMap>();
+        measurementArcsOnMap = new ArrayList<MeasurementArcOnMap>();
+        selectedArcs = new ArrayList<MeasurementArcOnMap>();
     }
 
     @Override
@@ -398,15 +402,6 @@ public class MapCanvasFragment extends MapFragment
         return succesfulRemoval;
     }
 
-
-    public void drawArc(LatLng start, LatLng end, double radius)
-    {
-        Projection pjctn = map.getProjection();
-        pjctn.fromScreenLocation(new Point());
-
-    }
-
-
     /*
      * Anonymous Inner Class the define marker onClick events
      */
@@ -632,7 +627,7 @@ public class MapCanvasFragment extends MapFragment
     }
 
     /**
-     * Method to calculate the determinant A 3x3
+     * Method to calculate the determinant |A| 3x3
      *       _            _
      *      |  a11 a12 a13 |
      *  A = |  a21 a22 a23 |
@@ -661,12 +656,12 @@ public class MapCanvasFragment extends MapFragment
      * @param posA LatLng position 1
      * @param posB LatLng position 2
      * @param posC LatLng position 3
-     * @param layerName the layer name of the drawing
+     * @param layerName the name of layer to which the arc belongs to
      * @param color color that the arc should be drawn in
      * @param lineWidth line width of the arc
      */
     // from: http://www.regentsprep.org/Regents/math/geometry/GCG6/RCir.htm
-    public void drawArc(LatLng posA, LatLng posB, LatLng posC, String layerName, int color, int lineWidth)
+    public Polyline drawArc(LatLng posA, LatLng posB, LatLng posC, String layerName, int color, int lineWidth)
     {
         // Get the cartesian coordinates for the 3 positions
         Point pointA = map.getProjection().toScreenLocation(posA);
@@ -689,19 +684,14 @@ public class MapCanvasFragment extends MapFragment
         // Calculate Center Y
         double cY = (-(1/sR) * (cX - ((x1+x2)/2))) + ((y1+y2)/2);
         Point center = new Point((int) cX, (int) cY);
-        Log.d(DEBUGTAG, "Center: " + center.toString());
         // Calculate Circle Radius
         double dx =  x1-cX;
         double dy =  y1-cY;
         double r = Math.sqrt(Math.pow(dx, 2)+Math.pow(dy ,2));
-        Log.d(DEBUGTAG, "Radius: " + r);
         // Calculate Radius line Angles
         double alpha = calcRadAngleOfRadiusLine(pointA, center);
         double beta = calcRadAngleOfRadiusLine(pointB, center);
         double gamma = calcRadAngleOfRadiusLine(pointC, center);
-        Log.d(DEBUGTAG, "Alpha: " + alpha*(180/Math.PI));
-        Log.d(DEBUGTAG, "Beta: " + beta*(180/Math.PI));
-        Log.d(DEBUGTAG, "Gamma: " + gamma*(180/Math.PI));
         // Calculate the determinant of coordinate matrix
         double determinant = calcDeterminant3x3(x1,y1,1, x2, y2, 1, x3, y3, 1);
         double dTheta = Math.PI/180; // 1 RAD increments
@@ -739,8 +729,9 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posC);
-            map.addPolyline(polylineOptions);
-            //TODO create MeasurementArc on Map and keep reference to it
+
+            Polyline arc = map.addPolyline(polylineOptions);
+            return arc;
         }
         else if( determinant < 0) // CCW
         {
@@ -768,13 +759,43 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posC);
-            map.addPolyline(polylineOptions);
-            //TODO create MeasurementArc on Map and keep reference to it
+            Polyline arc = map.addPolyline(polylineOptions);
+            return arc;
         }
         else // Collinear Point -> no Arc possible
         {
             Log.d(DEBUGTAG, "Points passed to draw arc method are collinear...");
+            return null;
         }
+    }
+
+    public void addMeasurementArcOnMap(MeasurementArcOnMap mArcOnMap)
+    {
+        measurementArcsOnMap.add(mArcOnMap);
+    }
+
+    public boolean removeArc(String layerName, LatLng p1, LatLng p2, LatLng p3)
+    {
+        boolean successfulRemoval = false;
+        for(MeasurementArcOnMap mArcOnMap : measurementArcsOnMap)
+        {
+            Log.d(DEBUGTAG, "Layer Name from unexecute command: " + layerName + " layer name expected: " + mArcOnMap.getLayerName());
+            Log.d(DEBUGTAG, "Position 1 from unexecute command: " + p1.toString() + " Position 1 expected: " + mArcOnMap.getPosition01());
+            Log.d(DEBUGTAG, "Position 2 from unexecute command: " + p2.toString() + " Position 2 expected: " + mArcOnMap.getPosition02());
+            Log.d(DEBUGTAG, "Position 3 from unexecute command: " + p3.toString() + " Position 3 expected: " + mArcOnMap.getPosition03());
+            if(layerName.equals(mArcOnMap.getLayerName()) && p1.equals(mArcOnMap.getPosition01()) && p2.equals(mArcOnMap.getPosition02()) && p3.equals(mArcOnMap.getPosition03()))
+            {
+                //remove line from map
+                mArcOnMap.getArc().remove();
+                //remove it from the arrayList
+                measurementArcsOnMap.remove(mArcOnMap);
+                Log.d(DEBUGTAG, "Arc Removed!");
+                successfulRemoval = true;
+                break;
+            }
+        }
+        Log.d(DEBUGTAG, "SuccesfulRemoval? " + successfulRemoval);
+        return successfulRemoval;
     }
 
 }
