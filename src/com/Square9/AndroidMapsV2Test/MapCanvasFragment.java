@@ -779,23 +779,71 @@ public class MapCanvasFragment extends MapFragment
         boolean successfulRemoval = false;
         for(MeasurementArcOnMap mArcOnMap : measurementArcsOnMap)
         {
-            Log.d(DEBUGTAG, "Layer Name from unexecute command: " + layerName + " layer name expected: " + mArcOnMap.getLayerName());
-            Log.d(DEBUGTAG, "Position 1 from unexecute command: " + p1.toString() + " Position 1 expected: " + mArcOnMap.getPosition01());
-            Log.d(DEBUGTAG, "Position 2 from unexecute command: " + p2.toString() + " Position 2 expected: " + mArcOnMap.getPosition02());
-            Log.d(DEBUGTAG, "Position 3 from unexecute command: " + p3.toString() + " Position 3 expected: " + mArcOnMap.getPosition03());
             if(layerName.equals(mArcOnMap.getLayerName()) && p1.equals(mArcOnMap.getPosition01()) && p2.equals(mArcOnMap.getPosition02()) && p3.equals(mArcOnMap.getPosition03()))
             {
                 //remove line from map
                 mArcOnMap.getArc().remove();
                 //remove it from the arrayList
                 measurementArcsOnMap.remove(mArcOnMap);
-                Log.d(DEBUGTAG, "Arc Removed!");
                 successfulRemoval = true;
                 break;
             }
         }
-        Log.d(DEBUGTAG, "SuccesfulRemoval? " + successfulRemoval);
         return successfulRemoval;
+    }
+
+    public void onArcClicked(Point clickedPosition, String layerName, int layerColor)
+    {
+        final int delta = 10; // Delta in screen points to determine if the user clicked near or on an arc
+        Projection proj = map.getProjection();
+        int deltaX1 = clickedPosition.x + delta;
+        int deltaX2 = clickedPosition.x - delta;
+        int deltaY1 = clickedPosition.y + delta;
+        int deltaY2 = clickedPosition.y - delta;
+        int selectedColor = getResources().getColor(R.color.selectionColor);
+
+        for(MeasurementArcOnMap arcOnMap : measurementArcsOnMap)      // Get all Arcs in the Map
+        {
+            if(arcOnMap.getLayerName().equals(layerName))         // Filter for correct layer
+            {
+                List<LatLng> arcGeoPoints = arcOnMap.getArc().getPoints();   // Get the arc's Geopoints
+                for(LatLng geoPoint : arcGeoPoints)
+                {
+                    Point arcPoint =  proj.toScreenLocation(geoPoint);
+                    if(arcPoint.x < deltaX1 && arcPoint.x > deltaX2 && arcPoint.y < deltaY1 && arcPoint.y > deltaY2) //If the point of the arc is within the error range - > the point was clicked
+                    {
+                        if(arcOnMap.getArc().getColor() == selectedColor) //Arc is Selected -> deselect it
+                        {
+                            // Reset color
+                            arcOnMap.getArc().setColor(layerColor);
+                            // Remove the arc from the selected list
+                            selectedArcs.remove(arcOnMap);
+                        }
+                        else //it is not selected -> select it
+                        {
+                            // set selected color
+                            arcOnMap.getArc().setColor(selectedColor);
+                            //Add it to the selected arcs arraylist
+                            selectedArcs.add(arcOnMap);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public int getNumberOfArcsOnMapInLayer(String layerName)
+    {
+        int result = 0;
+        for(MeasurementArcOnMap arcOnMap : measurementArcsOnMap)
+        {
+            if(arcOnMap.getLayerName().equals(layerName))
+            {
+                result = result + 1;
+            }
+        }
+        return result;
     }
 
 }

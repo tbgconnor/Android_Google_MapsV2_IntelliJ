@@ -810,7 +810,8 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             // Point conversion of clickPosition LatLng -->> XY
             Point pointClicked = getMapFragment().getMapProjection(clickPosition);
             // Line Points in Current Layer [XY]
-            ArrayList<Point> layerLinePoints = getMapFragment().getLineProjectionPointsOfLayer(layerManager.getCurrentLayer().getLayerName());
+            String layerName = layerManager.getCurrentLayer().getLayerName();
+            ArrayList<Point> layerLinePoints = getMapFragment().getLineProjectionPointsOfLayer(layerName);
             // If the current layer contains LINES:
             if(!layerLinePoints.isEmpty())
             {
@@ -859,6 +860,11 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 {
                     Log.d(DEBUGTAG, "Error: (Map Clicked) uneven number of line points received!");
                 }
+            }
+            //Check for Arcs
+            else if(getMapFragment().getNumberOfArcsOnMapInLayer(layerManager.getCurrentLayer().getLayerName()) > 0)
+            {
+                getMapFragment().onArcClicked(pointClicked, layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor());
             }
             else
             {
