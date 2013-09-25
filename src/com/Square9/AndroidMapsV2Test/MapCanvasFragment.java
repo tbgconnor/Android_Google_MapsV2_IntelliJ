@@ -657,8 +657,16 @@ public class MapCanvasFragment extends MapFragment
      * @param lineWidth line width of the arc
      */
     // from: http://www.regentsprep.org/Regents/math/geometry/GCG6/RCir.htm
-    public Polyline drawArc(LatLng posA, LatLng posB, LatLng posC, String layerName, int color, int lineWidth)
+    public ArrayList<LatLng> drawArc(LatLng posA, LatLng posB, LatLng posC, String layerName, int color, int lineWidth)
     {
+        // Keep track of the 3 points used to create the Arc
+        ArrayList<LatLng> threePointArcPointsOnMap = new ArrayList<LatLng>();
+        int posAIndex = 0;
+        int posBIndex = 0;
+        int posCIndex = 0;
+        LatLng posAOnMap;
+        LatLng posBOnMap;
+        LatLng posCOnMap;
         // Get the cartesian coordinates for the 3 positions
         Point pointA = map.getProjection().toScreenLocation(posA);
         Point pointB = map.getProjection().toScreenLocation(posB);
@@ -698,6 +706,9 @@ public class MapCanvasFragment extends MapFragment
         double rotatingPhase = 0.0;
         Point newPoint = new Point(0, 0);
         polylineOptions.add(posA); // Start point of line
+        //Keep track of the index of PosA in the list to retrieve it later after the polyline is place on the map (Google API bug)
+        int polylinePointsListSize = polylineOptions.getPoints().size();
+        posAIndex = polylinePointsListSize -1;
 
         if(determinant > 0) // CW
         {
@@ -713,6 +724,8 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posB);
+            polylinePointsListSize = polylineOptions.getPoints().size();
+            posBIndex = polylinePointsListSize -1;
             if(beta > gamma)
                 beta = beta - 2*Math.PI;
             rotatingPhase = beta;
@@ -725,9 +738,22 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posC);
-
+            polylinePointsListSize = polylineOptions.getPoints().size();
+            posCIndex = polylinePointsListSize -1;
             Polyline arc = map.addPolyline(polylineOptions);
-            return arc;
+            //PosA PosB and PosC are now part of the arc points and placed on the map
+            //To bypass Android API bug: ask the positions again (they differ from the original --> posA != posAOnMap)
+            posAOnMap = arc.getPoints().get(posAIndex);
+            threePointArcPointsOnMap.add(posAOnMap);
+            posBOnMap = arc.getPoints().get(posBIndex);
+            threePointArcPointsOnMap.add(posBOnMap);
+            posCOnMap = arc.getPoints().get(posCIndex);
+            threePointArcPointsOnMap.add(posCOnMap);
+            //Create a new measurementArcOnMap instance
+            MeasurementArcOnMap arcOnMap = new MeasurementArcOnMap(arc, layerName, posAOnMap, posBOnMap, posCOnMap);
+            //Add it to the ArcsOnMap Arraylist
+            measurementArcsOnMap.add(arcOnMap);
+            return threePointArcPointsOnMap;
         }
         else if( determinant < 0) // CCW
         {
@@ -743,6 +769,8 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posB);
+            polylinePointsListSize = polylineOptions.getPoints().size();
+            posBIndex = polylinePointsListSize -1;
             if(beta < gamma)
                 gamma = gamma - 2*Math.PI;
             rotatingPhase = beta;
@@ -755,8 +783,22 @@ public class MapCanvasFragment extends MapFragment
                 polylineOptions.add(map.getProjection().fromScreenLocation(newPoint));
             }
             polylineOptions.add(posC);
+            polylinePointsListSize = polylineOptions.getPoints().size();
+            posCIndex = polylinePointsListSize -1;
             Polyline arc = map.addPolyline(polylineOptions);
-            return arc;
+            //PosA PosB and PosC are now part of the arc points and placed on the map
+            //To bypass Android API bug: ask the positions again (they differ from the original --> posA != posAOnMap)
+            posAOnMap = arc.getPoints().get(posAIndex);
+            threePointArcPointsOnMap.add(posAOnMap);
+            posBOnMap = arc.getPoints().get(posBIndex);
+            threePointArcPointsOnMap.add(posBOnMap);
+            posCOnMap = arc.getPoints().get(posCIndex);
+            threePointArcPointsOnMap.add(posCOnMap);
+            //Create a new measurementArcOnMap instance
+            MeasurementArcOnMap arcOnMap = new MeasurementArcOnMap(arc, layerName, posAOnMap, posBOnMap, posCOnMap);
+            //Add it to the ArcsOnMap Arraylist
+            measurementArcsOnMap.add(arcOnMap);
+            return threePointArcPointsOnMap;
         }
         else // Collinear Point -> no Arc possible
         {

@@ -5,6 +5,8 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 
+import java.util.ArrayList;
+
 public class CommandAddMeasurementArc implements Icommand
 {
 
@@ -36,20 +38,16 @@ public class CommandAddMeasurementArc implements Icommand
     @Override
     public void execute()
     {
-        //Draw The Arc on The map
-        arc = mapCanvas.drawArc(position1, position2, position3, layer.getLayerName(), layer.getColor(), layer.getLineWidth());
-        //get the positions of the markers on the map
-        posOnMap01 = layer.getMeasurementPointByPosition(position1).getMarkerPositionOnMap();
-        posOnMap02 = layer.getMeasurementPointByPosition(position2).getMarkerPositionOnMap();
-        posOnMap03 = layer.getMeasurementPointByPosition(position3).getMarkerPositionOnMap();
+        //Draw The Arc on The map using the actual positions of the Measurement points NOT the corresponding Marker Positions!
+        ArrayList<LatLng> positionsOnMap = mapCanvas.drawArc(position1, position2, position3, layer.getLayerName(), layer.getColor(), layer.getLineWidth());
+        //Get The positions A, B and C back after the arc is drawn on the map...
+        posOnMap01 = positionsOnMap.get(0);
+        posOnMap02 = positionsOnMap.get(1);
+        posOnMap03 = positionsOnMap.get(2);
         //Create a new measurementArc
         measurementArc = new MeasurementArc(position1, position2, position3, posOnMap01, posOnMap02, posOnMap03);
         //add the new measurementArc instance to the layer manager
         layer.addArc(measurementArc);
-        //Create a new measurementArcOnMap instance
-        MeasurementArcOnMap arcOnMap = new MeasurementArcOnMap(arc, layer.getLayerName(), posOnMap01, posOnMap02, posOnMap03);
-        //Add it to the ArcsOnMap Arraylist
-        mapCanvas.addMeasurementArcOnMap(arcOnMap);
     }
 
     @Override

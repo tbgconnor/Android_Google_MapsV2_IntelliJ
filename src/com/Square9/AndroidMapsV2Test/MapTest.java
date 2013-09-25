@@ -357,7 +357,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                     }
                     else
                     {
-                        Log.d(DEBUGTAG, "Error: [Arc] selected marker positions not found in measurment point layer! (positions do not match)");
+                        Log.d(DEBUGTAG, "Error: [Arc] selected marker positions not found in measurement point layer! (positions do not match)");
                     }
                 }
                 else
@@ -985,16 +985,14 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 LatLng mP1 = arc.getMeasurementPositions().get(0);
                 LatLng mP2 = arc.getMeasurementPositions().get(1);
                 LatLng mP3 = arc.getMeasurementPositions().get(2);
-                //TODO bad patch
-                Polyline arcLine = getMapFragment().drawArc(mP1, mP2, mP3, layerName, color, lineWidth);
-                //Create a new measurementArcOnMap instance
-                MeasurementArcOnMap arcOnMap = new MeasurementArcOnMap(arcLine, layer.getLayerName(), mP1, mP2, mP3);
-                //Add it to the ArcsOnMap Arraylist
-                getMapFragment().addMeasurementArcOnMap(arcOnMap);
-
-                //TODO Draw the ARC on the map
-                //TODO get the positions on the map of the arc
-                //TODO Update Arc instance in the model
+                // Draw the ARC on the map
+                ArrayList<LatLng> arcPositionsOnMap = getMapFragment().drawArc(mP1, mP2, mP3, layerName, color, lineWidth);
+                // Get the positions on the map of the arc
+                LatLng arcPosAOnMap = arcPositionsOnMap.get(0);
+                LatLng arcPosBOnMap = arcPositionsOnMap.get(1);
+                LatLng arcPosCOnMap = arcPositionsOnMap.get(2);
+                //Update Arc instance in the model
+                arc.setPositionsOnMap(arcPosAOnMap, arcPosBOnMap, arcPosCOnMap);
             }
 
         }
