@@ -211,13 +211,10 @@ public class MapCanvasFragment extends MapFragment
      */
     public void setMapType(int mapType)
     {
-        Log.d(DEBUGTAG, "Map Fragment Methode 'setMapType' called with arg: " + Integer.toString(mapType));
         if(mapType >= 0 && mapType < 5) // The mapType should be an Integer -> [0,4] (see API reference)
         {
-            Log.d(DEBUGTAG, "setMapType arg valid");
             if(map != null)
             {
-                Log.d(DEBUGTAG, "map object is alive, changing the map type");
                 map.setMapType(mapType);
             }
         }
@@ -230,7 +227,6 @@ public class MapCanvasFragment extends MapFragment
     public int getMapType()
     {
         int type;
-        Log.d(DEBUGTAG, "current map type requested...");
         if(map != null)
         {
             type = map.getMapType();
@@ -240,7 +236,6 @@ public class MapCanvasFragment extends MapFragment
             // Fail in Style (map type will most probably be 1 ;-) )
             type = 1;
         }
-        Log.d(DEBUGTAG, "Current Type = " +  Integer.toString(type));
         return type;
     }
 
@@ -293,7 +288,6 @@ public class MapCanvasFragment extends MapFragment
 
     public void selectMarker(Marker marker)
     {
-        Log.d(DEBUGTAG, "Selecting Marker: " + marker.getId());
         String snippet = getActivity().getResources().getString(R.string.marker_snippet_selected);
         // Replace snippet
         marker.setSnippet(snippet);
@@ -305,7 +299,6 @@ public class MapCanvasFragment extends MapFragment
 
     public void deselectMarker(Marker marker, String userComment, int color)
     {
-        Log.d(DEBUGTAG, "Deselecting Marker: " + marker.getId());
         // Put Snippet back
         marker.setSnippet(userComment);
         // Put Icon back
@@ -411,7 +404,6 @@ public class MapCanvasFragment extends MapFragment
         public boolean onMarkerClick(Marker marker)
         {
             // Just pass it on to the Activity
-            Log.d(DEBUGTAG, "Marker Clicked Event received in MapCanvas " + marker.getId());
             onMapFragmentEventListener.onMarkerClicked(marker);
             return true;
         }
@@ -504,7 +496,12 @@ public class MapCanvasFragment extends MapFragment
         selectedMarkers.clear();
         // Remove all lines
         measurementLinesOnMap.clear();
-        //todo remove all selected lines and arcs selected arcs
+        // Remove all selected lines:
+        selectedLines.clear();
+        // Remove all Arcs
+        measurementArcsOnMap.clear();
+        // Remove all Selected arcs
+        selectedArcs.clear();
         // Remove all markers from map
         map.clear();
     }
@@ -606,7 +603,6 @@ public class MapCanvasFragment extends MapFragment
         double deltaY = (double) a.y - (double) center.y;
         double deltaX = (double) a.x - (double) center.x;
         double angle = Math.atan(deltaY/deltaX);
-        Log.d(DEBUGTAG, "Angle not corrected: " + angle*(180/Math.PI));
         if(deltaY > 0 && deltaX > 0) // First Quadrant
         {
             return angle;
@@ -801,6 +797,7 @@ public class MapCanvasFragment extends MapFragment
         int deltaY1 = clickedPosition.y + delta;
         int deltaY2 = clickedPosition.y - delta;
         int selectedColor = getResources().getColor(R.color.selectionColor);
+        Log.d(DEBUGTAG, "Point Clicked By user: " + clickedPosition.toString());
 
         for(MeasurementArcOnMap arcOnMap : measurementArcsOnMap)      // Get all Arcs in the Map
         {
@@ -812,6 +809,7 @@ public class MapCanvasFragment extends MapFragment
                     Point arcPoint =  proj.toScreenLocation(geoPoint);
                     if(arcPoint.x < deltaX1 && arcPoint.x > deltaX2 && arcPoint.y < deltaY1 && arcPoint.y > deltaY2) //If the point of the arc is within the error range - > the point was clicked
                     {
+                        Log.d(DEBUGTAG, "Selecting/Deselecting Measurement ARC");
                         if(arcOnMap.getArc().getColor() == selectedColor) //Arc is Selected -> deselect it
                         {
                             // Reset color
@@ -846,4 +844,21 @@ public class MapCanvasFragment extends MapFragment
         return result;
     }
 
+    public boolean deselectAllMeasurentArcsOnMap(String layerName, int colorOfLayer)
+    {
+        boolean inconsistentEntryFound = false;
+        for(MeasurementArcOnMap arcOnMap : selectedArcs)
+        {
+            if(arcOnMap.getLayerName().equals(layerName))
+            {
+                arcOnMap.getArc().setColor(colorOfLayer);
+            }
+            else
+            {
+                    inconsistentEntryFound = true;
+            }
+        }
+        selectedArcs.clear();
+        return inconsistentEntryFound;
+    }
 }

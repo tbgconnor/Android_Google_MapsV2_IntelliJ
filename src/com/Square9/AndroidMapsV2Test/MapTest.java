@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polyline;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -812,6 +813,8 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             // Line Points in Current Layer [XY]
             String layerName = layerManager.getCurrentLayer().getLayerName();
             ArrayList<Point> layerLinePoints = getMapFragment().getLineProjectionPointsOfLayer(layerName);
+            int numberOfArcsInCurrentLayer = getMapFragment().getNumberOfArcsOnMapInLayer(layerManager.getCurrentLayer().getLayerName());
+            Log.d(DEBUGTAG, "Number Of Arcs in " + layerName + " : " + numberOfArcsInCurrentLayer);
             // If the current layer contains LINES:
             if(!layerLinePoints.isEmpty())
             {
@@ -861,14 +864,16 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                     Log.d(DEBUGTAG, "Error: (Map Clicked) uneven number of line points received!");
                 }
             }
-            //Check for Arcs
-            else if(getMapFragment().getNumberOfArcsOnMapInLayer(layerManager.getCurrentLayer().getLayerName()) > 0)
-            {
-                getMapFragment().onArcClicked(pointClicked, layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor());
-            }
             else
             {
                 Log.d(DEBUGTAG, "(Map Clicked) No lines in current layer");
+            }
+
+            //Check for Arcs
+            if( numberOfArcsInCurrentLayer > 0)
+            {
+                Log.d(DEBUGTAG,"Point Clicked: " + pointClicked.toString());
+                getMapFragment().onArcClicked(pointClicked, layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor());
             }
         }
     }
@@ -980,7 +985,13 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 LatLng mP1 = arc.getMeasurementPositions().get(0);
                 LatLng mP2 = arc.getMeasurementPositions().get(1);
                 LatLng mP3 = arc.getMeasurementPositions().get(2);
-                getMapFragment().drawArc(mP1, mP2, mP3, layerName, color, lineWidth);
+                //TODO bad patch
+                Polyline arcLine = getMapFragment().drawArc(mP1, mP2, mP3, layerName, color, lineWidth);
+                //Create a new measurementArcOnMap instance
+                MeasurementArcOnMap arcOnMap = new MeasurementArcOnMap(arcLine, layer.getLayerName(), mP1, mP2, mP3);
+                //Add it to the ArcsOnMap Arraylist
+                getMapFragment().addMeasurementArcOnMap(arcOnMap);
+
                 //TODO Draw the ARC on the map
                 //TODO get the positions on the map of the arc
                 //TODO Update Arc instance in the model
@@ -1020,7 +1031,8 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
         }
         // Deselect all measurmentLines
         getMapFragment().deselectAllMeasurementLinesOnMap(layerManager.getCurrentLayer().getColor());
-        //TODO Deselect all MeasurementArcs
+        //Deselect all MeasurementArcs
+        getMapFragment().deselectAllMeasurentArcsOnMap(layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor());
     }
 
     /**
