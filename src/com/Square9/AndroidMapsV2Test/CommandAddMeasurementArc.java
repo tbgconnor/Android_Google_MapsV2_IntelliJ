@@ -21,7 +21,6 @@ public class CommandAddMeasurementArc implements Icommand
     private LatLng posOnMap02;
     private LatLng posOnMap03;
     private MeasurementLayer layer;
-    private Polyline arc;
 
     public CommandAddMeasurementArc(LayerManager lm, LatLng pos1, LatLng pos2, LatLng pos3, MapCanvasFragment mapCanvas)
     {

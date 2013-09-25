@@ -518,6 +518,124 @@ public class MapCanvasFragment extends MapFragment
         return points;
     }
 
+    public void onLineClicked(LatLng clickedPosition, String layerName, int layerColor)
+    {
+        //Create a projection instance to change coordinate system
+        Projection projection = map.getProjection();
+        // Get the XY coordinate for the user click
+        Point pointClicked = projection.toScreenLocation(clickedPosition);
+        // Get all the line's coordinates  in the layer
+        ArrayList<Point> linePointsList = new ArrayList<Point>();
+
+        for(int index = 0; index < measurementLinesOnMap.size(); index ++)
+        {
+            if(measurementLinesOnMap.get(index).getLayerName().equals(layerName))
+            {
+                LatLng ll1 = measurementLinesOnMap.get(index).getLine().getPoints().get(0);
+                LatLng ll2 = measurementLinesOnMap.get(index).getLine().getPoints().get(1);
+                Point p1 = projection.toScreenLocation(ll1);
+                Point p2 = projection.toScreenLocation(ll2);
+                linePointsList.add(p1);
+                linePointsList.add(p2);
+            }
+        }
+        // If the current layer contains LINES:
+        if(!linePointsList.isEmpty())
+        {
+            //Check if we got an even number of points (every lines has to points so the size must be even...)
+            int numberOfLinePoints = linePointsList.size();
+            int remainder = numberOfLinePoints % 2;
+            if(remainder == 0) // Even #LinePoints is required
+            {
+                // lines are at paired indexes: [0,1] [2,3] ... [n, n+1] --> 0 is point1 of line0 and 1 is point2 of line0 --> 2 is point1 of line1 and 3 is point2 of line1 --> ....
+                // Line Index :                  0     1    .... n/2     --> ever pair n and n+1 is a line so the position of the line in array would be n/2
+                int lineIndex = 0;
+                for(int index = 0; index < linePointsList.size()-1; index=index+2)
+                {
+                    Point pOne = linePointsList.get(index);
+                    Point pTwo = linePointsList.get(index+1);
+                    // y = ax + c
+                    double a = getLineSlope(pOne, pTwo);
+                    double c = getLineOffset(pOne, a);
+                    int errorMargin = 10; // Only for Y
+                    // Determine X bounds
+                    int xUpperBound = 0;
+                    int xLowerBound = 0;
+                    if(pOne.x > pTwo.x)
+                    {
+                        xUpperBound = pOne.x;
+                        xLowerBound = pTwo.x;
+                    }
+                    else
+                    {
+                        xUpperBound = pTwo.x;
+                        xLowerBound = pOne.x;
+                    }
+                    // Check if the click is within the bounds (x and y)
+                    if( (pointClicked.y + errorMargin ) >= (a*pointClicked.x+c) && (pointClicked.y - errorMargin ) <= (a*pointClicked.x+c)
+                            && pointClicked.x < xUpperBound && pointClicked.x > xLowerBound )
+                    {
+                        // Calc lineIndex
+                        lineIndex = index / 2;
+                        // Select the line by this index
+                        this.selectLineByIndex(layerName, layerColor, lineIndex);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                Log.d(DEBUGTAG, "Error: (Map Clicked) uneven number of line points received!");
+            }
+        }
+        else
+        {
+            Log.d(DEBUGTAG, "(Map Clicked) No lines in current layer");
+        }
+
+    }
+
+    public int getNumberOfLinesInLayer(String layerName)
+    {
+        int result =0;
+        for(MeasurementLineOnMap lineOnMap : measurementLinesOnMap)
+        {
+            if(layerName.equals(lineOnMap.getLayerName()))
+            {
+                result = result + 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Method to calculate a lines slope based on 2 points ( 2D orthogonal space XY)
+     * in terms of y = a*x +c --> a = slope
+     * @param one a point of the line
+     * @param two another point of the line
+     * @return the slope
+     */
+    public double getLineSlope(Point one, Point two)
+    {
+        double deltaX = (double) (two.x - one.x);
+        double deltaY = (double) (two.y - one.y);
+        double result = deltaY/deltaX;
+        return result;
+    }
+
+    /**
+     * Method to calculate a line's offset based on 1 points and the slope of the line ( 2D orthogonal space XY)
+     * @param one a point of the line
+     * @param slope the slope of the line
+     * @return the offset of the line
+     */
+    public double getLineOffset(Point one, double slope)
+    {
+        // y = ax+c => c = y - ax
+        double result = one.y - (slope*one.x);
+        return result;
+    }
+
     public ArrayList<Point> getLineProjectionPointsOfLayer(String layerName)
     {
         ArrayList<Point> result = new ArrayList<Point>();
@@ -830,16 +948,16 @@ public class MapCanvasFragment extends MapFragment
         return successfulRemoval;
     }
 
-    public void onArcClicked(Point clickedPosition, String layerName, int layerColor)
+    public void onArcClicked(LatLng clickedPosition, String layerName, int layerColor)
     {
         final int delta = 10; // Delta in screen points to determine if the user clicked near or on an arc
-        Projection proj = map.getProjection();
-        int deltaX1 = clickedPosition.x + delta;
-        int deltaX2 = clickedPosition.x - delta;
-        int deltaY1 = clickedPosition.y + delta;
-        int deltaY2 = clickedPosition.y - delta;
+        Projection projection = map.getProjection();
+        Point clickedPoint = projection.toScreenLocation(clickedPosition);
+        int deltaX1 = clickedPoint.x + delta;
+        int deltaX2 = clickedPoint.x - delta;
+        int deltaY1 = clickedPoint.y + delta;
+        int deltaY2 = clickedPoint.y - delta;
         int selectedColor = getResources().getColor(R.color.selectionColor);
-        Log.d(DEBUGTAG, "Point Clicked By user: " + clickedPosition.toString());
 
         for(MeasurementArcOnMap arcOnMap : measurementArcsOnMap)      // Get all Arcs in the Map
         {
@@ -848,7 +966,7 @@ public class MapCanvasFragment extends MapFragment
                 List<LatLng> arcGeoPoints = arcOnMap.getArc().getPoints();   // Get the arc's Geopoints
                 for(LatLng geoPoint : arcGeoPoints)
                 {
-                    Point arcPoint =  proj.toScreenLocation(geoPoint);
+                    Point arcPoint =  projection.toScreenLocation(geoPoint);
                     if(arcPoint.x < deltaX1 && arcPoint.x > deltaX2 && arcPoint.y < deltaY1 && arcPoint.y > deltaY2) //If the point of the arc is within the error range - > the point was clicked
                     {
                         Log.d(DEBUGTAG, "Selecting/Deselecting Measurement ARC");

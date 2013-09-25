@@ -806,74 +806,18 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
     @Override
     public void onMapClicked(LatLng clickPosition)
     {
+        String currentLayerName = layerManager.getCurrentLayer().getLayerName();
+        int currentLayerColor = layerManager.getCurrentLayer().getColor();
         if(selectionMode)
         {
-            // Point conversion of clickPosition LatLng -->> XY
-            Point pointClicked = getMapFragment().getMapProjection(clickPosition);
-            // Line Points in Current Layer [XY]
-            String layerName = layerManager.getCurrentLayer().getLayerName();
-            ArrayList<Point> layerLinePoints = getMapFragment().getLineProjectionPointsOfLayer(layerName);
-            int numberOfArcsInCurrentLayer = getMapFragment().getNumberOfArcsOnMapInLayer(layerManager.getCurrentLayer().getLayerName());
-            Log.d(DEBUGTAG, "Number Of Arcs in " + layerName + " : " + numberOfArcsInCurrentLayer);
-            // If the current layer contains LINES:
-            if(!layerLinePoints.isEmpty())
+            if(getMapFragment().getNumberOfLinesInLayer(currentLayerName) > 0)
             {
-                //Check if we got an even number of points (every lines has to points so the size must be even...)
-                int numberOfLinePoints = layerLinePoints.size();
-                int remainder = numberOfLinePoints % 2;
-                if(remainder == 0) // Even #LinePoints is required
-                {
-                    // lines are at paired indexes: [0,1] [2,3] ... [n, n+1] --> 0 is point1 of line0 and 1 is point2 of line0 --> 2 is point1 of line1 and 3 is point2 of line1 --> ....
-                    // Line Index :                  0     1    .... n/2     --> ever pair n and n+1 is a line so the position of the line in array would be n/2
-                    int lineIndex = 0;
-                    for(int index = 0; index < layerLinePoints.size()-1; index=index+2)
-                    {
-                        Point pOne = layerLinePoints.get(index);
-                        Point pTwo = layerLinePoints.get(index+1);
-                        // y = ax + c
-                        double a = getLineSlope(pOne, pTwo);
-                        double c = getLineOffset(pOne, a);
-                        int errorMargin = 10; // Only for Y
-                        // Determine X bounds
-                        int xUpperBound = 0;
-                        int xLowerBound = 0;
-                        if(pOne.x > pTwo.x)
-                        {
-                            xUpperBound = pOne.x;
-                            xLowerBound = pTwo.x;
-                        }
-                        else
-                        {
-                            xUpperBound = pTwo.x;
-                            xLowerBound = pOne.x;
-                        }
-                        // Check if the click is within the bounds (x and y)
-                        if( (pointClicked.y + errorMargin ) >= (a*pointClicked.x+c) && (pointClicked.y - errorMargin ) <= (a*pointClicked.x+c)
-                                && pointClicked.x < xUpperBound && pointClicked.x > xLowerBound )
-                        {
-                            // Calc lineIndex
-                            lineIndex = index / 2;
-                            // Select the line by this index
-                            getMapFragment().selectLineByIndex(layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor(), lineIndex);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Log.d(DEBUGTAG, "Error: (Map Clicked) uneven number of line points received!");
-                }
+                   getMapFragment().onLineClicked(clickPosition, currentLayerName, currentLayerColor);
             }
-            else
-            {
-                Log.d(DEBUGTAG, "(Map Clicked) No lines in current layer");
-            }
-
             //Check for Arcs
-            if( numberOfArcsInCurrentLayer > 0)
+            if( getMapFragment().getNumberOfArcsOnMapInLayer(currentLayerName) > 0)
             {
-                Log.d(DEBUGTAG,"Point Clicked: " + pointClicked.toString());
-                getMapFragment().onArcClicked(pointClicked, layerManager.getCurrentLayer().getLayerName(), layerManager.getCurrentLayer().getColor());
+                getMapFragment().onArcClicked(clickPosition, currentLayerName, currentLayerColor);
             }
         }
     }
@@ -1049,7 +993,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
     }
 
     /**
-     * Method to calculate a lines offset based on 1 points and the slope of the line ( 2D orthogonal space XY)
+     * Method to calculate a line's offset based on 1 points and the slope of the line ( 2D orthogonal space XY)
      * @param one a point of the line
      * @param slope the slope of the line
      * @return the offset of the line
