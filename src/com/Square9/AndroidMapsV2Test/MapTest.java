@@ -141,8 +141,16 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                     }
                 };
 
+                DialogInterface.OnClickListener negOnClick = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                };
+
                 // using Activity Context Here!!
-                CustomAlertDialog dlgNoGpsProvivder = new CustomAlertDialog(this, getString(R.string.Alert_ttl_GPS_not_enabled), getString(R.string.Alert_msg_GPS_not_enabled), posOnClick);
+                CustomAlertDialog dlgNoGpsProvivder = new CustomAlertDialog(this, getString(R.string.Alert_ttl_GPS_not_enabled), getString(R.string.Alert_msg_GPS_not_enabled), posOnClick, negOnClick);
                 dlgNoGpsProvivder.showDialog();
             }
             catch(Exception e)
@@ -258,6 +266,11 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                     {
                         dialog.dismiss();
                     }
+                } , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
                 });
                 infoDialog.changeIconToInformationIcon();
                 infoDialog.showDialog();
@@ -333,6 +346,11 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                          public void onClick(DialogInterface dialog, int which) {
                              dialog.dismiss();
                          }
+                     }, new DialogInterface.OnClickListener() {
+                         @Override
+                         public void onClick(DialogInterface dialog, int which) {
+                             dialog.dismiss();
+                         }
                      });
                     selectionAlert.showDialog();
                 }
@@ -363,6 +381,11 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 else
                 {
                     CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Arc", "Select 3 measurement points to draw an Arc!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -402,12 +425,40 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
                     });
                     selectionAlert.showDialog();
                 }
                 return true;
             case R.id.actionBar_delete:
+                String currentLayerName = layerManager.getCurrentLayer().getLayerName();
+                int numberOfSelectedMarkers = getMapFragment().getNumberOfSelectedMarkers();
+                int numberOfSelectedLines = getMapFragment().getNumberOfSelectedLinesOnaMap();
+                int numberOfSelectedArcs = getMapFragment().getNumberOfSelectedArcsOnMap();
+                String alertDialogTitle = "DELETE SELECTION";
+                String  alertDialogContent = "Are you sure you want to delete: " + numberOfSelectedMarkers + " Measurement Points, " + numberOfSelectedLines + " Lines and " +
+                        numberOfSelectedArcs + " Arcs in current layer " + currentLayerName;
+                if( numberOfSelectedMarkers == 0 && numberOfSelectedLines == 0 && numberOfSelectedArcs == 0)
+                {
+                    alertDialogContent = "Nothing Selected to delete!";
+                }
 
+                CustomAlertDialog deleteAlertDialog = new CustomAlertDialog(MapTest.this, alertDialogTitle, alertDialogContent, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                deleteAlertDialog.showDialog();
                 return true;
         }
         return(super.onOptionsItemSelected(item));

@@ -697,6 +697,11 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    public int getNumberOfSelectedLinesOnaMap()
+    {
+        return selectedLines.size();
+    }
+
     /**
      * Method to calculate the slope of a line in a orthogonal axis system
      * @param a point 1 on the line
@@ -925,11 +930,6 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
-    public void addMeasurementArcOnMap(MeasurementArcOnMap mArcOnMap)
-    {
-        measurementArcsOnMap.add(mArcOnMap);
-    }
-
     public boolean removeArc(String layerName, LatLng p1, LatLng p2, LatLng p3)
     {
         boolean successfulRemoval = false;
@@ -989,6 +989,13 @@ public class MapCanvasFragment extends MapFragment
                 }
             }
         }
+        Log.d(DEBUGTAG, "Selected Arcs: ");
+        for(int i = 0; i < selectedArcs.size(); i++)
+        {
+            Log.d(DEBUGTAG, i + selectedArcs.get(i).getLayerName() + "at position: " + selectedArcs.get(i).getPosition01().toString() +
+                    selectedArcs.get(i).getPosition02().toString() + selectedArcs.get(i).getPosition03().toString());
+        }
+
     }
 
     public int getNumberOfArcsOnMapInLayer(String layerName)
@@ -1020,5 +1027,10 @@ public class MapCanvasFragment extends MapFragment
         }
         selectedArcs.clear();
         return inconsistentEntryFound;
+    }
+
+    public int getNumberOfSelectedArcsOnMap()
+    {
+        return selectedArcs.size();
     }
 }

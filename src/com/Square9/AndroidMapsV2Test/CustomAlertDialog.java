@@ -10,7 +10,7 @@ public class CustomAlertDialog
     private String title;
     private String message;
 
-    public CustomAlertDialog(Context context, String title, String message, DialogInterface.OnClickListener posClick)
+    public CustomAlertDialog(Context context, String title, String message, DialogInterface.OnClickListener posClick, DialogInterface.OnClickListener negClick)
     {
         dialog = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_DARK).create();
         dialog.setIcon(R.drawable.icon_alerts_and_states_warning);
@@ -24,6 +24,7 @@ public class CustomAlertDialog
 
         // Setting OK Button
         dialog.setButton("OK", posClick);
+        dialog.setButton2("Cancel", negClick);
     }
 
     public void showDialog()
