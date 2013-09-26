@@ -262,6 +262,11 @@ public class MapCanvasFragment extends MapFragment
         return newMarker.getPosition();
     }
 
+    /**
+     * Method to remove a marker and use its position for identification
+     * @param markerPosition the position of the marker to remove
+     * @return true if successful removal or false if there is no marker found with the method parameter 'markerPosition'
+     */
     public boolean removeMarkerFromMap(LatLng markerPosition)
     {
         boolean successfulRemoval = false;
@@ -286,6 +291,10 @@ public class MapCanvasFragment extends MapFragment
         return successfulRemoval;
     }
 
+    /**
+     * Method to select a marker on map
+     * @param marker to be selected
+     */
     public void selectMarker(Marker marker)
     {
         String snippet = getActivity().getResources().getString(R.string.marker_snippet_selected);
@@ -297,6 +306,12 @@ public class MapCanvasFragment extends MapFragment
         selectedMarkers.add(marker);
     }
 
+    /**
+     * Method to deselect a Marker and reset the user comment and color
+     * @param marker the marker to deselect
+     * @param userComment the user comment to replace the selected snippet with
+     * @param color the color to replace the selection color
+     */
     public void deselectMarker(Marker marker, String userComment, int color)
     {
         // Put Snippet back
@@ -310,6 +325,12 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    /**
+     * Method to update a marker snippet, the user can change the snippet text so it needs to be updated
+     * @param markerPosition position of the marker to update the snippet
+     * @param newSnippet the new snippet
+     * @return boolean true if marker is found at markerPosition false if marker is NOT Found!
+     */
     public boolean updateMarkerSnippet(LatLng markerPosition, String newSnippet)
     {
         boolean markerFound = false;
@@ -329,11 +350,20 @@ public class MapCanvasFragment extends MapFragment
         return markerFound;
     }
 
+    /**
+     * Method to get the number of selected Markers
+     * @return integer the number of selected markers
+     */
     public int getNumberOfSelectedMarkers()
     {
         return selectedMarkers.size();
     }
 
+    /**
+     * Method to get the marker position at index of the selectedMarkers Arryaylist
+     * @param index the array index
+     * @return the position (LatLng) of the marker at the specified index
+     */
     public LatLng getSelectedMarkerPositionAtIndex(int index)
     {
         if(index < selectedMarkers.size())
@@ -346,6 +376,11 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    /**
+     * Method to get the selectedMarker at the array index
+     * @param index int the array index
+     * @return null if index is out of range, the marker reference will be returned otherwise
+     */
     public Marker getSelectedMarkerAtIndex(int index)
     {
         if(index < selectedMarkers.size())
@@ -358,6 +393,15 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    /**
+     * Method to draw a line on the map from position01 to position02 in the specified color and with the specified stroke width
+     * @param position01 the first position
+     * @param position02 the second position
+     * @param layerName the layername of the layer in which the line is drawn
+     * @param color the color of that layer
+     * @param lineWidth the linewidth property of that layer
+     * @return the list of points where the line was drawn (Google API Bug)
+     */
     public List<LatLng> drawLine(LatLng position01, LatLng position02, String layerName, int color, int lineWidth)
     {
         //Create new polyLineOptions instance
@@ -376,6 +420,13 @@ public class MapCanvasFragment extends MapFragment
         return line.getPoints();
     }
 
+    /**
+     * Method to remove a specific line (pos1 to pos2) in layer with layerName
+     * @param layerName the name of the layer to which to line belongs to
+     * @param pos1OnMap the position of the first point of the line
+     * @param pos2OnMap the position of the last point of the line
+     * @return true if line was removed ok false if the line was not found
+     */
     public boolean removeLine(String layerName, LatLng pos1OnMap, LatLng pos2OnMap)
     {
         boolean succesfulRemoval = false;
@@ -486,7 +537,7 @@ public class MapCanvasFragment extends MapFragment
     }
 
     /**
-     * Method to remove all markers from map and clear all local references to those markers
+     * Method to remove all measurementPoint/Lines/Arcs from map and clear all local references to them
      */
     public void clearMap()
     {
@@ -502,22 +553,17 @@ public class MapCanvasFragment extends MapFragment
         measurementArcsOnMap.clear();
         // Remove all Selected arcs
         selectedArcs.clear();
-        // Remove all markers from map
+        // Clear Map
         map.clear();
     }
 
-    /**
-     * Method to convert geographic coordinates on the surface of the Earth in screen location XY coordinates
-     * @param position (LatLng) the postition
-     * @return (point) x,y coordinates
-     */
-    public Point getMapProjection(LatLng position)
-    {
-        Projection proj = map.getProjection();
-        Point points = proj.toScreenLocation(position);
-        return points;
-    }
 
+    /**
+     * Method to check if the clickedPosition is on a line in Layer with layerName
+     * @param clickedPosition the position of the user click on the screen
+     * @param layerName the name of the layer a line can be found
+     * @param layerColor the color of that layer
+     */
     public void onLineClicked(LatLng clickedPosition, String layerName, int layerColor)
     {
         //Create a projection instance to change coordinate system
@@ -595,6 +641,11 @@ public class MapCanvasFragment extends MapFragment
 
     }
 
+    /**
+     * Method to get the number of Lines in a specific layer with layerName
+     * @param layerName the name of the specified layer
+     * @return the number of lines in the layer
+     */
     public int getNumberOfLinesInLayer(String layerName)
     {
         int result =0;
@@ -636,26 +687,7 @@ public class MapCanvasFragment extends MapFragment
         return result;
     }
 
-    public ArrayList<Point> getLineProjectionPointsOfLayer(String layerName)
-    {
-        ArrayList<Point> result = new ArrayList<Point>();
-
-        for(int index = 0; index < measurementLinesOnMap.size(); index ++)
-        {
-            if(measurementLinesOnMap.get(index).getLayerName().equals(layerName))
-            {
-                LatLng ll1 = measurementLinesOnMap.get(index).getLine().getPoints().get(0);
-                LatLng ll2 = measurementLinesOnMap.get(index).getLine().getPoints().get(1);
-                Point p1 = getMapProjection(ll1);
-                Point p2 = getMapProjection(ll2);
-                result.add(p1);
-                result.add(p2);
-            }
-        }
-        return result;
-    }
-
-    public void selectLineByIndex(String layerName, int color, int lineNumber)
+     public void selectLineByIndex(String layerName, int color, int lineNumber)
     {
         int lineNumberCounter = 0;
         for(int index = 0; index < measurementLinesOnMap.size(); index++)
@@ -930,6 +962,14 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    /**
+     * Method to remove an Arc from the map specified by layerName, position1, position2, position3
+     * @param layerName the name of the layer the arc belongs to
+     * @param p1 position 1 of the arc
+     * @param p2 position 2 of the arc
+     * @param p3 position 3 of the arc
+     * @return true if successful removed, false if not found and thus not removed
+     */
     public boolean removeArc(String layerName, LatLng p1, LatLng p2, LatLng p3)
     {
         boolean successfulRemoval = false;
@@ -948,6 +988,12 @@ public class MapCanvasFragment extends MapFragment
         return successfulRemoval;
     }
 
+    /**
+     * Method to test if there is clicked on an Arc in layer with layerName if so the arc is selected
+     * @param clickedPosition the position clicked by user
+     * @param layerName the name of the current layer
+     * @param layerColor the color of the current layer
+     */
     public void onArcClicked(LatLng clickedPosition, String layerName, int layerColor)
     {
         final int delta = 10; // Delta in screen points to determine if the user clicked near or on an arc
@@ -969,7 +1015,6 @@ public class MapCanvasFragment extends MapFragment
                     Point arcPoint =  projection.toScreenLocation(geoPoint);
                     if(arcPoint.x < deltaX1 && arcPoint.x > deltaX2 && arcPoint.y < deltaY1 && arcPoint.y > deltaY2) //If the point of the arc is within the error range - > the point was clicked
                     {
-                        Log.d(DEBUGTAG, "Selecting/Deselecting Measurement ARC");
                         if(arcOnMap.getArc().getColor() == selectedColor) //Arc is Selected -> deselect it
                         {
                             // Reset color
@@ -989,15 +1034,13 @@ public class MapCanvasFragment extends MapFragment
                 }
             }
         }
-        Log.d(DEBUGTAG, "Selected Arcs: ");
-        for(int i = 0; i < selectedArcs.size(); i++)
-        {
-            Log.d(DEBUGTAG, i + selectedArcs.get(i).getLayerName() + "at position: " + selectedArcs.get(i).getPosition01().toString() +
-                    selectedArcs.get(i).getPosition02().toString() + selectedArcs.get(i).getPosition03().toString());
-        }
-
     }
 
+    /**
+     * Method to get the number of selected Arcs in Layer
+     * @param layerName the name of the layer
+     * @return the amount of selected Arcs
+     */
     public int getNumberOfArcsOnMapInLayer(String layerName)
     {
         int result = 0;
@@ -1011,6 +1054,12 @@ public class MapCanvasFragment extends MapFragment
         return result;
     }
 
+    /**
+     * Method to deselect all Arcs in Layer
+     * @param layerName  the name of the layer
+     * @param colorOfLayer  the color of the layer
+     * @return true OK | False if there are Selected Arcs in an other layer still
+     */
     public boolean deselectAllMeasurentArcsOnMap(String layerName, int colorOfLayer)
     {
         boolean inconsistentEntryFound = false;
@@ -1029,6 +1078,10 @@ public class MapCanvasFragment extends MapFragment
         return inconsistentEntryFound;
     }
 
+    /**
+     * Method to get the number of selected Arcs on the map
+     * @return the (total) amount of selected Arcs
+     */
     public int getNumberOfSelectedArcsOnMap()
     {
         return selectedArcs.size();
