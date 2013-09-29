@@ -449,12 +449,14 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
 
                 CustomAlertDialog deleteAlertDialog = new CustomAlertDialog(MapTest.this, alertDialogTitle, alertDialogContent, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                    public void onClick(DialogInterface dialog, int which)  //OK button
+                    {
+                        CommandDeleteMeasurementItems delete = new CommandDeleteMeasurementItems(layerManager, getMapFragment());
+                        commandBuffer.addToUndoBuffer(delete);
                     }
                 }, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(DialogInterface dialog, int which) { //Cancel Button
                         dialog.dismiss();
                     }
                 });

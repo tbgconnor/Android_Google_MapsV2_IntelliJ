@@ -12,6 +12,7 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -263,7 +264,7 @@ public class MapCanvasFragment extends MapFragment
     }
 
     /**
-     * Method to remove a marker and use its position for identification
+     * Method to remove a marker from both arraylist and from map and use its position for identification
      * @param markerPosition the position of the marker to remove
      * @return true if successful removal or false if there is no marker found with the method parameter 'markerPosition'
      */
@@ -289,6 +290,22 @@ public class MapCanvasFragment extends MapFragment
             }
         }
         return successfulRemoval;
+    }
+
+    public boolean deleteMarker(LatLng markerPostion)
+    {
+        boolean successful = false;
+        for(Marker m : measurementPointMarkers)
+        {
+            if(m.getPosition().equals(markerPostion))
+            {
+                m.remove();
+                Log.d(DEBUGTAG, "DELETED marker at position: " + m.getPosition().toString());
+                successful = true;
+                break;
+            }
+        }
+        return successful;
     }
 
     /**
@@ -393,6 +410,17 @@ public class MapCanvasFragment extends MapFragment
         }
     }
 
+    public Iterator<Marker> getSelectedMeasurementMarkerIterator()
+    {
+        return selectedMarkers.iterator();
+    }
+
+    public void clearSelectedMarkerList()
+    {
+        selectedMarkers.clear();
+    }
+
+
     /**
      * Method to draw a line on the map from position01 to position02 in the specified color and with the specified stroke width
      * @param position01 the first position
@@ -444,6 +472,16 @@ public class MapCanvasFragment extends MapFragment
             }
         }
         return succesfulRemoval;
+    }
+
+    public Iterator<MeasurementLineOnMap> getSelectedMeasurementLineOnMapIterator()
+    {
+        return selectedLines.iterator();
+    }
+
+    public void clearSelectedLinesList()
+    {
+        selectedLines.clear();
     }
 
     /*
@@ -1085,5 +1123,15 @@ public class MapCanvasFragment extends MapFragment
     public int getNumberOfSelectedArcsOnMap()
     {
         return selectedArcs.size();
+    }
+
+    public Iterator<MeasurementArcOnMap> getSelectedMeasurementArcsOnMapIterator()
+    {
+        return selectedArcs.iterator();
+    }
+
+    public void clearSelectedMeasurementArcsOnMap()
+    {
+        selectedArcs.clear();
     }
 }

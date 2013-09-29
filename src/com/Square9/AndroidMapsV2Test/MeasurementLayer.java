@@ -223,6 +223,28 @@ public class MeasurementLayer implements Parcelable
     }
 
     /**
+     * Method to get line instance based on its position on the map
+     * -> The line positions are also tested in the reverse order
+     * @param pos1OnMap Position of the line on map 1
+     * @param pos2OnMap Position of the line on map 2
+     * @return null if line was not found <-> the line instance if it was found
+     */
+    public MeasurementLine getMeasurementLine(LatLng pos1OnMap, LatLng pos2OnMap)
+    {
+        MeasurementLine lineToFind = null;
+        for(MeasurementLine line : lines)
+        {
+            if(line.getLinePositionOnMap01().equals(pos1OnMap) && line.getLinePositionOnMap02().equals(pos2OnMap) ||
+                    line.getLinePositionOnMap01().equals(pos2OnMap) && line.getLinePositionOnMap02().equals(pos1OnMap))
+            {
+                lineToFind = line;
+                break;
+            }
+        }
+        return lineToFind;
+    }
+
+    /**
      * Method to add an arc to the layer
      * @param arc arc Object
      */
@@ -250,6 +272,28 @@ public class MeasurementLayer implements Parcelable
         return arcs.iterator();
     }
 
+
+    /**
+     * Method to find an arc in this layer based on its map positions
+     * @param pos1OnMap pos 1 on map
+     * @param pos2OnMap pos 2 on map
+     * @param pos3OnMap pos 3 on map
+     * @return the arc to find if not found null
+     */
+    public MeasurementArc getMeasurementArc(LatLng pos1OnMap, LatLng pos2OnMap, LatLng pos3OnMap)
+    {
+        MeasurementArc arcToFind = null;
+        for(MeasurementArc arc : arcs)
+        {
+            ArrayList<LatLng> pMap = arc.getPositionsOnMap();
+            if(pos1OnMap.equals(pMap.get(0)) && pos2OnMap.equals(pMap.get(1)) && pos3OnMap.equals(pMap.get(2)))
+            {
+                arcToFind = arc;
+                break;
+            }
+        }
+        return arcToFind;
+    }
 
 
     public MeasurementLayer(Parcel in)

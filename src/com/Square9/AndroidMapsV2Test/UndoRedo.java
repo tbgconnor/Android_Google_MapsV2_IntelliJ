@@ -37,8 +37,17 @@ public class UndoRedo
         {
             // Pop the command to undo
             Icommand cmdToUndo = undoStack.pop();
-            // Then push this command to RedoStack.
-            redoStack.push(cmdToUndo);
+            //Command Delete can NOT be REDONE
+            if(cmdToUndo instanceof CommandDeleteMeasurementItems)
+            {
+                //Swallow the push of this command to the redo stack.... njam njam
+                //
+            }
+            else
+            {
+                // Push this command to RedoStack.
+                redoStack.push(cmdToUndo);
+            }
             // Then invoke the Unexecute method of the Icommand object.
             cmdToUndo.unexecute();
             return true;
