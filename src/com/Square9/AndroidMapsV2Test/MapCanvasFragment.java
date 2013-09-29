@@ -169,6 +169,8 @@ public class MapCanvasFragment extends MapFragment
     private void initMap()
     {
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        map.getUiSettings().setAllGesturesEnabled(true);
+        map.getUiSettings().setZoomControlsEnabled(true);
         currentPositionMarker = map.addMarker(new MarkerOptions().position(defaultLocation));
         currentPositionMarker.setTitle(getResources().getString(R.string.currentPositionMarkerTitle));
         currentPositionMarker.setSnippet(defaultLocation.toString());
