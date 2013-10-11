@@ -86,41 +86,71 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
     private StringBuilder parseLayerManager(LayerManager lm)
     {
         // Parsing Tags
-        final String OPEN_LAYER_TAG = "<layer>";
-        final String LAYER_NAME = "Name:";
-        final String LAYER_COLOR = "Color:";
-        final String LAYER_LINEWIDTH = "Line width:";
+        final String OPEN_LAYER_TAG = "<Layer>";
+        final String CLOSE_LAYER_TAG = "</Layer>";
+        final String OPEN_LAYER_NAME_TAG = "<Name>";
+        final String CLOSE_LAYER_NAME_TAG = "</Name>";
+        final String OPEN_LAYER_COLOR_TAG = "<Color>";
+        final String CLOSE_LAYER_COLOR_TAG = "</Color>";
+        final String OPEN_LAYER_LINEWIDTH_TAG = "<Line width>";
+        final String CLOSE_LAYER_LINEWIDTH_TAG = "</Line width>";
         final String OPEN_MEASUREMENTPOINT_TAG = "<Measurement Point>";
-        final String USER_COMMENT = "User Comment:";
-        final String LATITUDE = "Latitude:";
-        final String LONGITUDE = "Longitude:";
-        final String MPX = "X:";
-        final String MPY = "Y:";
-        final String PHOTO = "Photo:";
         final String CLOSE_MEASUREMENTPOINT_TAG = "</Measurement Point>";
+        final String OPEN_USER_COMMENT_TAG = "<User Comment>";
+        final String CLOSE_USER_COMMENT_TAG = "</User Comment>";
+        final String OPEN_MP_LATITUDE_TAG = "<Latitude>";
+        final String CLOSE_MP_LATITUDE_TAG = "</Latitude>";
+        final String OPEN_MP_LONGITUDE_TAG = "<Longitude>";
+        final String CLOSE_MP_LONGITUDE_TAG = "</Longitude>";
+        final String OPEN_MP_X_TAG = "<X>";
+        final String CLOSE_MP_X_TAG = "</X>";
+        final String OPEN_MP_Y_TAG = "<Y>";
+        final String CLOSE_MP_Y_TAG = "</Y>";
+        final String OPEN_PHOTO_TAG = "<PHOTO>";
+        final String CLOSE_PHOTO_TAG = "</PHOTO>";
         final String OPEN_LINE_TAG = "<Line>";
-        final String LINE_LAT1 = "Latitude 1:";
-        final String LINE_LON1 = "Longitude 1:";
-        final String LINE_LAT2 = "Latitude 2:";
-        final String LINE_LON2 = "Longitude 2:";
-        final String LINE_X1 = "X1:";
-        final String LINE_Y1 = "Y1:";
-        final String LINE_X2 = "X2:";
-        final String LINE_Y2 = "Y2:";
         final String CLOSE_LINE_TAG = "</Line>";
+        final String OPEN_LINE_LAT1_TAG = "<Latitude 1>";
+        final String CLOSE_LINE_LAT1_TAG = "</Latitude 1>";
+        final String OPEN_LINE_LON1_TAG = "<Longitude 1>";
+        final String CLOSE_LINE_LON1_TAG = "</Longitude 1>";
+        final String OPEN_LINE_LAT2_TAG = "<Latitude 2>";
+        final String CLOSE_LINE_LAT2_TAG = "</Latitude 2>";
+        final String OPEN_LINE_LON2_TAG = "<Longitude 2>";
+        final String CLOSE_LINE_LON2_TAG = "</Longitude 2>";
+        final String OPEN_LINE_X1_TAG = "<X1>";
+        final String CLOSE_LINE_X1_TAG = "</X1>";
+        final String OPEN_LINE_Y1_TAG = "<Y1>";
+        final String CLOSE_LINE_Y1_TAG = "</Y1>";
+        final String OPEN_LINE_X2_TAG = "<X2>";
+        final String CLOSE_LINE_X2_TAG = "</X2>";
+        final String OPEN_LINE_Y2_TAG = "<Y2>";
+        final String CLOSE_LINE_Y2_TAG = "</Y2>";
         final String OPEN_ARC_TAG = "<Arc>";
-        final String ARC_LAT1 = "Latitude 1:";
-        final String ARC_LON1 = "Longitude 1:";
-        final String ARC_LAT2 = "Latitude 2:";
-        final String ARC_LON2 = "Longitude 2:";
-        final String ARC_LAT3 = "Latitude 3:";
-        final String ARC_LON3 = "Longitude 3:";
-        final String ARC_X1 = "X1:";
-        final String ARC_Y1 = "Y1:";
-        final String ARC_X2 = "X2:";
-        final String ARC_Y2 = "Y2:";
-        final String ARC_X3 = "X3:";
-        final String ARC_Y3 = "Y3:";
+        final String OPEN_ARC_LAT1_TAG = "<Latitude 1>";
+        final String OPEN_ARC_LON1_TAG = "<Longitude 1>";
+        final String OPEN_ARC_LAT2_TAG = "<Latitude 2>";
+        final String OPEN_ARC_LON2_TAG = "<Longitude 2>";
+        final String OPEN_ARC_LAT3_TAG = "<Latitude 3>";
+        final String OPEN_ARC_LON3_TAG = "<Longitude 3>";
+        final String OPEN_ARC_X1_TAG = "<X1>";
+        final String OPEN_ARC_Y1_TAG = "<Y1>";
+        final String OPEN_ARC_X2_TAG = "<X2>";
+        final String OPEN_ARC_Y2_TAG = "<Y2>";
+        final String OPEN_ARC_X3_TAG = "<X3>";
+        final String OPEN_ARC_Y3_TAG = "<Y3>";
+        final String CLOSE_ARC_LAT1_TAG = "</Latitude 1>";
+        final String CLOSE_ARC_LON1_TAG = "</Longitude 1>";
+        final String CLOSE_ARC_LAT2_TAG = "</Latitude 2>";
+        final String CLOSE_ARC_LON2_TAG = "</Longitude 2>";
+        final String CLOSE_ARC_LAT3_TAG = "</Latitude 3>";
+        final String CLOSE_ARC_LON3_TAG = "</Longitude 3>";
+        final String CLOSE_ARC_X1_TAG = "</X1>";
+        final String CLOSE_ARC_Y1_TAG = "</Y1>";
+        final String CLOSE_ARC_X2_TAG = "</X2>";
+        final String CLOSE_ARC_Y2_TAG = "</Y2>";
+        final String CLOSE_ARC_X3_TAG = "</X3>";
+        final String CLOSE_ARC_Y3_TAG = "</Y3>";
         final String CLOSE_ARC_TAG = "</ARC>";
 
         StringBuilder result = new StringBuilder();
@@ -136,22 +166,22 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
         {
             MeasurementLayer layer = layerIterator.next();
             result.append(OPEN_LAYER_TAG + "\n");
-            result.append(LAYER_NAME + layer.getLayerName() + "\n");
+            result.append("\t" + OPEN_LAYER_NAME_TAG + layer.getLayerName() + CLOSE_LAYER_NAME_TAG +"\n");
             int color = layer.getColor();
             String hexColor ="#" + Integer.toHexString(color);
-            result.append(LAYER_COLOR + hexColor + "\n");
-            result.append(LAYER_LINEWIDTH + layer.getLineWidth() + "px\n");
+            result.append("\t" + OPEN_LAYER_COLOR_TAG + hexColor + CLOSE_LAYER_COLOR_TAG + "\n");
+            result.append("\t" + OPEN_LAYER_LINEWIDTH_TAG + layer.getLineWidth() + " px " + CLOSE_LAYER_LINEWIDTH_TAG + "\n");
             // [3] for each measurement point in this layer:
             for(int pointIndex = 0; pointIndex < layer.getNumberOfMeasurementPoints(); pointIndex++)
             {
                 double mpXY[] = conversionLatLngToXYNed(layer.getMeasurementPointByIndex(pointIndex).getPosition());
                 result.append("\t" + OPEN_MEASUREMENTPOINT_TAG + "\n");
-                result.append("\t" + USER_COMMENT + layer.getMeasurementPointByIndex(pointIndex).getComment() + "\n");
-                result.append("\t" + LATITUDE + layer.getMeasurementPointByIndex(pointIndex).getPosition().latitude + "\n");
-                result.append("\t" + LONGITUDE + layer.getMeasurementPointByIndex(pointIndex).getPosition().longitude + "\n");
-                result.append("\t" + MPX + Double.toString(mpXY[0]) + "\n");
-                result.append("\t" + MPY + Double.toString(mpXY[1]) + "\n");
-                result.append("\t" + PHOTO +  layer.getMeasurementPointByIndex(pointIndex).getPhotoFilePath() + "\n");
+                result.append("\t\t" + OPEN_USER_COMMENT_TAG + layer.getMeasurementPointByIndex(pointIndex).getComment() + CLOSE_USER_COMMENT_TAG + "\n");
+                result.append("\t\t" + OPEN_MP_LATITUDE_TAG + layer.getMeasurementPointByIndex(pointIndex).getPosition().latitude + CLOSE_MP_LATITUDE_TAG + "\n");
+                result.append("\t\t" + OPEN_MP_LONGITUDE_TAG + layer.getMeasurementPointByIndex(pointIndex).getPosition().longitude + CLOSE_MP_LONGITUDE_TAG + "\n");
+                result.append("\t\t" + OPEN_MP_X_TAG + Double.toString(mpXY[0]) + CLOSE_MP_X_TAG + "\n");
+                result.append("\t\t" + OPEN_MP_Y_TAG + Double.toString(mpXY[1]) + CLOSE_MP_Y_TAG + "\n");
+                result.append("\t\t" + OPEN_PHOTO_TAG +  layer.getMeasurementPointByIndex(pointIndex).getPhotoFilePath() + CLOSE_PHOTO_TAG + "\n");
                 result.append("\t" + CLOSE_MEASUREMENTPOINT_TAG +"\n");
             }
             // [4] for each line in this layer
@@ -162,14 +192,14 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 double lineP1[] = conversionLatLngToXYNed(line.getPointOne());
                 double lineP2[] = conversionLatLngToXYNed(line.getPointTwo());
                 result.append("\t" + OPEN_LINE_TAG + "\n");
-                result.append("\t" + LINE_LAT1 + line.getPointOne().latitude  + "\n");
-                result.append("\t" + LINE_LON1 + line.getPointOne().longitude  + "\n");
-                result.append("\t" + LINE_LAT2 + line.getPointTwo().latitude  + "\n");
-                result.append("\t" + LINE_LON2 + line.getPointTwo().longitude  + "\n");
-                result.append("\t" + LINE_X1 + lineP1[0] + "\n");
-                result.append("\t" + LINE_Y1 + lineP1[1] + "\n");
-                result.append("\t" + LINE_X2 + lineP2[0] + "\n");
-                result.append("\t" + LINE_Y2 + lineP2[1] + "\n");
+                result.append("\t\t" + OPEN_LINE_LAT1_TAG + line.getPointOne().latitude  + CLOSE_LINE_LAT1_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_LON1_TAG + line.getPointOne().longitude  + CLOSE_LINE_LON1_TAG +"\n");
+                result.append("\t\t" + OPEN_LINE_LAT2_TAG + line.getPointTwo().latitude + CLOSE_LINE_LAT2_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_LON2_TAG + line.getPointTwo().longitude  + CLOSE_LINE_LON2_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_X1_TAG + lineP1[0] + CLOSE_LINE_X1_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_Y1_TAG + lineP1[1] + CLOSE_LINE_Y1_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_X2_TAG + lineP2[0] + CLOSE_LINE_X2_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_Y2_TAG + lineP2[1] + CLOSE_LINE_Y2_TAG + "\n");
                 result.append("\t" + CLOSE_LINE_TAG + "\n");
             }
             // [5] for each arc in this layer
@@ -184,18 +214,18 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 double arcP2[] = conversionLatLngToXYNed(mPos2);
                 double arcP3[] = conversionLatLngToXYNed(mPos3);
                 result.append("\t" + OPEN_ARC_TAG + "\n");
-                result.append("\t" + ARC_LAT1 + mPos1.latitude +"\n");
-                result.append("\t" + ARC_LON1 + mPos1.longitude +"\n");
-                result.append("\t" + ARC_LAT2 + mPos2.latitude +"\n");
-                result.append("\t" + ARC_LON2 + mPos2.longitude +"\n");
-                result.append("\t" + ARC_LAT3 + mPos3.latitude +"\n");
-                result.append("\t" + ARC_LON3 + mPos3.longitude +"\n");
-                result.append("\t" + ARC_X1 + arcP1[0] +"\n");
-                result.append("\t" + ARC_Y1 + arcP1[1] +"\n");
-                result.append("\t" + ARC_X2 + arcP2[0] +"\n");
-                result.append("\t" + ARC_Y2 + arcP2[1] +"\n");
-                result.append("\t" + ARC_X3 + arcP3[0] +"\n");
-                result.append("\t" + ARC_Y3 + arcP3[1] +"\n");
+                result.append("\t\t" + OPEN_ARC_LAT1_TAG + mPos1.latitude + CLOSE_ARC_LAT1_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_LON1_TAG + mPos1.longitude + CLOSE_ARC_LON1_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_LAT2_TAG + mPos2.latitude + CLOSE_ARC_LAT2_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_LON2_TAG + mPos2.longitude + CLOSE_ARC_LON2_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_LAT3_TAG + mPos3.latitude + CLOSE_ARC_LAT3_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_LON3_TAG + mPos3.longitude + CLOSE_ARC_LON3_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_X1_TAG + arcP1[0] + CLOSE_ARC_X1_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_Y1_TAG + arcP1[1] + CLOSE_ARC_Y1_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_X2_TAG + arcP2[0] + CLOSE_ARC_X2_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_Y2_TAG + arcP2[1] + CLOSE_ARC_Y2_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_X3_TAG + arcP3[0] + CLOSE_ARC_X3_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_Y3_TAG + arcP3[1] + CLOSE_ARC_Y3_TAG + "\n");
                 result.append("\t" + CLOSE_ARC_TAG + "\n");
 
             }
