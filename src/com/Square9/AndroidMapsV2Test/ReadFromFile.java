@@ -4,11 +4,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.google.android.gms.maps.model.LatLng;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * Async Task to read from file
@@ -22,30 +22,72 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     private Context actCtx;
 
     // Parsing Tags
-    private final String OPEN_LAYER_TAG = "<layer>";
-    private final String LAYER_NAME = "Name:";
-    private final String LAYER_COLOR = "Color:";
-    private final String LAYER_LINEWIDTH = "Line width:";
-    private final String OPEN_MEASUREMENTPOINT_TAG = "<Measurement Point>";
-    private final String USER_COMMENT = "User Comment:";
-    private final String LATITUDE = "Latitude:";
-    private final String LONGITUDE = "Longitude:";
-    private final String PHOTO = "Photo:";
-    private final String CLOSE__MEASUREMENTPOINT_TAG = "</Measurement Point>";
-    private final String OPEN_LINE_TAG = "<Line>";
-    private final String LINE_LAT1 = "Latitude 1:";
-    private final String LINE_LON1 = "Longitude 1:";
-    private final String LINE_LAT2 = "Latitude 2:";
-    private final String LINE_LON2 = "Longitude 2:";
-    private final String CLOSE_LINE_TAG = "</Line>";
-    private final String OPEN_ARC_TAG = "<Arc>";
-    private final String ARC_LAT1 = "Latitude 1:";
-    private final String ARC_LON1 = "Longitude 1:";
-    private final String ARC_LAT2 = "Latitude 2:";
-    private final String ARC_LON2 = "Longitude 2:";
-    private final String ARC_LAT3 = "Latitude 3:";
-    private final String ARC_LON3 = "Longitude 3:";
-    private final String CLOSE_ARC_TAG = "</ARC>";
+    final String OPEN_LAYER_TAG = "<Layer>";
+    final String CLOSE_LAYER_TAG = "</Layer>";
+    final String OPEN_LAYER_NAME_TAG = "<Name>";
+    final String CLOSE_LAYER_NAME_TAG = "</Name>";
+    final String OPEN_LAYER_COLOR_TAG = "<Color>";
+    final String CLOSE_LAYER_COLOR_TAG = "</Color>";
+    final String OPEN_LAYER_LINEWIDTH_TAG = "<LineWidth>";
+    final String CLOSE_LAYER_LINEWIDTH_TAG = "</LineWidth>";
+    final String OPEN_MEASUREMENTPOINT_TAG = "<MeasurementPoint>";
+    final String CLOSE_MEASUREMENTPOINT_TAG = "</MeasurementPoint>";
+    final String OPEN_USER_COMMENT_TAG = "<UserComment>";
+    final String CLOSE_USER_COMMENT_TAG = "</UserComment>";
+    final String OPEN_MP_LATITUDE_TAG = "<Latitude>";
+    final String CLOSE_MP_LATITUDE_TAG = "</Latitude>";
+    final String OPEN_MP_LONGITUDE_TAG = "<Longitude>";
+    final String CLOSE_MP_LONGITUDE_TAG = "</Longitude>";
+    final String OPEN_MP_X_TAG = "<X>";
+    final String CLOSE_MP_X_TAG = "</X>";
+    final String OPEN_MP_Y_TAG = "<Y>";
+    final String CLOSE_MP_Y_TAG = "</Y>";
+    final String OPEN_PHOTO_TAG = "<Photo>";
+    final String CLOSE_PHOTO_TAG = "</Photo>";
+    final String OPEN_LINE_TAG = "<Line>";
+    final String CLOSE_LINE_TAG = "</Line>";
+    final String OPEN_LINE_LAT1_TAG = "<Latitude1>";
+    final String CLOSE_LINE_LAT1_TAG = "</Latitude1>";
+    final String OPEN_LINE_LON1_TAG = "<Longitude1>";
+    final String CLOSE_LINE_LON1_TAG = "</Longitude1>";
+    final String OPEN_LINE_LAT2_TAG = "<Latitude2>";
+    final String CLOSE_LINE_LAT2_TAG = "</Latitude2>";
+    final String OPEN_LINE_LON2_TAG = "<Longitude2>";
+    final String CLOSE_LINE_LON2_TAG = "</Longitude2>";
+    final String OPEN_LINE_X1_TAG = "<X1>";
+    final String CLOSE_LINE_X1_TAG = "</X1>";
+    final String OPEN_LINE_Y1_TAG = "<Y1>";
+    final String CLOSE_LINE_Y1_TAG = "</Y1>";
+    final String OPEN_LINE_X2_TAG = "<X2>";
+    final String CLOSE_LINE_X2_TAG = "</X2>";
+    final String OPEN_LINE_Y2_TAG = "<Y2>";
+    final String CLOSE_LINE_Y2_TAG = "</Y2>";
+    final String OPEN_ARC_TAG = "<Arc>";
+    final String OPEN_ARC_LAT1_TAG = "<Latitude1>";
+    final String OPEN_ARC_LON1_TAG = "<Longitude1>";
+    final String OPEN_ARC_LAT2_TAG = "<Latitude2>";
+    final String OPEN_ARC_LON2_TAG = "<Longitude2>";
+    final String OPEN_ARC_LAT3_TAG = "<Latitude3>";
+    final String OPEN_ARC_LON3_TAG = "<Longitude3>";
+    final String OPEN_ARC_X1_TAG = "<X1>";
+    final String OPEN_ARC_Y1_TAG = "<Y1>";
+    final String OPEN_ARC_X2_TAG = "<X2>";
+    final String OPEN_ARC_Y2_TAG = "<Y2>";
+    final String OPEN_ARC_X3_TAG = "<X3>";
+    final String OPEN_ARC_Y3_TAG = "<Y3>";
+    final String CLOSE_ARC_LAT1_TAG = "</Latitude1>";
+    final String CLOSE_ARC_LON1_TAG = "</Longitude1>";
+    final String CLOSE_ARC_LAT2_TAG = "</Latitude2>";
+    final String CLOSE_ARC_LON2_TAG = "</Longitude2>";
+    final String CLOSE_ARC_LAT3_TAG = "</Latitude3>";
+    final String CLOSE_ARC_LON3_TAG = "</Longitude3>";
+    final String CLOSE_ARC_X1_TAG = "</X1>";
+    final String CLOSE_ARC_Y1_TAG = "</Y1>";
+    final String CLOSE_ARC_X2_TAG = "</X2>";
+    final String CLOSE_ARC_Y2_TAG = "</Y2>";
+    final String CLOSE_ARC_X3_TAG = "</X3>";
+    final String CLOSE_ARC_Y3_TAG = "</Y3>";
+    final String CLOSE_ARC_TAG = "</ARC>";
 
 
 
@@ -97,7 +139,6 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
             String line;
             while ((line = bufferedReader.readLine()) != null)
             {
-                Log.d(DEBUGTAG, "Reading Line: " + line);
                 if(line.contains(OPEN_LAYER_TAG))
                 {
                     String layerName = "";
@@ -105,15 +146,17 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     int layerLineWidth = 0;
 
                     String nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LAYER_NAME))
+                    if(nextLine.contains(OPEN_LAYER_NAME_TAG))
                     {
-                        layerName = getSubStringBehindToken(nextLine, ':');
+                        layerName = parseXmlString(nextLine);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LAYER_COLOR))
+                    if(nextLine.contains(OPEN_LAYER_COLOR_TAG))
                     {
-                        int color = stringLineColorToIntColor(nextLine);
+                        String layerColorParsed = parseXmlString(nextLine); //   Strip value from tags
+
+                        int color = stringLineColorToIntColor(layerColorParsed);
                         if(color == -1)
                         {
                             // Parsing error if return -1
@@ -123,14 +166,17 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LAYER_LINEWIDTH))
+                    if(nextLine.contains(OPEN_LAYER_LINEWIDTH_TAG))
                     {
                         layerLineWidth = stringLineWidthToIntLineWidth(nextLine);
+                        if(layerLineWidth == -1)
+                        {
+                            //If parsing error occurred, make it default:
+                            layerLineWidth = 3;
+                            Log.d(DEBUGTAG, "ERROR while parsing the line width of the layer, set to default: " + Integer.toString(layerLineWidth));
+                        }
                     }
                     // Create a new Measurement layer and set is as current layer of the layer manager
-                    Log.d(DEBUGTAG, "LayerName: " + layerName);
-                    Log.d(DEBUGTAG, "LayerColor: " + Integer.toString(layerColor));
-                    Log.d(DEBUGTAG, "Line Width: " + layerLineWidth);
                     MeasurementLayer ml = new MeasurementLayer(layerName, layerColor, layerLineWidth);
                     result.addNewLayer(ml);
                 }
@@ -142,32 +188,31 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     String photoRef = "";
 
                     String nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(USER_COMMENT))   //	User Comment: test
-                        userComment = getSubStringBehindToken(nextLine, ':');
+                    if(nextLine.contains(OPEN_USER_COMMENT_TAG))   //	<User Comment>xyz</User Comment>
+                        userComment = parseXmlString(nextLine);
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LATITUDE))      // 	Latitude: 50.87406459824764
+                    if(nextLine.contains(OPEN_MP_LATITUDE_TAG))      // 	<Latitude>50.874207705232884</Latitude>
                     {
-                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        String sLat = parseXmlString(nextLine); //50.874207705232884
                         lat = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LONGITUDE)) // Longitude: 5.273974682895753
+                    if(nextLine.contains(OPEN_MP_LONGITUDE_TAG)) // <Longitude>5.274354991470152</Longitude>
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon = decimalNumberStringToDouble(sLon);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(PHOTO))
-                        photoRef = getSubStringBehindToken(nextLine, ':');
+                    if(nextLine.contains(OPEN_PHOTO_TAG)) // <PHOTO>xyz</PHOTO>
+                    {
+                        photoRef = parseXmlString(nextLine);
+                    }
+
 
                     //Create a new Measurement Point
-                    Log.d(DEBUGTAG, "User Comment: " + userComment);
-                    Log.d(DEBUGTAG, "Latitude: " + Double.toString(lat));
-                    Log.d(DEBUGTAG, "Longitude: " + Double.toString(lon));
-                    Log.d(DEBUGTAG, "Photo: " + photoRef);
                     LatLng pos = new LatLng(lat, lon);
                     MeasurementPoint mp = new MeasurementPoint(pos);
                     mp.setComment(userComment);
@@ -181,39 +226,34 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     double lon1 = 0.0;
                     double lat2 = 0.0;
                     double lon2 = 0.0;
-
                     String nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LINE_LAT1))
+                    if(nextLine.contains(OPEN_LINE_LAT1_TAG)) //<Latitude 1>50.87416954036876</Latitude 1>
                     {
-                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        String sLat = parseXmlString(nextLine);
                         lat1 = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LINE_LON1))
+                    if(nextLine.contains(OPEN_LINE_LON1_TAG)) //<Longitude 1>5.274158805922624</Longitude 1>
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon1 = decimalNumberStringToDouble(sLon);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LINE_LAT2))
+                    if(nextLine.contains(OPEN_LINE_LAT2_TAG)) //<Latitude 2>50.87418850654149</Latitude 2>
                     {
-                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        String sLat =  parseXmlString(nextLine);
                         lat2 = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(LINE_LON2))
+                    if(nextLine.contains(OPEN_LINE_LON2_TAG)) //<Longitude 2>5.2744467368496855</Longitude 2>
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon2 = decimalNumberStringToDouble(sLon);
                     }
                     // Create a new line instance
-                    Log.d(DEBUGTAG, "Lat 1: " + Double.toString(lat1));
-                    Log.d(DEBUGTAG, "Lon 1: " + Double.toString(lon1));
-                    Log.d(DEBUGTAG, "Lat 2: " + Double.toString(lat2));
-                    Log.d(DEBUGTAG, "Lon 2: " + Double.toString(lon2));
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
                     // Constructor of MeasurementLine requires the Position on map,
@@ -234,47 +274,46 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
 
 
                     String nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LAT1))
+                    if(nextLine.contains(OPEN_ARC_LAT1_TAG))
                     {
-                        String sLat = getSubStringBehindToken(nextLine, ':');
+                        String sLat = parseXmlString(nextLine);
                         lat1 = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LON1))
+                    if(nextLine.contains(OPEN_ARC_LON1_TAG))
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon1 = decimalNumberStringToDouble(sLon);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LAT2))
+                    if(nextLine.contains(OPEN_ARC_LAT2_TAG))
                     {
-                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        String sLat =  parseXmlString(nextLine);
                         lat2 = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LON2))
+                    if(nextLine.contains(OPEN_ARC_LON2_TAG))
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon2 = decimalNumberStringToDouble(sLon);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LAT3))
+                    if(nextLine.contains(OPEN_ARC_LAT3_TAG))
                     {
-                        String sLat =  getSubStringBehindToken(nextLine, ':');
+                        String sLat =  parseXmlString(nextLine);
                         lat3 = decimalNumberStringToDouble(sLat);
                     }
 
                     nextLine = bufferedReader.readLine();
-                    if(nextLine.contains(ARC_LON3))
+                    if(nextLine.contains(OPEN_ARC_LON3_TAG))
                     {
-                        String sLon = getSubStringBehindToken(nextLine, ':');
+                        String sLon = parseXmlString(nextLine);
                         lon3 = decimalNumberStringToDouble(sLon);
                     }
-
                     // Create a new Arc instance
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
@@ -306,8 +345,9 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
      */
     public int stringLineColorToIntColor(String lineColor)
     {
-        //get substring behind '#' ->> Color: #ff007fff
-        String strippedColor = getSubStringBehindToken(lineColor, '#');     // e.g.: Color: #ff007fff
+        //#ffffff00
+        //get substring behind '#' ->> Color: #ff007fff --> ff007fff
+        String strippedColor = getSubStringBehindToken(lineColor, '#');     // e.g.: Color:  ff007fff
         strippedColor = strippedColor.toLowerCase();
         if(strippedColor.length() == 8 && strippedColor.matches("[0-9a-f]+"))    //if the substring color is exactly 8 chars long (4 -2digit- hex values) AND is a hexadecimal value
         {
@@ -316,23 +356,25 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
         }
         else
         {
+            Log.d(DEBUGTAG, "ERROR: while parsing color");
             return -1;
         }
     }
 
     /**
-     * Method to convert "Line width: 3px" (string) to 3 (int)
-     * @param lw lineWidth line (String) e.g.: "Line width: 3px"
-     * @return int value for lineWidth e.g.: 3
+     * Method to convert "<Line width>4 px </Line width>" (string) to 4 (int)
+     * @param lw lineWidth line (String) e.g.: "<Line width>4 px </Line width>"
+     * @return int value for lineWidth e.g.: 4
      */
     public int stringLineWidthToIntLineWidth(String lw)
     {
-        //start "Line width: 3px"
-        //pixels => "3px"
-        String pixels = getSubStringBehindToken(lw, ':');
-        //pixelValue => "3"
-        String pixelValue[] = pixels.split("p");
-        if(pixelValue[0].matches("[0-9]+")) //if it only contains numbers its ok
+        //<Line width>4px</Line width>
+        String xmlValue = parseXmlString(lw);
+        //4px
+        String pixelValue[] = xmlValue.split("p");
+        //4
+        String lineWidthNumber = pixelValue[0].trim();
+        if(lineWidthNumber.matches("[0-9]+")) //if it only contains numbers its ok
         {
             return  Integer.parseInt(pixelValue[0], 10);
         }
@@ -386,6 +428,44 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
         {
             return 0.0;
         }
+    }
+
+    /**
+     * Method to parse strings like: <tag1>xyz</tag1>
+     * Using XML pull parser as suggested by android documentation: http://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html
+     * @param xml the string to parser  <tag1>xyz</tag1>
+     * @return value between the tags "xyz"
+     */
+    private String parseXmlString(String xml)
+    {
+        String xmlValue = null;
+        try
+        {
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance(); //Create a new instance of the parser factory
+            factory.setNamespaceAware(true);
+            XmlPullParser xpp = factory.newPullParser();
+            xpp.setInput( new StringReader (xml) );
+            int eventType = xpp.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT)
+            {
+                if(eventType == XmlPullParser.TEXT)
+                {
+                    xmlValue = xpp.getText();
+                }
+                eventType = xpp.next();
+            }
+        }
+        catch(Exception e)
+        {
+          // Swallow the exception
+        }
+        // If there is no text between the tags -> empty string
+        if(xmlValue == null)
+        {
+            xmlValue = "";
+        }
+
+        return xmlValue;
     }
 
 }

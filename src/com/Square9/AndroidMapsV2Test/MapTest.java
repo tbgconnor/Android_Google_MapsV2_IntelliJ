@@ -179,6 +179,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             if(lastPhotoId != newPhotoId && newPhotoId != 0)// if a new photo was taken by the user
             {
                 mpPhotoAttach.setPhotoFilePath(getLastPhotoReference());
+                Log.d(DEBUGTAG, "Photo reference: " + getLastPhotoReference());
                 Toast.makeText(MapTest.this, "Photo added", Toast.LENGTH_LONG).show();
             }
             else
