@@ -56,6 +56,10 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     final String CLOSE_LINE_LAT2_TAG = "</Latitude2>";
     final String OPEN_LINE_LON2_TAG = "<Longitude2>";
     final String CLOSE_LINE_LON2_TAG = "</Longitude2>";
+    final String OPEN_LINE_HEIGHT1_TAG = "<Height1>";
+    final String CLOSE_LINE_HEIGHT1_TAG = "</Height1>";
+    final String OPEN_LINE_HEIGHT2_TAG = "<Height2>";
+    final String CLOSE_LINE_HEIGHT2_TAG = "</Height2>";
     final String OPEN_LINE_X1_TAG = "<X1>";
     final String CLOSE_LINE_X1_TAG = "</X1>";
     final String OPEN_LINE_Y1_TAG = "<Y1>";
@@ -89,6 +93,12 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     final String CLOSE_ARC_Y2_TAG = "</Y2>";
     final String CLOSE_ARC_X3_TAG = "</X3>";
     final String CLOSE_ARC_Y3_TAG = "</Y3>";
+    final String OPEN_ARC_HEIGHT1_TAG = "<Height1>";
+    final String CLOSE_ARC_HEIGHT1_TAG = "</Height1>";
+    final String OPEN_ARC_HEIGHT2_TAG = "<Height2>";
+    final String CLOSE_ARC_HEIGHT2_TAG = "</Height2>";
+    final String OPEN_ARC_HEIGHT3_TAG = "<Height3>";
+    final String CLOSE_ARC_HEIGHT3_TAG = "</Height3>";
     final String CLOSE_ARC_TAG = "</ARC>";
 
 
@@ -237,6 +247,8 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     double lon1 = 0.0;
                     double lat2 = 0.0;
                     double lon2 = 0.0;
+                    double height1 = 0.0;
+                    double height2 = 0.0;
                     String nextLine = bufferedReader.readLine();
                     if(nextLine.contains(OPEN_LINE_LAT1_TAG)) //<Latitude 1>50.87416954036876</Latitude 1>
                     {
@@ -264,6 +276,20 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                         String sLon = parseXmlString(nextLine);
                         lon2 = decimalNumberStringToDouble(sLon);
                     }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_LINE_HEIGHT1_TAG))
+                    {
+                        String sH1 = parseXmlString(nextLine);
+                        height1 = decimalNumberStringToDouble(sH1);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_LINE_HEIGHT2_TAG))
+                    {
+                        String sH2 = parseXmlString(nextLine);
+                        height2 = decimalNumberStringToDouble(sH2);
+                    }
                     // Create a new line instance
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
@@ -271,6 +297,8 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     // A this point this can not be passed, so i'm passing the measurement data points
                     // They should be set when map is populated for each line
                     MeasurementLine lineElement = new MeasurementLine(point1, point2, point1, point2);
+                    lineElement.setHeightOne(height1);
+                    lineElement.setHeightTwo(height2);
                     // add Map line to current layer in layermanager
                     result.getCurrentLayer().addLine(lineElement);
                 }
@@ -282,6 +310,9 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     double lon2 = 0.0;
                     double lat3 = 0.0;
                     double lon3 = 0.0;
+                    double height1 = 0.0;
+                    double height2 = 0.0;
+                    double height3 = 0.0;
 
 
                     String nextLine = bufferedReader.readLine();
@@ -325,6 +356,28 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                         String sLon = parseXmlString(nextLine);
                         lon3 = decimalNumberStringToDouble(sLon);
                     }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_ARC_HEIGHT1_TAG))
+                    {
+                        String sHeight1 = parseXmlString(nextLine);
+                        height1 = decimalNumberStringToDouble(sHeight1);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_ARC_HEIGHT2_TAG))
+                    {
+                        String sHeight2 = parseXmlString(nextLine);
+                        height2 = decimalNumberStringToDouble(sHeight2);
+                    }
+
+                    nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_ARC_HEIGHT3_TAG))
+                    {
+                        String sHeight3 = parseXmlString(nextLine);
+                        height3 = decimalNumberStringToDouble(sHeight3);
+                    }
+
                     // Create a new Arc instance
                     LatLng point1 = new LatLng(lat1, lon1);
                     LatLng point2 = new LatLng(lat2, lon2);
@@ -333,6 +386,9 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     // A this point this can not be passed, so i'm passing the measurement data points
                     // They should be set, when map is populated, for each arc
                     MeasurementArc arc = new MeasurementArc(point1, point2, point3, point1, point2, point3);
+                    arc.setHeightOne(height1);
+                    arc.setHeightTwo(height2);
+                    arc.setHeightThree(height3);
                     // add Arc to current layer in layermanager
                     result.getCurrentLayer().addArc(arc);
                 }

@@ -120,6 +120,10 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
         final String CLOSE_LINE_LAT2_TAG = "</Latitude2>";
         final String OPEN_LINE_LON2_TAG = "<Longitude2>";
         final String CLOSE_LINE_LON2_TAG = "</Longitude2>";
+        final String OPEN_LINE_HEIGHT1_TAG = "<Height1>";
+        final String CLOSE_LINE_HEIGHT1_TAG = "</Height1>";
+        final String OPEN_LINE_HEIGHT2_TAG = "<Height2>";
+        final String CLOSE_LINE_HEIGHT2_TAG = "</Height2>";
         final String OPEN_LINE_X1_TAG = "<X1>";
         final String CLOSE_LINE_X1_TAG = "</X1>";
         final String OPEN_LINE_Y1_TAG = "<Y1>";
@@ -135,6 +139,12 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
         final String OPEN_ARC_LON2_TAG = "<Longitude2>";
         final String OPEN_ARC_LAT3_TAG = "<Latitude3>";
         final String OPEN_ARC_LON3_TAG = "<Longitude3>";
+        final String OPEN_ARC_HEIGHT1_TAG = "<Height1>";
+        final String CLOSE_ARC_HEIGHT1_TAG = "</Height1>";
+        final String OPEN_ARC_HEIGHT2_TAG = "<Height2>";
+        final String CLOSE_ARC_HEIGHT2_TAG = "</Height2>";
+        final String OPEN_ARC_HEIGHT3_TAG = "<Height3>";
+        final String CLOSE_ARC_HEIGHT3_TAG = "</Height3>";
         final String OPEN_ARC_X1_TAG = "<X1>";
         final String OPEN_ARC_Y1_TAG = "<Y1>";
         final String OPEN_ARC_X2_TAG = "<X2>";
@@ -199,6 +209,8 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\t\t" + OPEN_LINE_LON1_TAG + line.getPointOne().longitude  + CLOSE_LINE_LON1_TAG +"\n");
                 result.append("\t\t" + OPEN_LINE_LAT2_TAG + line.getPointTwo().latitude + CLOSE_LINE_LAT2_TAG + "\n");
                 result.append("\t\t" + OPEN_LINE_LON2_TAG + line.getPointTwo().longitude  + CLOSE_LINE_LON2_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_HEIGHT1_TAG + line.getHeightOne() + CLOSE_LINE_HEIGHT1_TAG + "\n");
+                result.append("\t\t" + OPEN_LINE_HEIGHT2_TAG + line.getHeightTwo() + CLOSE_LINE_HEIGHT2_TAG + "\n");
                 result.append("\t\t" + OPEN_LINE_X1_TAG + lineP1[0] + CLOSE_LINE_X1_TAG + "\n");
                 result.append("\t\t" + OPEN_LINE_Y1_TAG + lineP1[1] + CLOSE_LINE_Y1_TAG + "\n");
                 result.append("\t\t" + OPEN_LINE_X2_TAG + lineP2[0] + CLOSE_LINE_X2_TAG + "\n");
@@ -223,6 +235,9 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\t\t" + OPEN_ARC_LON2_TAG + mPos2.longitude + CLOSE_ARC_LON2_TAG + "\n");
                 result.append("\t\t" + OPEN_ARC_LAT3_TAG + mPos3.latitude + CLOSE_ARC_LAT3_TAG + "\n");
                 result.append("\t\t" + OPEN_ARC_LON3_TAG + mPos3.longitude + CLOSE_ARC_LON3_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_HEIGHT1_TAG + arc.getHeightOne() + CLOSE_ARC_HEIGHT1_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_HEIGHT2_TAG + arc.getHeightTwo() + CLOSE_ARC_HEIGHT2_TAG + "\n");
+                result.append("\t\t" + OPEN_ARC_HEIGHT3_TAG + arc.getHeightThree() + CLOSE_ARC_HEIGHT3_TAG + "\n");
                 result.append("\t\t" + OPEN_ARC_X1_TAG + arcP1[0] + CLOSE_ARC_X1_TAG + "\n");
                 result.append("\t\t" + OPEN_ARC_Y1_TAG + arcP1[1] + CLOSE_ARC_Y1_TAG + "\n");
                 result.append("\t\t" + OPEN_ARC_X2_TAG + arcP2[0] + CLOSE_ARC_X2_TAG + "\n");
