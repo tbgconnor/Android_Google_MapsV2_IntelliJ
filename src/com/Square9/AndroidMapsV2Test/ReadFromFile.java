@@ -38,6 +38,8 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
     final String CLOSE_MP_LATITUDE_TAG = "</Latitude>";
     final String OPEN_MP_LONGITUDE_TAG = "<Longitude>";
     final String CLOSE_MP_LONGITUDE_TAG = "</Longitude>";
+    final String OPEN_MP_HEIGHT_TAG = "<Height>";
+    final String CLOSE_MP_HEIGHT_TAG = "</Height>";
     final String OPEN_MP_X_TAG = "<X>";
     final String CLOSE_MP_X_TAG = "</X>";
     final String OPEN_MP_Y_TAG = "<Y>";
@@ -185,6 +187,7 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     String userComment = "";
                     double lat = 0.0;
                     double lon = 0.0;
+                    double height = 0.0;
                     String photoRef = "";
 
                     String nextLine = bufferedReader.readLine();
@@ -206,6 +209,13 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     }
 
                     nextLine = bufferedReader.readLine();
+                    if(nextLine.contains(OPEN_MP_HEIGHT_TAG)) //<Height>0.00</Height>
+                    {
+                        String sHeight = parseXmlString(nextLine);
+                        height = decimalNumberStringToDouble(sHeight);
+                    }
+
+                    nextLine = bufferedReader.readLine();
                     if(nextLine.contains(OPEN_PHOTO_TAG)) // <PHOTO>xyz</PHOTO>
                     {
                         photoRef = parseXmlString(nextLine);
@@ -215,6 +225,7 @@ public class ReadFromFile extends AsyncTask<File, Integer, LayerManager>
                     //Create a new Measurement Point
                     LatLng pos = new LatLng(lat, lon);
                     MeasurementPoint mp = new MeasurementPoint(pos);
+                    mp.setHeight(height);
                     mp.setComment(userComment);
                     mp.setPhotoFilePath(photoRef);
                     //Add the measurement point to current Layer of LayerManager

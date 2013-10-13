@@ -102,6 +102,8 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
         final String CLOSE_MP_LATITUDE_TAG = "</Latitude>";
         final String OPEN_MP_LONGITUDE_TAG = "<Longitude>";
         final String CLOSE_MP_LONGITUDE_TAG = "</Longitude>";
+        final String OPEN_MP_HEIGHT_TAG = "<Height>";
+        final String CLOSE_MP_HEIGHT_TAG = "</Height>";
         final String OPEN_MP_X_TAG = "<X>";
         final String CLOSE_MP_X_TAG = "</X>";
         final String OPEN_MP_Y_TAG = "<Y>";
@@ -179,6 +181,7 @@ public class SaveToFile extends AsyncTask<LayerManager, Integer, Integer>
                 result.append("\t\t" + OPEN_USER_COMMENT_TAG + layer.getMeasurementPointByIndex(pointIndex).getComment() + CLOSE_USER_COMMENT_TAG + "\n");
                 result.append("\t\t" + OPEN_MP_LATITUDE_TAG + layer.getMeasurementPointByIndex(pointIndex).getPosition().latitude + CLOSE_MP_LATITUDE_TAG + "\n");
                 result.append("\t\t" + OPEN_MP_LONGITUDE_TAG + layer.getMeasurementPointByIndex(pointIndex).getPosition().longitude + CLOSE_MP_LONGITUDE_TAG + "\n");
+                result.append("\t\t" + OPEN_MP_HEIGHT_TAG + layer.getMeasurementPointByIndex(pointIndex).getHeight() + CLOSE_MP_HEIGHT_TAG + "\n");
                 result.append("\t\t" + OPEN_PHOTO_TAG +  layer.getMeasurementPointByIndex(pointIndex).getPhotoFilePath() + CLOSE_PHOTO_TAG + "\n");
                 result.append("\t\t" + OPEN_MP_X_TAG + Double.toString(mpXY[0]) + CLOSE_MP_X_TAG + "\n");
                 result.append("\t\t" + OPEN_MP_Y_TAG + Double.toString(mpXY[1]) + CLOSE_MP_Y_TAG + "\n");
