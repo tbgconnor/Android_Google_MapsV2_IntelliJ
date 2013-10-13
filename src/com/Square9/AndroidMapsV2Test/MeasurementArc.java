@@ -16,6 +16,9 @@ public class MeasurementArc implements Parcelable
     private LatLng position01;
     private LatLng position02;
     private LatLng position03;
+    private double heightOne;
+    private double heightTwo;
+    private double heightThree;
     // Google maps API bug: Map Objects postion read back does not equal the set position.
     // see: https://code.google.com/p/gmaps-api-issues/issues/detail?id=5353
     private LatLng position01OnMap;
@@ -36,6 +39,10 @@ public class MeasurementArc implements Parcelable
         position01 = pos1;
         position02 = pos2;
         position03 = pos3;
+
+        heightOne = 0.0;
+        heightTwo = 0.0;
+        heightThree = 0.0;
 
         position01OnMap = pos1Map;
         position02OnMap = pos2Map;
@@ -66,6 +73,30 @@ public class MeasurementArc implements Parcelable
         position01 = pos1;
         position02 = pos2;
         position03 = pos3;
+    }
+
+    public double getHeightOne() {
+        return heightOne;
+    }
+
+    public void setHeightOne(double heightOne) {
+        this.heightOne = heightOne;
+    }
+
+    public double getHeightTwo() {
+        return heightTwo;
+    }
+
+    public void setHeightTwo(double heightTwo) {
+        this.heightTwo = heightTwo;
+    }
+
+    public double getHeightThree() {
+        return heightThree;
+    }
+
+    public void setHeightThree(double heightThree) {
+        this.heightThree = heightThree;
     }
 
     /**
@@ -99,6 +130,9 @@ public class MeasurementArc implements Parcelable
         position01 = new LatLng(50.879668, 5.309296);
         position02 = new LatLng(50.879668, 5.309296);
         position03 = new LatLng(50.879668, 5.309296);
+        heightOne = 0.0;
+        heightTwo = 0.0;
+        heightThree = 0.0;
         position01OnMap = new LatLng(50.879668, 5.309296);
         position02OnMap = new LatLng(50.879668, 5.309296);
         position03OnMap = new LatLng(50.879668, 5.309296);
@@ -132,6 +166,9 @@ public class MeasurementArc implements Parcelable
         dest.writeParcelable(position01, 0);
         dest.writeParcelable(position02, 0);
         dest.writeParcelable(position03, 0);
+        dest.writeDouble(heightOne);
+        dest.writeDouble(heightTwo);
+        dest.writeDouble(heightThree);
         dest.writeParcelable(position01OnMap, 0);
         dest.writeParcelable(position02OnMap, 0);
         dest.writeParcelable(position03OnMap, 0);
@@ -142,6 +179,9 @@ public class MeasurementArc implements Parcelable
         position01 = in.readParcelable(LatLng.class.getClassLoader());
         position02 = in.readParcelable(LatLng.class.getClassLoader());
         position03 = in.readParcelable(LatLng.class.getClassLoader());
+        heightOne = in.readDouble();
+        heightTwo = in.readDouble();
+        heightThree = in.readDouble();
         position01OnMap = in.readParcelable(LatLng.class.getClassLoader());
         position02OnMap = in.readParcelable(LatLng.class.getClassLoader());
         position03OnMap = in.readParcelable(LatLng.class.getClassLoader());

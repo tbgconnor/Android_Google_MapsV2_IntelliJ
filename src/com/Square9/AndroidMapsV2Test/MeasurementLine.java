@@ -11,6 +11,8 @@ public class MeasurementLine implements Parcelable
 {
     private LatLng pointOne;
     private LatLng pointTwo;
+    private double heightOne;
+    private double heightTwo;
     // Google maps API bug: Map Objects postion read back does not equal the set position.
     // see: https://code.google.com/p/gmaps-api-issues/issues/detail?id=5353
     private LatLng linePositionOnMap01;
@@ -21,6 +23,8 @@ public class MeasurementLine implements Parcelable
     {
         this.pointOne = pointOne;
         this.pointTwo = pointTwo;
+        heightOne = 0.0;
+        heightTwo = 0.0;
         linePositionOnMap01 = posOnMap01;
         linePositionOnMap02 = posOnMap02;
     }
@@ -35,6 +39,22 @@ public class MeasurementLine implements Parcelable
 
     public LatLng getPointTwo() {
         return pointTwo;
+    }
+
+    public double getHeightOne() {
+        return heightOne;
+    }
+
+    public void setHeightOne(double heightOne) {
+        this.heightOne = heightOne;
+    }
+
+    public double getHeightTwo() {
+        return heightTwo;
+    }
+
+    public void setHeightTwo(double heightTwo) {
+        this.heightTwo = heightTwo;
     }
 
     public void setPointTwo(LatLng pointTwo) {
@@ -61,6 +81,8 @@ public class MeasurementLine implements Parcelable
     {
         pointOne = new LatLng(50.879668, 5.309296);
         pointTwo = new LatLng(50.879668, 5.309296);
+        heightOne = 0.0;
+        heightTwo = 0.0;
         linePositionOnMap01 = new LatLng(50.879668, 5.309296);
         linePositionOnMap02 = new LatLng(50.879668, 5.309296);
 
@@ -90,6 +112,8 @@ public class MeasurementLine implements Parcelable
     {
         dest.writeParcelable(pointOne, 0);
         dest.writeParcelable(pointTwo, 0);
+        dest.writeDouble(heightOne);
+        dest.writeDouble(heightTwo);
         dest.writeParcelable(linePositionOnMap01, 0);
         dest.writeParcelable(linePositionOnMap02, 0);
     }
@@ -98,6 +122,8 @@ public class MeasurementLine implements Parcelable
     {
         pointOne = in.readParcelable(LatLng.class.getClassLoader());
         pointTwo = in.readParcelable(LatLng.class.getClassLoader());
+        heightOne = in.readDouble();
+        heightTwo = in.readDouble();
         linePositionOnMap01 = in.readParcelable(LatLng.class.getClassLoader());
         linePositionOnMap02 = in.readParcelable(LatLng.class.getClassLoader());
     }

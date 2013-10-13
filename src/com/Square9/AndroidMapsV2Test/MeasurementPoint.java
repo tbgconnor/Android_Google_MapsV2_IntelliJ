@@ -16,6 +16,7 @@ public class MeasurementPoint implements Parcelable
 
     private String comment;
     private LatLng position;
+    private double height;
     private String photoFilePath;
     // Google maps API bug: marker postion read back does not equal the set position.
     // see: https://code.google.com/p/gmaps-api-issues/issues/detail?id=5353
@@ -28,6 +29,7 @@ public class MeasurementPoint implements Parcelable
     public MeasurementPoint(LatLng position)
     {
         this.position = position;
+        height = 0.0;
         comment = ""; //prevent null pointer errors on simple string object
         photoFilePath = "";
         markerPositionOnMap = position;
@@ -66,6 +68,22 @@ public class MeasurementPoint implements Parcelable
     public void setPosition(LatLng position)
     {
         this.position = position;
+    }
+
+    /**
+     * Getter for the measurement height
+     * @return the measurement height
+     */
+    public Double getHeight() {
+        return height;
+    }
+
+    /**
+     * Setter for the measurement height
+     * @param height the measurement height
+     */
+    public void setHeight(Double height) {
+        this.height = height;
     }
 
     /**
@@ -139,6 +157,7 @@ public class MeasurementPoint implements Parcelable
     {
         comment = "";
         position = new LatLng(50.879668, 5.309296);
+        height = 0.0;
         photoFilePath = "";
         markerPositionOnMap = new LatLng(50.879668, 5.309296);
         readFromParcel(in);
@@ -167,6 +186,7 @@ public class MeasurementPoint implements Parcelable
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(comment);
         dest.writeParcelable(position, 0);
+        dest.writeDouble(height);
         dest.writeString(photoFilePath);
         dest.writeParcelable(markerPositionOnMap, 0);
     }
@@ -175,6 +195,7 @@ public class MeasurementPoint implements Parcelable
     {
         comment = in.readString();
         position = in.readParcelable(LatLng.class.getClassLoader());
+        height = in.readDouble();
         photoFilePath = in.readString();
         markerPositionOnMap = in.readParcelable(LatLng.class.getClassLoader());
     }
