@@ -127,6 +127,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
         {
             this.setupGpsController();
         }
+        /*
         // Check the current enabled/disabled status of the GPS provider.
         if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
         {
@@ -163,6 +164,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
         {
             //pdGPSFix = ProgressDialog.show(MapTest.this, "GPS", "Waiting for GPS Fix");
         }
+        */
     }
 
     @Override
@@ -342,17 +344,17 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
                 }
                 else
                 {
-                     CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Line", "Select 2 measurement points to draw a Line!", new DialogInterface.OnClickListener() {
-                         @Override
-                         public void onClick(DialogInterface dialog, int which) {
-                             dialog.dismiss();
-                         }
-                     }, new DialogInterface.OnClickListener() {
-                         @Override
-                         public void onClick(DialogInterface dialog, int which) {
-                             dialog.dismiss();
-                         }
-                     });
+                    CustomAlertDialog selectionAlert = new CustomAlertDialog(MapTest.this, "Draw Line", "Select 2 measurement points to draw a Line!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
                     selectionAlert.showDialog();
                 }
                 return true;
@@ -474,11 +476,14 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
     {
         try
         {
-            //According to: http://developer.android.com/training/basics/location/locationmanager.html
+            // According to: http://developer.android.com/training/basics/location/locationmanager.html
+            // Acquire a reference to the system Location Manager
             locationManager = (LocationManager)  this.getSystemService(Context.LOCATION_SERVICE);
             locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
             locationManager.addGpsStatusListener(gpsStatusListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener);
+            // ENABLE TEST PROVIDER ?
+            locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
             gpsSetup = true;
         }
         catch(Exception exp)
@@ -530,8 +535,8 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             {
                 case(GpsStatus.GPS_EVENT_FIRST_FIX):
                     gpsFix = true;
-                   // pdGPSFix.dismiss();
-                   // pdGPSFix = null;
+                    // pdGPSFix.dismiss();
+                    // pdGPSFix = null;
                     break;
                 case(GpsStatus.GPS_EVENT_SATELLITE_STATUS):
                     break;
@@ -646,11 +651,11 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
      */
     private void showNewLayerSettingsDialog()
     {
-            ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", Color.RED, 3);
-            FragmentManager fm = getFragmentManager();
-            //TODO is ft needed ?
-            FragmentTransaction ft = fm.beginTransaction();
-            alsd.show(fm, "NEWLAYERSETTINGS");
+        ActiveLayerSettingsDialogFragment alsd = ActiveLayerSettingsDialogFragment.newInstance("Create a new layer:", "New Layer", Color.RED, 3);
+        FragmentManager fm = getFragmentManager();
+        //TODO is ft needed ?
+        FragmentTransaction ft = fm.beginTransaction();
+        alsd.show(fm, "NEWLAYERSETTINGS");
     }
 
     /**
@@ -758,7 +763,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
     {
         if(tag.equals("OPENFILE") && selectedFile != null)
         {
-           //start AsyncTask openFile
+            //start AsyncTask openFile
             ReadFromFile rff = new ReadFromFile(MapTest.this, MapTest.this);
             rff.execute(selectedFile);
             // MeanWhile
@@ -866,7 +871,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
         {
             if(getMapFragment().getNumberOfLinesInLayer(currentLayerName) > 0)
             {
-                   getMapFragment().onLineClicked(clickPosition, currentLayerName, currentLayerColor);
+                getMapFragment().onLineClicked(clickPosition, currentLayerName, currentLayerColor);
             }
             //Check for Arcs
             if( getMapFragment().getNumberOfArcsOnMapInLayer(currentLayerName) > 0)
@@ -950,7 +955,7 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
             int currentLineWidth = layer.getLineWidth();
             for(int pointIndex = 0; pointIndex < layer.getNumberOfMeasurementPoints(); pointIndex++)
             {
-               // Add the marker to the map
+                // Add the marker to the map
                 //Create a temp measurementPoint
                 MeasurementPoint mp = layer.getMeasurementPointByIndex(pointIndex);
                 //Add marker to the map
@@ -1061,4 +1066,3 @@ public class MapTest extends Activity implements IonDialogDoneListener, SaveToFi
 
 
 }
-

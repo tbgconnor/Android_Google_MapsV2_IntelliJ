@@ -80,7 +80,7 @@ public class MapCanvasFragment extends MapFragment
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle)
     {
-       View fragmentView = super.onCreateView(layoutInflater, viewGroup, bundle);
+        View fragmentView = super.onCreateView(layoutInflater, viewGroup, bundle);
         if(map == null)
         {
             map = getMap();
@@ -463,7 +463,7 @@ public class MapCanvasFragment extends MapFragment
         for(MeasurementLineOnMap lineOnMap : measurementLinesOnMap)
         {
             if(layerName.equals(lineOnMap.getLayerName()) && pos1OnMap.equals(lineOnMap.getLine().getPoints().get(0)) && pos2OnMap.equals(lineOnMap.getLine().getPoints().get(1))
-                || layerName.equals(lineOnMap.getLayerName()) && pos1OnMap.equals(lineOnMap.getLine().getPoints().get(1)) && pos2OnMap.equals(lineOnMap.getLine().getPoints().get(0)))
+                    || layerName.equals(lineOnMap.getLayerName()) && pos1OnMap.equals(lineOnMap.getLine().getPoints().get(1)) && pos2OnMap.equals(lineOnMap.getLine().getPoints().get(0)))
             {
                 //remove line from map
                 lineOnMap.getLine().remove();
@@ -727,7 +727,7 @@ public class MapCanvasFragment extends MapFragment
         return result;
     }
 
-     public void selectLineByIndex(String layerName, int color, int lineNumber)
+    public void selectLineByIndex(String layerName, int color, int lineNumber)
     {
         int lineNumberCounter = 0;
         for(int index = 0; index < measurementLinesOnMap.size(); index++)
@@ -1111,7 +1111,7 @@ public class MapCanvasFragment extends MapFragment
             }
             else
             {
-                    inconsistentEntryFound = true;
+                inconsistentEntryFound = true;
             }
         }
         selectedArcs.clear();
